@@ -3,13 +3,3 @@
 ::before {
   box-sizing: border-box;
 }
-
-body {
-  margin: 0;
-}
-
-.main-container {
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 10px;
-}
