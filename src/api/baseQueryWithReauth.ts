@@ -118,6 +118,6 @@ export const createBaseQueryWithReauth = ({
 };
 
 export const baseQueryWithReauth = createBaseQueryWithReauth({
-  baseUrl: import.meta.env.VITE_API_URL,
+  baseUrl: import.meta.env.VITE_API_URL || "/api",
   onSessionLost: () => window.location.assign("/login"),
 });
