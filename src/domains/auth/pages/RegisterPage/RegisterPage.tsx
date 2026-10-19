@@ -14,6 +14,7 @@ import PasswordStrengthChecklist from "../../../../components/ui/PasswordStrengt
 import AuthLayout from "../../components/AuthLayout/AuthLayout";
 import { useRegisterMutation } from "../../authApi";
 import { useFieldValidation } from "../../hooks/useFieldValidation";
+import { getFormErrorMessage } from "../../utils/getFormErrorMessage";
 import { parseApiError } from "../../utils/parseApiError";
 import { registerSchema } from "./registerSchema";
 import type { RegisterFormValues } from "./registerSchema";
@@ -62,7 +63,10 @@ const RegisterPage = () => {
     }
 
     setFormError(
-      apiError?.message ?? "No se pudo crear la cuenta. Inténtalo de nuevo.",
+      getFormErrorMessage(
+        result.error,
+        "No se pudo crear la cuenta. Inténtalo de nuevo.",
+      ),
     );
   };
 

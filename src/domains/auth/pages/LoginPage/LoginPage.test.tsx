@@ -159,4 +159,17 @@ describe("Given the login page", () => {
       );
     });
   });
+
+  describe("When the request cannot reach the server", () => {
+    it("Then a connection error is shown instead of a generic one", async () => {
+      server.use(http.post(loginUrl, () => HttpResponse.error()));
+      const actor = renderPage();
+
+      await fillAndSubmit(actor);
+
+      expect(await screen.findByRole("alert")).toHaveTextContent(
+        "No se pudo conectar con el servidor",
+      );
+    });
+  });
 });

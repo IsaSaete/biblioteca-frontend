@@ -11,7 +11,7 @@ import AuthLayout from "../../components/AuthLayout/AuthLayout";
 import { useLoginMutation } from "../../authApi";
 import { useFieldValidation } from "../../hooks/useFieldValidation";
 import { getRedirectPath } from "../../utils/getRedirectPath";
-import { parseApiError } from "../../utils/parseApiError";
+import { getFormErrorMessage } from "../../utils/getFormErrorMessage";
 import { loginSchema } from "./loginSchema";
 import type { LoginFormValues } from "./loginSchema";
 
@@ -45,8 +45,10 @@ const LoginPage = () => {
     // Credenciales incorrectas y exceso de intentos traen su mensaje del
     // backend; el de credenciales es genérico a propósito.
     setFormError(
-      parseApiError(result.error)?.message ??
+      getFormErrorMessage(
+        result.error,
         "No se pudo iniciar sesión. Inténtalo de nuevo.",
+      ),
     );
   };
 
