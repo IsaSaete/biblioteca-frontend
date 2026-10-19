@@ -25,6 +25,11 @@ export const authApi = createApi({
       query: () => "/auth/me",
       providesTags: ["Session"],
     }),
+    // El token del enlace del correo es de un solo uso: una segunda petición
+    // con el mismo token falla, así que el resultado se queda en caché.
+    verifyEmail: builder.query<void, string>({
+      query: (token) => ({ url: "/auth/verify-email", params: { token } }),
+    }),
     forgotPassword: builder.mutation<void, ForgotPasswordRequest>({
       query: (body) => ({ url: "/auth/forgot-password", method: "POST", body }),
     }),
@@ -51,6 +56,7 @@ export const {
   useLoginMutation,
   useMeQuery,
   useLogoutMutation,
+  useVerifyEmailQuery,
   useForgotPasswordMutation,
   useResetPasswordMutation,
 } = authApi;
