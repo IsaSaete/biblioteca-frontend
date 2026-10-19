@@ -26,6 +26,9 @@ const theme = createTheme({
     fontFamily: '"Inter", system-ui, sans-serif',
     fontWeightRegular: 400,
     fontWeightMedium: 500,
+    // Tamaño del logotipo (3rem). Pendiente de revisar frente a la escala de
+    // sistema-diseno-visual.md: ver bitácora.
+    h3: { fontSize: "3rem", fontWeight: 500, lineHeight: 1.3 },
     h6: { fontSize: "1.1875rem", fontWeight: 500, lineHeight: 1.3 },
     subtitle1: { fontSize: "1rem", lineHeight: 1.5 },
     body1: { fontSize: "0.875rem", lineHeight: 1.5 },
