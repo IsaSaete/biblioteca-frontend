@@ -8,6 +8,7 @@ import { useTheme } from "@mui/material/styles";
 interface FullScreenModalProps {
   titleId: string;
   onClose?: () => void;
+  onBack?: () => void;
   children: ReactNode;
 }
 
@@ -18,6 +19,7 @@ interface FullScreenModalProps {
 const FullScreenModal = ({
   titleId,
   onClose,
+  onBack,
   children,
 }: FullScreenModalProps) => {
   const theme = useTheme();
@@ -44,6 +46,15 @@ const FullScreenModal = ({
           sx={{ position: "absolute", top: 8, right: 8, width: 44, height: 44 }}
         >
           <span aria-hidden="true">✕</span>
+        </IconButton>
+      )}
+      {onBack && (
+        <IconButton
+          aria-label="Volver"
+          onClick={onBack}
+          sx={{ position: "absolute", top: 8, left: 8, width: 44, height: 44 }}
+        >
+          <span aria-hidden="true">←</span>
         </IconButton>
       )}
       <DialogContent sx={{ px: 4, py: 8 }}>{children}</DialogContent>
