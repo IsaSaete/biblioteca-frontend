@@ -1,0 +1,35 @@
+import type { ReactNode } from "react";
+
+interface NavIconProps {
+  children: ReactNode;
+}
+
+const NavIcon = ({ children }: NavIconProps) => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    {children}
+  </svg>
+);
+
+export const LibraryIcon = () => (
+  <NavIcon>
+    <path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z" />
+    <path d="M4 19.5A2 2 0 0 0 6 21.5h13" />
+  </NavIcon>
+);
+
+export const ProfileIcon = () => (
+  <NavIcon>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 21a8 8 0 0 1 16 0" />
+  </NavIcon>
+);
