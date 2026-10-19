@@ -1,8 +1,10 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "../../api/baseQueryWithReauth";
+import type { ForgotPasswordRequest } from "./dto/ForgotPasswordRequest";
 import type { LoginRequest } from "./dto/LoginRequest";
 import type { RegisterRequest } from "./dto/RegisterRequest";
 import type { RegisterResponse } from "./dto/RegisterResponse";
+import type { ResetPasswordRequest } from "./dto/ResetPasswordRequest";
 import type { SessionResponse } from "./dto/SessionResponse";
 
 export const authApi = createApi({
@@ -22,6 +24,12 @@ export const authApi = createApi({
     me: builder.query<SessionResponse, void>({
       query: () => "/auth/me",
       providesTags: ["Session"],
+    }),
+    forgotPassword: builder.mutation<void, ForgotPasswordRequest>({
+      query: (body) => ({ url: "/auth/forgot-password", method: "POST", body }),
+    }),
+    resetPassword: builder.mutation<void, ResetPasswordRequest>({
+      query: (body) => ({ url: "/auth/reset-password", method: "POST", body }),
     }),
     logout: builder.mutation<void, void>({
       query: () => ({ url: "/auth/logout", method: "POST" }),
@@ -43,4 +51,6 @@ export const {
   useLoginMutation,
   useMeQuery,
   useLogoutMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
 } = authApi;

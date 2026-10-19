@@ -35,4 +35,23 @@ describe("Given a full screen modal", () => {
       expect(onClose).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe("When it has a back handler and the user presses the back button", () => {
+    it("Then the handler is called and there is no close button", async () => {
+      const onBack = vi.fn();
+      const user = userEvent.setup();
+      render(
+        <FullScreenModal titleId="title" onBack={onBack}>
+          <h1 id="title">Título</h1>
+        </FullScreenModal>,
+      );
+
+      await user.click(screen.getByRole("button", { name: "Volver" }));
+
+      expect(onBack).toHaveBeenCalledTimes(1);
+      expect(
+        screen.queryByRole("button", { name: "Cerrar" }),
+      ).not.toBeInTheDocument();
+    });
+  });
 });

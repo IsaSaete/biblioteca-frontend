@@ -33,6 +33,12 @@ const LoginPage = () => {
   } = form;
   const validationHandlers = useFieldValidation(form);
 
+  const wasPasswordReset =
+    typeof location.state === "object" &&
+    location.state !== null &&
+    "passwordReset" in location.state &&
+    location.state.passwordReset === true;
+
   const onSubmit = async (values: LoginFormValues) => {
     setFormError(null);
     const result = await login(values);
@@ -71,6 +77,11 @@ const LoginPage = () => {
         onSubmit={handleSubmit(onSubmit)}
         sx={{ display: "grid", gap: 5 }}
       >
+        {wasPasswordReset && (
+          <Alert severity="success">
+            Contraseña actualizada. Inicia sesión con la nueva.
+          </Alert>
+        )}
         {formError && <Alert severity="error">{formError}</Alert>}
 
         <FloatingLabelInput
@@ -89,6 +100,11 @@ const LoginPage = () => {
           helperText={errors.password?.message}
           {...field("password", validationHandlers("password"))}
         />
+        <Box sx={{ textAlign: "right", mt: -3 }}>
+          <Link component={RouterLink} to="/forgot-password">
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </Box>
 
         <Button type="submit" fullWidth disabled={isLoading}>
           Iniciar sesión
