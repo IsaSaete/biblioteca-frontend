@@ -19,11 +19,11 @@ const renderAt = (path: string) => {
 
 describe("Given a URL that does not match any route", () => {
   describe("When the user opens it", () => {
-    it("Then the not found page is shown", () => {
+    it("Then the not found page is shown", async () => {
       renderAt("/does-not-exist");
 
       expect(
-        screen.getByRole("heading", { name: "Página 404 de 403" }),
+        await screen.findByRole("heading", { name: "Página 404 de 403" }),
       ).toBeInTheDocument();
     });
   });
@@ -33,7 +33,7 @@ describe("Given a URL that does not match any route", () => {
       const user = renderAt("/does-not-exist");
 
       await user.click(
-        screen.getByRole("button", { name: "Volver al inicio" }),
+        await screen.findByRole("button", { name: "Volver al inicio" }),
       );
 
       expect(screen.getByText("Inicio")).toBeInTheDocument();
