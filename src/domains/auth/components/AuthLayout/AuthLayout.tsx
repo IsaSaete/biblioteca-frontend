@@ -7,20 +7,27 @@ import AuthFormHeader from "../AuthFormHeader/AuthFormHeader";
 interface AuthLayoutProps {
   title: string;
   subtitle: string;
-  footer: ReactNode;
+  footer?: ReactNode;
+  onBack?: () => void;
   children: ReactNode;
 }
 
 const titleId = "auth-title";
 
-const AuthLayout = ({ title, subtitle, footer, children }: AuthLayoutProps) => (
-  <FullScreenModal titleId={titleId}>
+const AuthLayout = ({
+  title,
+  subtitle,
+  footer,
+  onBack,
+  children,
+}: AuthLayoutProps) => (
+  <FullScreenModal titleId={titleId} onBack={onBack}>
     <Box sx={{ mb: 8 }}>
       <Logo />
     </Box>
     <AuthFormHeader titleId={titleId} title={title} subtitle={subtitle} />
     {children}
-    <Box sx={{ mt: 6, textAlign: "center" }}>{footer}</Box>
+    {footer && <Box sx={{ mt: 6, textAlign: "center" }}>{footer}</Box>}
   </FullScreenModal>
 );
 
