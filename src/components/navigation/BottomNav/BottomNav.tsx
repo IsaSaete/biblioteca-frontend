@@ -1,0 +1,34 @@
+import Box from "@mui/material/Box";
+import NavItemLink from "../NavItemLink/NavItemLink";
+import type { NavItem } from "../navItems";
+
+interface BottomNavProps {
+  items: NavItem[];
+}
+
+export const BOTTOM_NAV_HEIGHT = 56;
+
+const BottomNav = ({ items }: BottomNavProps) => (
+  <Box
+    component="nav"
+    aria-label="Navegación principal"
+    sx={{
+      position: "fixed",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      zIndex: "appBar",
+      display: "flex",
+      bgcolor: "background.paper",
+      borderTop: 1,
+      borderColor: "divider",
+      pb: "env(safe-area-inset-bottom)",
+    }}
+  >
+    {items.map((item) => (
+      <NavItemLink key={item.id} item={item} placement="bottom" />
+    ))}
+  </Box>
+);
+
+export default BottomNav;

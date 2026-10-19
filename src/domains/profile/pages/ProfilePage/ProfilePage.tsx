@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { Link as RouterLink, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import Alert from "@mui/material/Alert";
+import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
-import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import { useLogoutMutation, useMeQuery } from "../../../auth/authApi";
+import { getInitials } from "../../utils/getInitials";
 
-// Provisional: solo lo que ya está implementado (cuenta y cerrar sesión, HU-40).
-// El resto de opciones del Perfil se añade cuando existan.
+// Solo lo que ya está implementado: cuenta y cerrar sesión (HU-40). Preferencias,
+// privacidad y eliminar cuenta se añaden cuando existan.
 const ProfilePage = () => {
   const navigate = useNavigate();
   const { data } = useMeQuery();
@@ -29,13 +30,29 @@ const ProfilePage = () => {
   return (
     <Box
       component="main"
-      sx={{ maxWidth: 480, mx: "auto", px: 4, py: 8, display: "grid", gap: 4 }}
+      sx={{ maxWidth: 480, mx: "auto", px: 4, py: 8, display: "grid", gap: 6 }}
     >
-      <Box>
-        <Typography variant="h6" component="h1">
-          {data?.user.name}
-        </Typography>
-        <Typography color="text.secondary">{data?.user.email}</Typography>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
+        <Avatar
+          aria-hidden="true"
+          sx={{
+            width: 56,
+            height: 56,
+            bgcolor: "secondary.main",
+            color: "secondary.contrastText",
+            fontWeight: 500,
+          }}
+        >
+          {data ? getInitials(data.user.name) : ""}
+        </Avatar>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography variant="h6" component="h1" noWrap>
+            {data?.user.name}
+          </Typography>
+          <Typography color="text.secondary" noWrap>
+            {data?.user.email}
+          </Typography>
+        </Box>
       </Box>
 
       {hasFailed && (
@@ -47,10 +64,6 @@ const ProfilePage = () => {
       <Button variant="text" onClick={handleLogout} disabled={isLoading}>
         Cerrar sesión
       </Button>
-
-      <Link component={RouterLink} to="/library">
-        Biblioteca
-      </Link>
     </Box>
   );
 };
