@@ -23,14 +23,15 @@ const NotFoundPage = () => {
         gap: 2,
       }}
     >
-      <Typography variant="h6" component="p" color="primary">
+      <Typography variant="h3" component="p" color="primary">
         Glosa
       </Typography>
       <Typography variant="h6" component="h1">
-        Página no encontrada
+        Página 404 de 403
       </Typography>
       <Typography color="text.secondary" sx={{ mb: 6 }}>
-        La página que buscas no existe o se ha movido.
+        Este libro se acaba antes. La página que buscas no está en ninguna
+        edición.
       </Typography>
       <Button onClick={() => navigate("/")}>Volver al inicio</Button>
     </Box>

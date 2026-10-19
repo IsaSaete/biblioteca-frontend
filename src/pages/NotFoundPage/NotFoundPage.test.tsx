@@ -23,7 +23,7 @@ describe("Given a URL that does not match any route", () => {
       renderAt("/does-not-exist");
 
       expect(
-        screen.getByRole("heading", { name: "Página no encontrada" }),
+        screen.getByRole("heading", { name: "Página 404 de 403" }),
       ).toBeInTheDocument();
     });
   });
