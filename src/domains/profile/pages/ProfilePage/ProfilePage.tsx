@@ -6,10 +6,11 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import { useLogoutMutation, useMeQuery } from "../../../auth/authApi";
+import ThemeSelector from "../../components/ThemeSelector/ThemeSelector";
 import { getInitials } from "../../utils/getInitials";
 
-// Solo lo que ya está implementado: cuenta y cerrar sesión (HU-40). Preferencias,
-// privacidad y eliminar cuenta se añaden cuando existan.
+// Solo lo que ya está implementado: tema, cuenta y cerrar sesión (HU-40). La vista
+// de biblioteca, privacidad y eliminar cuenta se añaden cuando existan.
 const ProfilePage = () => {
   const navigate = useNavigate();
   const { data } = useMeQuery();
@@ -53,6 +54,19 @@ const ProfilePage = () => {
             {data?.user.email}
           </Typography>
         </Box>
+      </Box>
+
+      <Box component="section" aria-labelledby="preferences-title">
+        <Typography
+          id="preferences-title"
+          component="h2"
+          variant="caption"
+          color="text.secondary"
+          sx={{ px: 2, display: "block" }}
+        >
+          Preferencias
+        </Typography>
+        <ThemeSelector />
       </Box>
 
       {hasFailed && (

@@ -2,7 +2,7 @@ import { createTheme } from "@mui/material/styles";
 
 // Tokens de sistema-diseno-visual.md traducidos a MUI (arquitectura-tecnica.md).
 const theme = createTheme({
-  cssVariables: { colorSchemeSelector: "media" },
+  cssVariables: { colorSchemeSelector: "data" },
   colorSchemes: {
     light: {
       palette: {
