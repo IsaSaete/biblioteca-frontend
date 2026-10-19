@@ -1,1 +1,4 @@
+# La API se sirve bajo el mismo dominio que el frontend (proxy): las cookies de
+# sesión son de primera parte y el navegador no las bloquea como de terceros.
+/api/*  https://glosa-backend-sjcu.onrender.com/:splat  200
 /*  /index.html  200

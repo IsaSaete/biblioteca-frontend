@@ -3,7 +3,7 @@ import { http, HttpResponse } from "msw";
 import { server } from "../test/server";
 import { createBaseQueryWithReauth } from "./baseQueryWithReauth";
 
-const baseUrl = import.meta.env.VITE_API_URL;
+const baseUrl = import.meta.env.VITE_API_URL ?? "";
 const unauthenticated = () =>
   HttpResponse.json(
     { error: { code: "AUTH_UNAUTHENTICATED", message: "Sin sesión" } },
