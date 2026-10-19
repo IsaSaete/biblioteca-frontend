@@ -15,6 +15,14 @@ export const routes = [
   { path: "/login", element: <LoginPage /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/forgot-password", element: <ForgotPasswordPage /> },
+  {
+    path: "/verify-email",
+    lazy: async () => ({
+      Component: (
+        await import("../domains/auth/pages/VerifyEmailPage/VerifyEmailPage")
+      ).default,
+    }),
+  },
   { path: "/reset-password", element: <ResetPasswordPage /> },
   {
     element: <RequireAuth />,
