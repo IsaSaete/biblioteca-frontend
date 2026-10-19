@@ -1,0 +1,38 @@
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import FullScreenModal from "./FullScreenModal";
+
+describe("Given a full screen modal", () => {
+  describe("When it has no close handler", () => {
+    it("Then it is a labelled dialog without a close button", () => {
+      render(
+        <FullScreenModal titleId="title">
+          <h1 id="title">Título</h1>
+        </FullScreenModal>,
+      );
+
+      expect(
+        screen.getByRole("dialog", { name: "Título" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Cerrar" }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("When it has a close handler and the user presses the close button", () => {
+    it("Then the handler is called", async () => {
+      const onClose = vi.fn();
+      const user = userEvent.setup();
+      render(
+        <FullScreenModal titleId="title" onClose={onClose}>
+          <h1 id="title">Título</h1>
+        </FullScreenModal>,
+      );
+
+      await user.click(screen.getByRole("button", { name: "Cerrar" }));
+
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+  });
+});

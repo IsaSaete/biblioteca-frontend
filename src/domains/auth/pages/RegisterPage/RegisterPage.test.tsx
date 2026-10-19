@@ -1,32 +1,21 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { Provider } from "react-redux";
-import { createMemoryRouter, RouterProvider } from "react-router";
 import { server } from "../../../../test/server";
-import { createStore } from "../../../../store/store";
+import { renderRoutes } from "../../../../test/renderRoutes";
 import RegisterPage from "./RegisterPage";
 
 const registerUrl = `${import.meta.env.VITE_API_URL}/auth/register`;
 const validPassword = "Secreta1!";
 
-const renderPage = () => {
-  const router = createMemoryRouter(
+const renderPage = () =>
+  renderRoutes(
     [
       { path: "/register", element: <RegisterPage /> },
-      { path: "/onboarding", element: <p>Onboarding</p> },
+      { path: "/library", element: <p>Biblioteca</p> },
     ],
-    { initialEntries: ["/register"] },
-  );
-
-  render(
-    <Provider store={createStore()}>
-      <RouterProvider router={router} />
-    </Provider>,
-  );
-
-  return userEvent.setup();
-};
+    ["/register"],
+  ).user;
 
 const fillForm = async (
   user: ReturnType<typeof userEvent.setup>,
@@ -179,7 +168,7 @@ describe("Given the register page", () => {
   });
 
   describe("When the user submits valid data and the API creates the account", () => {
-    it("Then the data is sent as in the contract and the user goes to onboarding", async () => {
+    it("Then the data is sent as in the contract and the user goes to the library", async () => {
       let body: unknown;
       server.use(
         http.post(registerUrl, async ({ request }) => {
@@ -195,7 +184,7 @@ describe("Given the register page", () => {
 
       await submit(user);
 
-      expect(await screen.findByText("Onboarding")).toBeInTheDocument();
+      expect(await screen.findByText("Biblioteca")).toBeInTheDocument();
       expect(body).toEqual({
         name: "Isa",
         email: "isa@example.com",
