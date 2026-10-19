@@ -32,15 +32,27 @@ const fillAndSubmit = async (actor: ReturnType<typeof userEvent.setup>) => {
 
 describe("Given the login page", () => {
   describe("When it is shown", () => {
-    it("Then it offers to register and does not offer unimplemented options", () => {
+    it("Then it offers to register and to recover the password, and nothing unimplemented", () => {
       renderPage();
 
       expect(screen.getByRole("link", { name: "Regístrate" })).toHaveAttribute(
         "href",
         "/register",
       );
-      expect(screen.queryByText(/olvidaste/i)).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: "¿Olvidaste tu contraseña?" }),
+      ).toHaveAttribute("href", "/forgot-password");
       expect(screen.queryByText(/google/i)).not.toBeInTheDocument();
+    });
+  });
+
+  describe("When the user comes from resetting the password", () => {
+    it("Then a confirmation message is shown", () => {
+      renderPage({ pathname: "/login", state: { passwordReset: true } });
+
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Contraseña actualizada",
+      );
     });
   });
 

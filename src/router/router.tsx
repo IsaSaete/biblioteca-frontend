@@ -1,6 +1,8 @@
 import { createBrowserRouter, Navigate } from "react-router";
 import LoginPage from "../domains/auth/pages/LoginPage/LoginPage";
+import ForgotPasswordPage from "../domains/auth/pages/ForgotPasswordPage/ForgotPasswordPage";
 import RegisterPage from "../domains/auth/pages/RegisterPage/RegisterPage";
+import ResetPasswordPage from "../domains/auth/pages/ResetPasswordPage/ResetPasswordPage";
 import LibraryPage from "../domains/books/pages/LibraryPage/LibraryPage";
 import ProfilePage from "../domains/profile/pages/ProfilePage/ProfilePage";
 import RequireAuth from "./RequireAuth/RequireAuth";
@@ -11,6 +13,8 @@ export const routes = [
   { path: "/", element: <Navigate to="/library" replace /> },
   { path: "/login", element: <LoginPage /> },
   { path: "/register", element: <RegisterPage /> },
+  { path: "/forgot-password", element: <ForgotPasswordPage /> },
+  { path: "/reset-password", element: <ResetPasswordPage /> },
   {
     element: <RequireAuth />,
     children: [
