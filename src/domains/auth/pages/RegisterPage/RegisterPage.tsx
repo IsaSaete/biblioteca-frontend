@@ -7,7 +7,7 @@ import Box from "@mui/material/Box";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormHelperText from "@mui/material/FormHelperText";
-import Typography from "@mui/material/Typography";
+import Logo from "../../../../components/ui/Logo/Logo";
 import Button from "../../../../components/ui/Button/Button";
 import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
 import PasswordStrengthChecklist from "../../../../components/ui/PasswordStrengthChecklist/PasswordStrengthChecklist";
@@ -86,15 +86,9 @@ const RegisterPage = () => {
       component="main"
       sx={{ maxWidth: 480, mx: "auto", px: 4, py: 8, minHeight: "100vh" }}
     >
-      <Typography
-        variant="h2"
-        component="p"
-        align="center"
-        color="primary"
-        sx={{ mb: 8 }}
-      >
-        Glosa
-      </Typography>
+      <Box sx={{ mb: 8 }}>
+        <Logo />
+      </Box>
       <AuthFormHeader title="Bienvenido" subtitle="Regístrate para continuar" />
 
       <Box
