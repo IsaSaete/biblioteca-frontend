@@ -54,4 +54,28 @@ describe("Given a full screen modal", () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  describe("When it has both a back and a close handler", () => {
+    it("Then both buttons are in a header above the content, back first", () => {
+      render(
+        <FullScreenModal titleId="title" onBack={vi.fn()} onClose={vi.fn()}>
+          <h1 id="title">Título</h1>
+        </FullScreenModal>,
+      );
+
+      const back = screen.getByRole("button", { name: "Volver" });
+      const close = screen.getByRole("button", { name: "Cerrar" });
+      const heading = screen.getByRole("heading", { name: "Título" });
+
+      expect(
+        back.compareDocumentPosition(close) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+      expect(
+        close.compareDocumentPosition(heading) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+      expect(getComputedStyle(back).position).not.toBe("absolute");
+      expect(getComputedStyle(close).position).not.toBe("absolute");
+    });
+  });
 });

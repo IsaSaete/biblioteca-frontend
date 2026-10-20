@@ -9,6 +9,7 @@ import Accordion from "../../../../components/ui/Accordion/Accordion";
 import Button from "../../../../components/ui/Button/Button";
 import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
 import Pill from "../../../../components/ui/Pill/Pill";
+import type { PillTone } from "../../../../components/ui/Pill/Pill";
 import { parseApiError } from "../../../auth/utils/parseApiError";
 import { getFormErrorMessage } from "../../../auth/utils/getFormErrorMessage";
 import { useFieldValidation } from "../../../auth/hooks/useFieldValidation";
@@ -28,10 +29,10 @@ interface ConfirmBookStepProps {
   onSaved: () => void;
 }
 
-const statusOptions: { value: BookStatus; label: string }[] = [
-  { value: "pending", label: "Pendiente" },
-  { value: "reading", label: "Leyendo" },
-  { value: "read", label: "Leído" },
+const statusOptions: { value: BookStatus; label: string; tone: PillTone }[] = [
+  { value: "pending", label: "Pendiente", tone: "neutral" },
+  { value: "reading", label: "Leyendo", tone: "accent" },
+  { value: "read", label: "Leído", tone: "success" },
 ];
 
 const detailFields = ["publishedYear", "language", "pageCount"] as const;
@@ -209,12 +210,14 @@ const ConfirmBookStep = ({
       <Box
         role="group"
         aria-label="Estado de lectura"
-        sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}
+        sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2 }}
       >
-        {statusOptions.map(({ value, label }) => (
+        {statusOptions.map(({ value, label, tone }) => (
           <Pill
             key={value}
             label={label}
+            tone={tone}
+            fullWidth
             selected={status === value}
             onClick={() => setStatus(value)}
           />
