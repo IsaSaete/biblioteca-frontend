@@ -22,7 +22,7 @@ const AuthLayout = ({
   children,
 }: AuthLayoutProps) => (
   <FullScreenModal titleId={titleId} onBack={onBack}>
-    <Box sx={{ mb: 8 }}>
+    <Box sx={{ mb: 5 }}>
       <Logo />
     </Box>
     <AuthFormHeader titleId={titleId} title={title} subtitle={subtitle} />
