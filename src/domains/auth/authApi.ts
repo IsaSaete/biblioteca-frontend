@@ -50,17 +50,11 @@ export const authApi = createApi({
         );
       },
     }),
+    // La caché se vacía al entrar en el login (ver LoginPage): vaciarla con la
+    // página anterior montada hace que `useMeQuery` vuelva a pedir /auth/me al
+    // instante, sin sesión.
     logout: builder.mutation<void, void>({
       query: () => ({ url: "/auth/logout", method: "POST" }),
-      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-        try {
-          await queryFulfilled;
-          dispatch(authApi.util.resetApiState());
-        } catch {
-          // Si el logout falla se conserva la sesión en pantalla; el error
-          // llega al componente por el estado de la mutación.
-        }
-      },
     }),
   }),
 });
