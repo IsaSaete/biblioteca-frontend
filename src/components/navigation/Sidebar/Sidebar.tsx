@@ -1,5 +1,6 @@
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
+import BookmarkButton from "../BookmarkButton/BookmarkButton";
 import NavItemLink from "../NavItemLink/NavItemLink";
 import type { NavItem } from "../navItems";
 
@@ -28,8 +29,16 @@ const Sidebar = ({ items }: SidebarProps) => (
     <Box
       component="nav"
       aria-label="Navegación principal"
-      sx={{ display: "flex", flexDirection: "column", gap: 2, py: 6, px: 2 }}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "stretch",
+        gap: 2,
+        py: 6,
+        px: 2,
+      }}
     >
+      <BookmarkButton />
       {items.map((item) => (
         <NavItemLink key={item.id} item={item} placement="side" />
       ))}
