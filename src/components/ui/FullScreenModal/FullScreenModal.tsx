@@ -69,7 +69,7 @@ const FullScreenModal = ({
           </svg>
         </IconButton>
       )}
-      <DialogContent sx={{ px: 4, py: 8 }}>{children}</DialogContent>
+      <DialogContent sx={{ px: 4, py: 6 }}>{children}</DialogContent>
     </Dialog>
   );
 };

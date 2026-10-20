@@ -3,19 +3,12 @@ import {
   isPasswordValid,
   passwordRequirements,
 } from "../../../domains/auth/utils/passwordRequirements";
+import { visuallyHidden } from "../../../utils/visuallyHidden";
 
 interface PasswordStrengthChecklistProps {
   password: string;
   isVisible: boolean;
 }
-
-const visuallyHidden = {
-  position: "absolute",
-  width: 1,
-  height: 1,
-  overflow: "hidden",
-  clip: "rect(0 0 0 0)",
-} as const;
 
 const PasswordStrengthChecklist = ({
   password,

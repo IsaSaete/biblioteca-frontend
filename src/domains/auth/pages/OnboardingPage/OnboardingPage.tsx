@@ -7,17 +7,10 @@ import Button from "../../../../components/ui/Button/Button";
 import FullScreenModal from "../../../../components/ui/FullScreenModal/FullScreenModal";
 import { useCompleteOnboardingMutation, useMeQuery } from "../../authApi";
 import { onboardingSteps } from "./onboardingSteps";
+import { visuallyHidden } from "../../../../utils/visuallyHidden";
 
 const titleId = "onboarding-title";
 const SWIPE_THRESHOLD_PX = 50;
-
-const visuallyHidden = {
-  position: "absolute",
-  width: 1,
-  height: 1,
-  overflow: "hidden",
-  clip: "rect(0 0 0 0)",
-} as const;
 
 // Tour de 3 pasos, siempre saltable. Completarlo o saltarlo lleva al mismo
 // sitio y cuenta igual: se marca como visto una sola vez por cuenta (D-016).
@@ -83,12 +76,15 @@ const OnboardingPage = () => {
           textAlign: "center",
           py: 8,
           minHeight: 280,
+          // Móvil en horizontal: se compacta para que quepa sin desplazarse.
+          "@media (max-height: 480px)": { py: 2, minHeight: 0 },
         }}
       >
         <Box
           sx={{
             width: 72,
             height: 72,
+            "@media (max-height: 480px)": { width: 48, height: 48 },
             borderRadius: "50%",
             display: "grid",
             placeItems: "center",
