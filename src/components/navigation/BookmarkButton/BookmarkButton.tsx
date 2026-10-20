@@ -1,22 +1,15 @@
 import ButtonBase from "@mui/material/ButtonBase";
-import { useSearchParams } from "react-router";
-import { ADD_BOOK_MODAL } from "../addBookModal";
+import { useOpenAddBookModal } from "../useOpenAddBookModal";
 
 // El botón central con forma de marcapáginas: siempre significa «añadir libro».
 // Abre el flujo como modal sobre la pantalla actual (`?modal=add-book`).
 const BookmarkButton = () => {
-  const [, setSearchParams] = useSearchParams();
+  const openAddBook = useOpenAddBookModal();
 
   return (
     <ButtonBase
       aria-label="Añadir libro"
-      onClick={() =>
-        setSearchParams((params) => {
-          const next = new URLSearchParams(params);
-          next.set("modal", ADD_BOOK_MODAL);
-          return next;
-        })
-      }
+      onClick={openAddBook}
       sx={{ minWidth: 44, minHeight: 56, px: 3, color: "primary.contrastText" }}
     >
       <svg
