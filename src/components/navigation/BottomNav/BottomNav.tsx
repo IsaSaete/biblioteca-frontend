@@ -1,4 +1,6 @@
+import { Fragment } from "react";
 import Box from "@mui/material/Box";
+import BookmarkButton from "../BookmarkButton/BookmarkButton";
 import NavItemLink from "../NavItemLink/NavItemLink";
 import type { NavItem } from "../navItems";
 
@@ -25,8 +27,11 @@ const BottomNav = ({ items }: BottomNavProps) => (
       pb: "env(safe-area-inset-bottom)",
     }}
   >
-    {items.map((item) => (
-      <NavItemLink key={item.id} item={item} placement="bottom" />
+    {items.map((item, index) => (
+      <Fragment key={item.id}>
+        {index === Math.ceil(items.length / 2) && <BookmarkButton />}
+        <NavItemLink item={item} placement="bottom" />
+      </Fragment>
     ))}
   </Box>
 );
