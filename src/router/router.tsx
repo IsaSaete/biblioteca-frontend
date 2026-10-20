@@ -28,6 +28,14 @@ export const routes = [
     element: <RequireAuth />,
     children: [
       {
+        path: "/onboarding",
+        lazy: async () => ({
+          Component: (
+            await import("../domains/auth/pages/OnboardingPage/OnboardingPage")
+          ).default,
+        }),
+      },
+      {
         element: <AppLayout />,
         children: [
           { path: "/library", element: <LibraryPage /> },
