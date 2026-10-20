@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router";
@@ -8,7 +9,7 @@ import Link from "@mui/material/Link";
 import Button from "../../../../components/ui/Button/Button";
 import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
 import AuthLayout from "../../components/AuthLayout/AuthLayout";
-import { useLoginMutation } from "../../authApi";
+import { authApi, useLoginMutation } from "../../authApi";
 import { useFieldValidation } from "../../hooks/useFieldValidation";
 import { getRedirectPath } from "../../utils/getRedirectPath";
 import { getFormErrorMessage } from "../../utils/getFormErrorMessage";
@@ -18,6 +19,7 @@ import type { LoginFormValues } from "./loginSchema";
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -32,6 +34,12 @@ const LoginPage = () => {
     formState: { errors },
   } = form;
   const validationHandlers = useFieldValidation(form);
+
+  // Llegar al login significa que no hay sesión (se cerró o caducó): se descarta
+  // lo que hubiera en caché ligado a ella.
+  useEffect(() => {
+    dispatch(authApi.util.resetApiState());
+  }, [dispatch]);
 
   const wasPasswordReset =
     typeof location.state === "object" &&

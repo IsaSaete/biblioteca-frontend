@@ -8,14 +8,15 @@ import { createStore } from "../store/store";
 export const renderRoutes = (
   routes: RouteObject[],
   initialEntries: string[],
+  store = createStore(),
 ) => {
   const router = createMemoryRouter(routes, { initialEntries });
 
   render(
-    <Provider store={createStore()}>
+    <Provider store={store}>
       <RouterProvider router={router} />
     </Provider>,
   );
 
-  return { user: userEvent.setup(), router };
+  return { user: userEvent.setup(), router, store };
 };

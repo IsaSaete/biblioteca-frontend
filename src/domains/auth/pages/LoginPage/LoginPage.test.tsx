@@ -1,6 +1,8 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
+import { authApi } from "../../authApi";
+import { createStore } from "../../../../store/store";
 import { renderRoutes } from "../../../../test/renderRoutes";
 import { server } from "../../../../test/server";
 import LoginPage from "./LoginPage";
@@ -182,6 +184,30 @@ describe("Given the login page", () => {
       expect(await screen.findByRole("alert")).toHaveTextContent(
         "No se pudo conectar con el servidor",
       );
+    });
+  });
+
+  describe("When the user arrives at login with a session still cached", () => {
+    it("Then the cached session data is discarded", async () => {
+      const store = createStore();
+      await store.dispatch(
+        authApi.util.upsertQueryData("me", undefined, {
+          user: { id: "1", name: "Isa", email: "isa@example.com" },
+        }),
+      );
+
+      const cachedBefore = authApi.endpoints.me.select()(store.getState()).data;
+
+      renderRoutes(
+        [{ path: "/login", element: <LoginPage /> }],
+        ["/login"],
+        store,
+      );
+
+      expect(cachedBefore).toBeDefined();
+      expect(
+        authApi.endpoints.me.select()(store.getState()).data,
+      ).toBeUndefined();
     });
   });
 });
