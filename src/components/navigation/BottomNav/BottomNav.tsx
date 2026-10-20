@@ -29,7 +29,9 @@ const BottomNav = ({ items }: BottomNavProps) => (
   >
     {items.map((item, index) => (
       <Fragment key={item.id}>
-        {index === Math.ceil(items.length / 2) && <BookmarkButton />}
+        {index === Math.ceil(items.length / 2) && (
+          <BookmarkButton placement="bottom" />
+        )}
         <NavItemLink item={item} placement="bottom" />
       </Fragment>
     ))}
