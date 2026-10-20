@@ -8,7 +8,7 @@ interface AuthFormHeaderProps {
 }
 
 const AuthFormHeader = ({ titleId, title, subtitle }: AuthFormHeaderProps) => (
-  <Box sx={{ textAlign: "center", mb: 6 }}>
+  <Box sx={{ textAlign: "center", mb: 5 }}>
     <Typography id={titleId} variant="h6" component="h1">
       {title}
     </Typography>
