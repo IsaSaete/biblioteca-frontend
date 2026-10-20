@@ -293,4 +293,107 @@ describe("Given the add book flow", () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  describe("When the user searches by title or author", () => {
+    const openSearchStep = async (
+      user: ReturnType<typeof renderRoutes>["user"],
+    ) => {
+      await user.click(screen.getByRole("button", { name: "Añadir libro" }));
+      await user.click(
+        screen.getByRole("button", { name: "Buscar por título o autor" }),
+      );
+    };
+
+    it("Then it searches once, after typing stops and with at least 3 letters", async () => {
+      const queries: (string | null)[] = [];
+      server.use(
+        http.get(`${baseUrl}/books/search-external`, ({ request }) => {
+          queries.push(new URL(request.url).searchParams.get("q"));
+          return HttpResponse.json({ results: [{ book: externalBook }] });
+        }),
+      );
+      const { user } = renderRoutes(routes, ["/library"]);
+      await openSearchStep(user);
+
+      await user.type(screen.getByLabelText("Título o autor"), "ci");
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      expect(queries).toEqual([]);
+
+      await user.type(screen.getByLabelText("Título o autor"), "en");
+      await screen.findByRole("button", { name: /Cien años de soledad/ });
+      expect(queries).toEqual(["cien"]);
+    });
+
+    it("Then picking a result without publisher asks for it, and going back keeps the search", async () => {
+      server.use(
+        http.get(`${baseUrl}/books/search-external`, () =>
+          HttpResponse.json({
+            results: [
+              {
+                book: {
+                  title: "Rayuela",
+                  authors: ["Julio Cortázar"],
+                  coverUrl: "https://covers.openlibrary.org/b/id/1-M.jpg",
+                  coverSource: "open_library",
+                },
+              },
+            ],
+          }),
+        ),
+      );
+      const { user } = renderRoutes(routes, ["/library"]);
+      await openSearchStep(user);
+      await user.type(screen.getByLabelText("Título o autor"), "rayuela");
+
+      await user.click(await screen.findByRole("button", { name: /Rayuela/ }));
+
+      expect(screen.getByText("Confirma los datos")).toBeInTheDocument();
+      expect(screen.getByLabelText("Editorial")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: "Volver" }));
+
+      expect(screen.getByLabelText("Título o autor")).toHaveValue("rayuela");
+    });
+
+    it("Then no results offer the manual entry", async () => {
+      server.use(
+        http.get(`${baseUrl}/books/search-external`, () =>
+          HttpResponse.json({ results: [] }),
+        ),
+      );
+      const { user } = renderRoutes(routes, ["/library"]);
+      await openSearchStep(user);
+
+      await user.type(screen.getByLabelText("Título o autor"), "zzzzz");
+
+      expect(
+        await screen.findByText(
+          "No hemos encontrado ningún libro con esa búsqueda.",
+        ),
+      ).toBeInTheDocument();
+      await user.click(
+        screen.getByRole("button", { name: "Añadir manualmente" }),
+      );
+      expect(screen.getByText("Añade los datos")).toBeInTheDocument();
+    });
+
+    it("Then unavailable providers show the error with the manual entry", async () => {
+      server.use(
+        http.get(`${baseUrl}/books/search-external`, () =>
+          apiError(502, "BOOK_PROVIDER_UNAVAILABLE"),
+        ),
+      );
+      const { user } = renderRoutes(routes, ["/library"]);
+      await openSearchStep(user);
+
+      await user.type(screen.getByLabelText("Título o autor"), "rayuela");
+
+      expect(await screen.findByRole("alert")).toHaveTextContent(
+        "catálogos de libros",
+      );
+      expect(
+        screen.getByRole("button", { name: "Añadir manualmente" }),
+      ).toBeInTheDocument();
+    });
+  });
 });
