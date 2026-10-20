@@ -22,7 +22,7 @@ type Step =
 const headings: Record<Step["name"], { title: string; subtitle: string }> = {
   choose: {
     title: "Añade un libro",
-    subtitle: "Elige cómo quieres añadir el próximo libro a tu biblioteca",
+    subtitle: "Elige cómo quieres añadirlo",
   },
   isbn: {
     title: "Escribe el ISBN",
@@ -117,26 +117,31 @@ const AddBookModal = ({ onClose }: AddBookModalProps) => {
       onBack={step.name === "choose" ? undefined : handleBack}
     >
       <Box sx={{ display: "grid", gap: 6, pt: 4 }}>
-        <Box>
+        <Box sx={{ textAlign: "center" }}>
           <Typography id={TITLE_ID} variant="h6" component="h2">
             {heading.title}
           </Typography>
-          <Typography color="text.secondary">{heading.subtitle}</Typography>
+          <Typography color="text.secondary" sx={{ mt: 1 }}>
+            {heading.subtitle}
+          </Typography>
         </Box>
 
         {step.name === "choose" && (
-          <Box sx={{ display: "grid", gap: 3, justifyItems: "center" }}>
+          <Box sx={{ display: "grid", gap: 3 }}>
             <Pill
+              fullWidth
               icon={<KeyboardIcon />}
               label="Escribir ISBN"
               onClick={() => setStep({ name: "isbn" })}
             />
             <Pill
+              fullWidth
               icon={<SearchIcon />}
               label="Buscar por título o autor"
               onClick={() => setStep({ name: "search" })}
             />
             <Pill
+              fullWidth
               icon={<PencilIcon />}
               label="Añadir manualmente"
               onClick={() => setStep({ name: "manual", back: step })}
