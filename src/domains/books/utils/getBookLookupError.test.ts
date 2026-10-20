@@ -31,11 +31,18 @@ describe("Given an error from looking up a book", () => {
 
       expect(message).not.toContain("mensaje del backend");
       expect(message).toContain("catálogos de libros");
+      expect(
+        getBookLookupError(apiError(502, "BOOK_PROVIDER_UNAVAILABLE"))
+          .offersManualEntry,
+      ).toBe(true);
     });
   });
 
   describe("When the rate limit is exceeded", () => {
-    it("Then it asks to wait a minute", () => {
+    it("Then it asks to wait a minute without offering the manual entry", () => {
+      expect(
+        getBookLookupError(apiError(429, "RATE_LIMITED")).offersManualEntry,
+      ).toBeUndefined();
       expect(getBookLookupError(apiError(429, "RATE_LIMITED")).message).toBe(
         "Has hecho muchas consultas seguidas. Espera un minuto y vuelve a intentarlo.",
       );

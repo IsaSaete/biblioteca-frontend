@@ -14,9 +14,27 @@ interface AddBookModalProps {
 type Step =
   | { name: "choose" }
   | { name: "isbn" }
+  | { name: "manual"; isbn?: string }
   | { name: "confirm"; book: ExternalBook };
 
 const TITLE_ID = "add-book-title";
+
+const PencilIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+  </svg>
+);
 
 const KeyboardIcon = () => (
   <svg
@@ -35,8 +53,8 @@ const KeyboardIcon = () => (
   </svg>
 );
 
-// Flujo «Añadir libro». Solo se ofrecen las vías ya implementadas (escanear,
-// buscar y alta manual se suman con sus historias): nunca una función que no
+// Flujo «Añadir libro». Solo se ofrecen las vías ya implementadas (escanear y
+// buscar se suman con sus historias): nunca una función que no
 // existe.
 const AddBookModal = ({ onClose }: AddBookModalProps) => {
   const [step, setStep] = useState<Step>({ name: "choose" });
@@ -53,17 +71,27 @@ const AddBookModal = ({ onClose }: AddBookModalProps) => {
             title: "Escribe el ISBN",
             subtitle: "Buscaremos el libro y rellenaremos sus datos.",
           }
-        : {
-            title: "Confirma los datos",
-            subtitle: "Revisa que sean correctos antes de guardar.",
-          };
+        : step.name === "manual"
+          ? {
+              title: "Añade los datos",
+              subtitle: "Título, autor y editorial son obligatorios.",
+            }
+          : {
+              title: "Confirma los datos",
+              subtitle: "Revisa que sean correctos antes de guardar.",
+            };
 
   const handleBack =
     step.name === "isbn"
       ? () => setStep({ name: "choose" })
       : step.name === "confirm"
         ? () => setStep({ name: "isbn" })
-        : undefined;
+        : step.name === "manual"
+          ? () =>
+              setStep(
+                step.isbn === undefined ? { name: "choose" } : { name: "isbn" },
+              )
+          : undefined;
 
   return (
     <FullScreenModal titleId={TITLE_ID} onClose={onClose} onBack={handleBack}>
@@ -82,11 +110,28 @@ const AddBookModal = ({ onClose }: AddBookModalProps) => {
               label="Escribir ISBN"
               onClick={() => setStep({ name: "isbn" })}
             />
+            <Pill
+              icon={<PencilIcon />}
+              label="Añadir manualmente"
+              onClick={() => setStep({ name: "manual" })}
+            />
           </Box>
         )}
         {step.name === "isbn" && (
           <IsbnStep
             onBookFound={(book) => setStep({ name: "confirm", book })}
+            onManualEntry={(isbn) => setStep({ name: "manual", isbn })}
+          />
+        )}
+        {step.name === "manual" && (
+          <ConfirmBookStep
+            book={{
+              title: "",
+              authors: [],
+              ...(step.isbn && { isbn: step.isbn }),
+            }}
+            isManual
+            onSaved={onClose}
           />
         )}
         {step.name === "confirm" && (

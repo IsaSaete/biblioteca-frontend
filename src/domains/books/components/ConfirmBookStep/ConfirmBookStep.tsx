@@ -22,6 +22,9 @@ import BookCover from "../BookCover/BookCover";
 
 interface ConfirmBookStepProps {
   book: ExternalBook;
+  // Alta manual (HU-17): nada que confirmar, así que los campos están siempre
+  // abiertos y no hay lápiz ni portada.
+  isManual?: boolean;
   onSaved: () => void;
 }
 
@@ -64,7 +67,11 @@ const getDefaultValues = (book: ExternalBook): ConfirmBookFormValues => ({
 // como texto y un único lápiz los abre a edición. La editorial es obligatoria
 // al guardar y los proveedores a menudo no la dan, así que sin ella se pide ya
 // en modo edición.
-const ConfirmBookStep = ({ book, onSaved }: ConfirmBookStepProps) => {
+const ConfirmBookStep = ({
+  book,
+  isManual = false,
+  onSaved,
+}: ConfirmBookStepProps) => {
   const form = useForm<ConfirmBookFormValues>({
     resolver: zodResolver(confirmBookSchema),
     defaultValues: getDefaultValues(book),
@@ -77,7 +84,7 @@ const ConfirmBookStep = ({ book, onSaved }: ConfirmBookStepProps) => {
     formState: { errors },
   } = form;
   const validationHandlers = useFieldValidation(form);
-  const [isEditing, setIsEditing] = useState(!book.publisher);
+  const [isEditing, setIsEditing] = useState(isManual || !book.publisher);
   const [areDetailsExpanded, setAreDetailsExpanded] = useState(false);
   const [status, setStatus] = useState<BookStatus>("pending");
   const [formError, setFormError] = useState<string | null>(null);
@@ -148,9 +155,11 @@ const ConfirmBookStep = ({ book, onSaved }: ConfirmBookStepProps) => {
     >
       {formError && <Alert severity="error">{formError}</Alert>}
 
-      <Box sx={{ width: 120, justifySelf: "center" }}>
-        <BookCover title={values.title} coverUrl={book.coverUrl} />
-      </Box>
+      {!isManual && (
+        <Box sx={{ width: 120, justifySelf: "center" }}>
+          <BookCover title={values.title} coverUrl={book.coverUrl} />
+        </Box>
+      )}
 
       <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
         {isEditing ? (
@@ -185,14 +194,16 @@ const ConfirmBookStep = ({ book, onSaved }: ConfirmBookStepProps) => {
             <Typography color="text.secondary">{values.publisher}</Typography>
           </Box>
         )}
-        <IconButton
-          aria-label="Editar datos del libro"
-          aria-pressed={isEditing}
-          onClick={() => setIsEditing((editing) => !editing)}
-          sx={{ width: 44, height: 44 }}
-        >
-          <PencilIcon />
-        </IconButton>
+        {!isManual && (
+          <IconButton
+            aria-label="Editar datos del libro"
+            aria-pressed={isEditing}
+            onClick={() => setIsEditing((editing) => !editing)}
+            sx={{ width: 44, height: 44 }}
+          >
+            <PencilIcon />
+          </IconButton>
+        )}
       </Box>
 
       <Box

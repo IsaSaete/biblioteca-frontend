@@ -7,19 +7,22 @@ import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/Flo
 import { useLazyLookupIsbnQuery } from "../../booksApi";
 import type { ExternalBook } from "../../dto/ExternalBook";
 import { getBookLookupError } from "../../utils/getBookLookupError";
+import type { BookLookupError } from "../../utils/getBookLookupError";
 import { isValidIsbn } from "../../utils/isValidIsbn";
 import { normalizeIsbn } from "../../utils/normalizeIsbn";
 
 interface IsbnStepProps {
   onBookFound: (book: ExternalBook) => void;
+  // Recibe el ISBN escrito para no obligar a repetirlo en el alta manual.
+  onManualEntry: (isbn: string) => void;
 }
 
 // «Escribir ISBN» (HU-41): la consulta solo se lanza con un ISBN completo y
 // válido, al pulsar el botón o Enter; nunca en cada tecla.
-const IsbnStep = ({ onBookFound }: IsbnStepProps) => {
+const IsbnStep = ({ onBookFound, onManualEntry }: IsbnStepProps) => {
   const [isbn, setIsbn] = useState("");
   const [fieldError, setFieldError] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<BookLookupError | null>(null);
   const [lookupIsbn, { isFetching }] = useLazyLookupIsbnQuery();
 
   const handleSubmit = async (event: FormEvent) => {
@@ -46,12 +49,12 @@ const IsbnStep = ({ onBookFound }: IsbnStepProps) => {
       return;
     }
 
-    const { message, field } = getBookLookupError(result.error);
+    const lookupError = getBookLookupError(result.error);
 
-    if (field === "isbn") {
-      setFieldError(message);
+    if (lookupError.field === "isbn") {
+      setFieldError(lookupError.message);
     } else {
-      setFormError(message);
+      setFormError(lookupError);
     }
   };
 
@@ -62,7 +65,24 @@ const IsbnStep = ({ onBookFound }: IsbnStepProps) => {
       onSubmit={handleSubmit}
       sx={{ display: "grid", gap: 5 }}
     >
-      {formError && <Alert severity="error">{formError}</Alert>}
+      {formError && (
+        <Alert
+          severity="error"
+          action={
+            formError.offersManualEntry && (
+              <Button
+                variant="text"
+                color="inherit"
+                onClick={() => onManualEntry(normalizeIsbn(isbn))}
+              >
+                Añadir manualmente
+              </Button>
+            )
+          }
+        >
+          {formError.message}
+        </Alert>
+      )}
       <FloatingLabelInput
         label="ISBN"
         value={isbn}
