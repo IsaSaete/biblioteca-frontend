@@ -208,4 +208,25 @@ describe("Given the session base query", () => {
       expect(refreshes).toBe(0);
     });
   });
+
+  describe("When a request gets AUTH_UNAUTHENTICATED and there is no csrfToken cookie", () => {
+    it("Then no refresh is attempted, because without the cookie it could not work", async () => {
+      document.cookie = "csrfToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      let refreshes = 0;
+      server.use(
+        http.get(`${baseUrl}/books`, unauthenticated),
+        http.post(`${baseUrl}/auth/refresh`, () => {
+          refreshes += 1;
+          return HttpResponse.json({});
+        }),
+      );
+      const { baseQuery, onSessionLost } = setup();
+
+      const result = await baseQuery("/books", buildApi(), {});
+
+      expect(result.error?.status).toBe(401);
+      expect(refreshes).toBe(0);
+      expect(onSessionLost).toHaveBeenCalledTimes(1);
+    });
+  });
 });

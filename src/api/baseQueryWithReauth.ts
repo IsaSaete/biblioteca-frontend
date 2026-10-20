@@ -101,7 +101,13 @@ export const createBaseQueryWithReauth = ({
       return result;
     }
 
-    const refreshed = await refreshSession(undefined, api, extraOptions);
+    // Sin cookie csrfToken no puede haber sesión que refrescar (se crea al
+    // iniciar sesión y se borra al cerrarla) y /auth/refresh exige ese token:
+    // la petición fallaría seguro con 403, así que ni se intenta.
+    const hasSessionHint = readCookie("csrfToken") !== undefined;
+    const refreshed = hasSessionHint
+      ? await refreshSession(undefined, api, extraOptions)
+      : { data: false };
 
     if (refreshed.data) {
       return baseQueryWithCsrf(request, api, extraOptions);
