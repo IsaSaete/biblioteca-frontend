@@ -13,6 +13,16 @@ const routes = [
   { path: "/login", element: <p>Pantalla de login</p> },
 ];
 
+const routesWithOnboarding = [
+  {
+    element: <RequireAuth />,
+    children: [
+      { path: "/library", element: <p>Contenido privado</p> },
+      { path: "/onboarding", element: <p>Pantalla de onboarding</p> },
+    ],
+  },
+];
+
 const unauthenticated = () =>
   HttpResponse.json(
     { error: { code: "AUTH_UNAUTHENTICATED", message: "Sin sesión" } },
@@ -86,5 +96,76 @@ describe("Given a protected route", () => {
         screen.getByRole("button", { name: "Reintentar" }),
       ).toBeInTheDocument();
     });
+  });
+
+  describe("When the account has not seen the onboarding yet", () => {
+    it("Then the user is sent to the onboarding instead of the requested page", async () => {
+      server.use(
+        http.get(`${baseUrl}/auth/me`, () =>
+          HttpResponse.json({
+            user: {
+              id: "1",
+              name: "Isa",
+              email: "isa@example.com",
+              onboardingCompleted: false,
+            },
+          }),
+        ),
+      );
+
+      renderRoutes(routesWithOnboarding, ["/library"]);
+
+      expect(
+        await screen.findByText("Pantalla de onboarding"),
+      ).toBeInTheDocument();
+      expect(screen.queryByText("Contenido privado")).not.toBeInTheDocument();
+    });
+
+    it("Then the onboarding itself is reachable without redirecting in a loop", async () => {
+      server.use(
+        http.get(`${baseUrl}/auth/me`, () =>
+          HttpResponse.json({
+            user: {
+              id: "1",
+              name: "Isa",
+              email: "isa@example.com",
+              onboardingCompleted: false,
+            },
+          }),
+        ),
+      );
+
+      renderRoutes(routesWithOnboarding, ["/onboarding"]);
+
+      expect(
+        await screen.findByText("Pantalla de onboarding"),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the account has seen the onboarding or the backend does not report it", () => {
+    it.each([true, undefined])(
+      "Then the requested page is shown (onboardingCompleted = %s)",
+      async (onboardingCompleted) => {
+        server.use(
+          http.get(`${baseUrl}/auth/me`, () =>
+            HttpResponse.json({
+              user: {
+                id: "1",
+                name: "Isa",
+                email: "isa@example.com",
+                onboardingCompleted,
+              },
+            }),
+          ),
+        );
+
+        renderRoutes(routesWithOnboarding, ["/library"]);
+
+        expect(
+          await screen.findByText("Contenido privado"),
+        ).toBeInTheDocument();
+      },
+    );
   });
 });

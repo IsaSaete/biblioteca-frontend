@@ -36,6 +36,20 @@ export const authApi = createApi({
     resetPassword: builder.mutation<void, ResetPasswordRequest>({
       query: (body) => ({ url: "/auth/reset-password", method: "POST", body }),
     }),
+    // Marca el onboarding como visto (completado o saltado). La caché se
+    // actualiza sin esperar ni revertir si falla: un fallo del servidor no debe
+    // atrapar al usuario en el onboarding (D-016); la próxima vez se mostrará
+    // otra vez.
+    completeOnboarding: builder.mutation<void, void>({
+      query: () => ({ url: "/auth/onboarding/complete", method: "POST" }),
+      onQueryStarted(_arg, { dispatch }) {
+        dispatch(
+          authApi.util.updateQueryData("me", undefined, (session) => {
+            session.user.onboardingCompleted = true;
+          }),
+        );
+      },
+    }),
     logout: builder.mutation<void, void>({
       query: () => ({ url: "/auth/logout", method: "POST" }),
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
@@ -57,6 +71,7 @@ export const {
   useMeQuery,
   useLogoutMutation,
   useVerifyEmailQuery,
+  useCompleteOnboardingMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
 } = authApi;

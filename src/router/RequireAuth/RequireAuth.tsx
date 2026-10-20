@@ -14,7 +14,7 @@ const isUnauthenticated = (error: unknown): boolean =>
 // fuente de verdad de si hay sesión (arquitectura-tecnica.md).
 const RequireAuth = () => {
   const location = useLocation();
-  const { isLoading, isError, error, refetch } = useMeQuery();
+  const { data, isLoading, isError, error, refetch } = useMeQuery();
 
   if (isLoading) {
     return (
@@ -47,6 +47,14 @@ const RequireAuth = () => {
         onRetry={() => void refetch()}
       />
     );
+  }
+
+  // Solo `false` redirige: si el backend aún no devuelve el campo, no se fuerza.
+  if (
+    data?.user.onboardingCompleted === false &&
+    location.pathname !== "/onboarding"
+  ) {
+    return <Navigate to="/onboarding" replace />;
   }
 
   return <Outlet />;
