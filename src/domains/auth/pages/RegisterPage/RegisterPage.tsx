@@ -51,7 +51,7 @@ const RegisterPage = () => {
     const result = await register(values);
 
     if (!result.error) {
-      await navigate("/library");
+      await navigate("/onboarding");
       return;
     }
 

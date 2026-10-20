@@ -12,7 +12,7 @@ const renderPage = () =>
   renderRoutes(
     [
       { path: "/register", element: <RegisterPage /> },
-      { path: "/library", element: <p>Biblioteca</p> },
+      { path: "/onboarding", element: <p>Onboarding</p> },
     ],
     ["/register"],
   ).user;
@@ -168,7 +168,7 @@ describe("Given the register page", () => {
   });
 
   describe("When the user submits valid data and the API creates the account", () => {
-    it("Then the data is sent as in the contract and the user goes to the library", async () => {
+    it("Then the data is sent as in the contract and the user goes to the onboarding", async () => {
       let body: unknown;
       server.use(
         http.post(registerUrl, async ({ request }) => {
@@ -184,7 +184,7 @@ describe("Given the register page", () => {
 
       await submit(user);
 
-      expect(await screen.findByText("Biblioteca")).toBeInTheDocument();
+      expect(await screen.findByText("Onboarding")).toBeInTheDocument();
       expect(body).toEqual({
         name: "Isa",
         email: "isa@example.com",
