@@ -48,6 +48,25 @@ const theme = createTheme({
     caption: { fontSize: "0.75rem", lineHeight: 1.5 },
     button: { fontSize: "0.875rem", fontWeight: 500, textTransform: "none" },
   },
+  components: {
+    // Safari en iPhone amplía la página al enfocar un campo con menos de 16px y
+    // no la devuelve a su tamaño: en móvil, los campos y su etiqueta usan
+    // `text-lg` (16px) en lugar de `text-md` (14px).
+    MuiInputBase: {
+      styleOverrides: {
+        input: ({ theme }) => ({
+          [theme.breakpoints.down("sm")]: { fontSize: "1rem" },
+        }),
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          [theme.breakpoints.down("sm")]: { fontSize: "1rem" },
+        }),
+      },
+    },
+  },
 });
 
 export default theme;
