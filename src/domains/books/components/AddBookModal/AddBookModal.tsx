@@ -6,6 +6,7 @@ import Pill from "../../../../components/ui/Pill/Pill";
 import type { ExternalBook } from "../../dto/ExternalBook";
 import ConfirmBookStep from "../ConfirmBookStep/ConfirmBookStep";
 import IsbnStep from "../IsbnStep/IsbnStep";
+import SearchStep from "../SearchStep/SearchStep";
 
 interface AddBookModalProps {
   onClose: () => void;
@@ -14,9 +15,68 @@ interface AddBookModalProps {
 type Step =
   | { name: "choose" }
   | { name: "isbn" }
-  | { name: "confirm"; book: ExternalBook };
+  | { name: "search"; query?: string }
+  | { name: "manual"; isbn?: string; back: Step }
+  | { name: "confirm"; book: ExternalBook; back: Step };
+
+const headings: Record<Step["name"], { title: string; subtitle: string }> = {
+  choose: {
+    title: "Añade un libro",
+    subtitle: "Elige cómo quieres añadir el próximo libro a tu biblioteca",
+  },
+  isbn: {
+    title: "Escribe el ISBN",
+    subtitle: "Buscaremos el libro y rellenaremos sus datos.",
+  },
+  search: {
+    title: "Busca un libro",
+    subtitle: "Escribe su título o el nombre del autor.",
+  },
+  manual: {
+    title: "Añade los datos",
+    subtitle: "Título, autor y editorial son obligatorios.",
+  },
+  confirm: {
+    title: "Confirma los datos",
+    subtitle: "Revisa que sean correctos antes de guardar.",
+  },
+};
 
 const TITLE_ID = "add-book-title";
+
+const PencilIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+  </svg>
+);
+
+const SearchIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="11" cy="11" r="7" />
+    <path d="M21 21l-4.3-4.3" />
+  </svg>
+);
 
 const KeyboardIcon = () => (
   <svg
@@ -35,38 +95,27 @@ const KeyboardIcon = () => (
   </svg>
 );
 
-// Flujo «Añadir libro». Solo se ofrecen las vías ya implementadas (escanear,
-// buscar y alta manual se suman con sus historias): nunca una función que no
-// existe.
+// Flujo «Añadir libro». Solo se ofrecen las vías ya implementadas (el escaneo
+// se suma con su historia): nunca una función que no existe. Cada paso que
+// avanza guarda a dónde vuelve «Volver».
 const AddBookModal = ({ onClose }: AddBookModalProps) => {
   const [step, setStep] = useState<Step>({ name: "choose" });
+  const heading = headings[step.name];
 
-  const heading =
-    step.name === "choose"
-      ? {
-          title: "Añade un libro",
-          subtitle:
-            "Elige cómo quieres añadir el próximo libro a tu biblioteca",
-        }
-      : step.name === "isbn"
-        ? {
-            title: "Escribe el ISBN",
-            subtitle: "Buscaremos el libro y rellenaremos sus datos.",
-          }
-        : {
-            title: "Confirma los datos",
-            subtitle: "Revisa que sean correctos antes de guardar.",
-          };
-
-  const handleBack =
-    step.name === "isbn"
-      ? () => setStep({ name: "choose" })
-      : step.name === "confirm"
-        ? () => setStep({ name: "isbn" })
-        : undefined;
+  const handleBack = (): void => {
+    if (step.name === "isbn" || step.name === "search") {
+      setStep({ name: "choose" });
+    } else if (step.name === "manual" || step.name === "confirm") {
+      setStep(step.back);
+    }
+  };
 
   return (
-    <FullScreenModal titleId={TITLE_ID} onClose={onClose} onBack={handleBack}>
+    <FullScreenModal
+      titleId={TITLE_ID}
+      onClose={onClose}
+      onBack={step.name === "choose" ? undefined : handleBack}
+    >
       <Box sx={{ display: "grid", gap: 6, pt: 4 }}>
         <Box>
           <Typography id={TITLE_ID} variant="h6" component="h2">
@@ -82,11 +131,55 @@ const AddBookModal = ({ onClose }: AddBookModalProps) => {
               label="Escribir ISBN"
               onClick={() => setStep({ name: "isbn" })}
             />
+            <Pill
+              icon={<SearchIcon />}
+              label="Buscar por título o autor"
+              onClick={() => setStep({ name: "search" })}
+            />
+            <Pill
+              icon={<PencilIcon />}
+              label="Añadir manualmente"
+              onClick={() => setStep({ name: "manual", back: step })}
+            />
           </Box>
         )}
         {step.name === "isbn" && (
           <IsbnStep
-            onBookFound={(book) => setStep({ name: "confirm", book })}
+            onBookFound={(book) =>
+              setStep({ name: "confirm", book, back: step })
+            }
+            onManualEntry={(isbn) =>
+              setStep({ name: "manual", isbn, back: step })
+            }
+          />
+        )}
+        {step.name === "search" && (
+          <SearchStep
+            initialQuery={step.query}
+            onBookSelected={(book, query) =>
+              setStep({
+                name: "confirm",
+                book,
+                back: { name: "search", query },
+              })
+            }
+            onManualEntry={(query) =>
+              setStep({
+                name: "manual",
+                back: { name: "search", query },
+              })
+            }
+          />
+        )}
+        {step.name === "manual" && (
+          <ConfirmBookStep
+            book={{
+              title: "",
+              authors: [],
+              ...(step.isbn && { isbn: step.isbn }),
+            }}
+            isManual
+            onSaved={onClose}
           />
         )}
         {step.name === "confirm" && (

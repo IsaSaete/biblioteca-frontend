@@ -53,6 +53,6 @@ export const booksApi = createApi({
 export const {
   useGetBooksQuery,
   useLazyLookupIsbnQuery,
-  useLazySearchExternalQuery,
+  useSearchExternalQuery,
   useCreateBookMutation,
 } = booksApi;

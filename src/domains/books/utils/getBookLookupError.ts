@@ -3,6 +3,8 @@ import { parseApiError } from "../../auth/utils/parseApiError";
 export interface BookLookupError {
   message: string;
   field?: "isbn";
+  // Salida cuando el libro no se pudo traer: darlo de alta a mano.
+  offersManualEntry?: boolean;
 }
 
 const genericMessage =
@@ -29,11 +31,15 @@ export const getBookLookupError = (error: unknown): BookLookupError => {
         field: "isbn",
       };
     case "ISBN_NOT_FOUND":
-      return { message: "No hemos encontrado ningún libro con ese ISBN." };
+      return {
+        message: "No hemos encontrado ningún libro con ese ISBN.",
+        offersManualEntry: true,
+      };
     case "BOOK_PROVIDER_UNAVAILABLE":
       return {
         message:
           "Ahora mismo no podemos consultar los catálogos de libros. Inténtalo de nuevo en unos minutos.",
+        offersManualEntry: true,
       };
     case "RATE_LIMITED":
       return {
