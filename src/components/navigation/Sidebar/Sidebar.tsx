@@ -38,7 +38,7 @@ const Sidebar = ({ items }: SidebarProps) => (
         px: 2,
       }}
     >
-      <BookmarkButton />
+      <BookmarkButton placement="side" />
       {items.map((item) => (
         <NavItemLink key={item.id} item={item} placement="side" />
       ))}
