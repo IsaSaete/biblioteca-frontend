@@ -21,6 +21,7 @@ import BookCover from "../../components/BookCover/BookCover";
 import EditBookDialog from "../../components/EditBookDialog/EditBookDialog";
 import EjemplarDataSection from "../../components/EjemplarDataSection/EjemplarDataSection";
 import StatusSelector from "../../components/StatusSelector/StatusSelector";
+import { capitalizeWords } from "../../utils/capitalizeFirst";
 import { getTagSuggestions } from "../../utils/getTagSuggestions";
 
 const languageNames = new Intl.DisplayNames(["es"], { type: "language" });
@@ -190,10 +191,11 @@ const BookDetailPage = () => {
                   fontSize: "0.875rem",
                   borderRadius: "999px",
                   border: 1,
-                  borderColor: "divider",
+                  borderColor: "primary.main",
+                  color: "secondary.contrastText",
                 }}
               >
-                {tag}
+                {capitalizeWords(tag)}
               </Typography>
             ))}
           </Box>
@@ -205,7 +207,11 @@ const BookDetailPage = () => {
           <EditBookDialog book={book} onClose={() => setIsEditingBook(false)} />
         )}
         {book.synopsis && (
-          <Box component="section" aria-labelledby="synopsis-title">
+          <Box
+            component="section"
+            aria-labelledby="synopsis-title"
+            sx={{ width: "100%" }}
+          >
             <Typography
               id="synopsis-title"
               component="h2"
@@ -214,7 +220,14 @@ const BookDetailPage = () => {
             >
               Sinopsis
             </Typography>
-            <Box sx={{ mt: 1 }}>
+            <Box
+              sx={{
+                mt: 1,
+                bgcolor: "background.paper",
+                borderRadius: 1.5,
+                p: 4,
+              }}
+            >
               <ExpandableText text={book.synopsis} />
             </Box>
           </Box>

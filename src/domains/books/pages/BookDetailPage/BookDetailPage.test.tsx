@@ -110,6 +110,7 @@ describe("Given the book detail page", () => {
           await screen.findByRole("list", { name: "Etiquetas" }),
         ).getAllByRole("listitem"),
       ).toHaveLength(2);
+      expect(screen.getByText("Clásicos")).toBeInTheDocument();
       expect(screen.getByText("Salón")).toBeInTheDocument();
       expect(screen.getByText("Bolsillo")).toBeInTheDocument();
       expect(screen.getByText("1 de mayo de 2026")).toBeInTheDocument();
@@ -246,7 +247,9 @@ describe("Given the book detail page", () => {
 
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
-        await screen.findByRole("button", { name: "Editar datos" }),
+        await screen.findByRole("button", {
+          name: "Editar datos del ejemplar",
+        }),
       );
       await user.clear(screen.getByLabelText("Notas"));
       await user.selectOptions(screen.getByLabelText("Formato"), "pocket");
@@ -261,7 +264,9 @@ describe("Given the book detail page", () => {
         tags: [],
       });
       expect(
-        await screen.findByRole("button", { name: "Editar datos" }),
+        await screen.findByRole("button", {
+          name: "Editar datos del ejemplar",
+        }),
       ).toBeInTheDocument();
     });
   });
@@ -274,12 +279,14 @@ describe("Given the book detail page", () => {
 
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
-        await screen.findByRole("button", { name: "Añadir datos" }),
+        await screen.findByRole("button", {
+          name: "Editar datos del ejemplar",
+        }),
       );
       await user.click(screen.getByRole("button", { name: "Cancelar" }));
 
       expect(
-        screen.getByRole("button", { name: "Añadir datos" }),
+        screen.getByRole("button", { name: "Editar datos del ejemplar" }),
       ).toBeInTheDocument();
     });
   });
@@ -303,7 +310,9 @@ describe("Given the book detail page", () => {
 
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
-        await screen.findByRole("button", { name: "Editar datos" }),
+        await screen.findByRole("button", {
+          name: "Editar datos del ejemplar",
+        }),
       );
       await user.type(
         screen.getByLabelText("Añadir etiqueta"),
@@ -334,7 +343,9 @@ describe("Given the book detail page", () => {
 
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
-        await screen.findByRole("button", { name: "Editar datos" }),
+        await screen.findByRole("button", {
+          name: "Editar datos del ejemplar",
+        }),
       );
       await user.click(
         screen.getByRole("button", { name: "Quitar la etiqueta clásicos" }),
@@ -359,7 +370,9 @@ describe("Given the book detail page", () => {
 
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
-        await screen.findByRole("button", { name: "Editar datos" }),
+        await screen.findByRole("button", {
+          name: "Editar datos del ejemplar",
+        }),
       );
 
       expect(
@@ -386,7 +399,9 @@ describe("Given the book detail page", () => {
 
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
-        await screen.findByRole("button", { name: "Añadir datos" }),
+        await screen.findByRole("button", {
+          name: "Editar datos del ejemplar",
+        }),
       );
       const suggestions = await screen.findByRole("group", {
         name: "Etiquetas sugeridas",
@@ -397,7 +412,7 @@ describe("Given the book detail page", () => {
 
       expect(within(suggestions).getAllByRole("button")).toHaveLength(1);
       expect(
-        within(suggestions).getByRole("button", { name: "regalos" }),
+        within(suggestions).getByRole("button", { name: "Regalos" }),
       ).toBeInTheDocument();
     });
   });

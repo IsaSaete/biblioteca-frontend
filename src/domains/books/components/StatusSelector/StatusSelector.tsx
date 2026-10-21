@@ -56,17 +56,40 @@ const StatusSelector = ({
 
   return (
     <>
-      <Pill
-        label={
-          <Box component="span" sx={{ display: "inline-flex", gap: 1 }}>
-            {label}
-            <ChevronIcon />
-          </Box>
-        }
-        tone={tone}
-        disabled={disabled}
-        onClick={() => setIsOpen(true)}
-      />
+      <Box
+        sx={{
+          // Contenedor transparente: no altera la maquetación.
+          display: "contents",
+          // Un poco menos alta a la vista, con el área táctil de 44px intacta
+          // (sistema-diseno-visual.md): la zona extra es invisible.
+          "& .MuiChip-root": { height: 40, position: "relative" },
+          "& .MuiChip-root::after": {
+            content: '""',
+            position: "absolute",
+            inset: "-2px 0",
+          },
+        }}
+      >
+        <Pill
+          label={
+            <Box
+              component="span"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 3,
+              }}
+            >
+              {label}
+              <ChevronIcon />
+            </Box>
+          }
+          tone={tone}
+          disabled={disabled}
+          onClick={() => setIsOpen(true)}
+        />
+      </Box>
       <BottomSheet
         open={isOpen}
         title="Estado de lectura"

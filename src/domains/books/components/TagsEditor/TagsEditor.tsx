@@ -5,6 +5,7 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
+import { capitalizeWords } from "../../utils/capitalizeFirst";
 import Pill from "../../../../components/ui/Pill/Pill";
 
 export const MAX_TAGS = 5;
@@ -89,11 +90,14 @@ const TagsEditor = ({
                 alignItems: "center",
                 borderRadius: "999px",
                 border: 1,
-                borderColor: "divider",
+                borderColor: "primary.main",
+                color: "secondary.contrastText",
                 pl: 3,
               }}
             >
-              <Typography sx={{ fontSize: "0.875rem" }}>{tag}</Typography>
+              <Typography sx={{ fontSize: "0.875rem" }}>
+                {capitalizeWords(tag)}
+              </Typography>
               <IconButton
                 aria-label={`Quitar la etiqueta ${tag}`}
                 disabled={disabled}
@@ -151,7 +155,7 @@ const TagsEditor = ({
               {visibleSuggestions.map((suggestion) => (
                 <Pill
                   key={suggestion}
-                  label={suggestion}
+                  label={capitalizeWords(suggestion)}
                   disabled={disabled}
                   onClick={() => addTag(suggestion)}
                 />

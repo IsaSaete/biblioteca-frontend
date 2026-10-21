@@ -2,12 +2,14 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
 import TagsEditor from "../TagsEditor/TagsEditor";
 import { getFormErrorMessage } from "../../../auth/utils/getFormErrorMessage";
 import { useUpdateEjemplarMutation } from "../../booksApi";
+import { capitalizeFirst } from "../../utils/capitalizeFirst";
 import type { BookFormat } from "../../dto/BookFormat";
 import type { BookProvenance } from "../../dto/BookProvenance";
 import type { LibraryBook } from "../../dto/LibraryBook";
@@ -42,20 +44,37 @@ const formatDate = (isoDate: string): string => {
 const getRows = (book: LibraryBook): [string, string][] =>
   (
     [
-      ["Ubicación", book.location],
+      ["Ubicación", book.location && capitalizeFirst(book.location)],
       ["Formato", book.format && formatLabels[book.format]],
       ["Procedencia", book.provenance && provenanceLabels[book.provenance]],
       [
         "Fecha de adquisición",
         book.acquisitionDate && formatDate(book.acquisitionDate),
       ],
-      ["Notas", book.notes],
+      ["Notas", book.notes && capitalizeFirst(book.notes)],
     ] as [string, string | undefined][]
   ).filter((row): row is [string, string] => Boolean(row[1]));
 
 const isFormat = (value: string): value is BookFormat => value in formatLabels;
 const isProvenance = (value: string): value is BookProvenance =>
   value in provenanceLabels;
+
+const PencilIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+  </svg>
+);
 
 const selectProps = {
   select: { native: true },
@@ -125,122 +144,136 @@ const EjemplarDataSection = ({
       aria-labelledby="copy-title"
       sx={{ width: "100%" }}
     >
-      <Typography
-        id="copy-title"
-        component="h2"
-        color="text.secondary"
-        sx={{ fontSize: "0.875rem", mb: 3 }}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          mb: 1,
+        }}
       >
-        Datos de tu ejemplar
-      </Typography>
-      {isEditing ? (
-        <Box
-          component="form"
-          noValidate
-          onSubmit={handleSubmit}
-          sx={{ display: "grid", gap: 5 }}
+        <Typography
+          id="copy-title"
+          component="h2"
+          color="text.secondary"
+          sx={{ fontSize: "0.875rem" }}
         >
-          {formError && <Alert severity="error">{formError}</Alert>}
-          <FloatingLabelInput
-            label="Ubicación"
-            value={location}
-            onChange={(event) => setLocation(event.target.value)}
-          />
-          <FloatingLabelInput
-            label="Formato"
-            value={format}
-            onChange={(event) => setFormat(event.target.value)}
-            slotProps={selectProps}
-            select
+          Datos de tu ejemplar
+        </Typography>
+        {!isEditing && (
+          <IconButton
+            aria-label="Editar datos del ejemplar"
+            onClick={startEditing}
+            sx={{ width: 44, height: 44 }}
           >
-            <option value="" />
-            {Object.entries(formatLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </FloatingLabelInput>
-          <FloatingLabelInput
-            label="Procedencia"
-            value={provenance}
-            onChange={(event) => setProvenance(event.target.value)}
-            slotProps={selectProps}
-            select
+            <PencilIcon />
+          </IconButton>
+        )}
+      </Box>
+      <Box sx={{ bgcolor: "background.paper", borderRadius: 1.5, p: 4 }}>
+        {isEditing ? (
+          <Box
+            component="form"
+            noValidate
+            onSubmit={handleSubmit}
+            sx={{ display: "grid", gap: 5 }}
           >
-            <option value="" />
-            {Object.entries(provenanceLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </FloatingLabelInput>
-          <FloatingLabelInput
-            label="Fecha de adquisición"
-            type="date"
-            value={acquisitionDate}
-            onChange={(event) => setAcquisitionDate(event.target.value)}
-          />
-          <FloatingLabelInput
-            label="Notas"
-            value={notes}
-            onChange={(event) => setNotes(event.target.value)}
-            multiline
-            minRows={3}
-          />
-          <TagsEditor
-            tags={tags}
-            suggestions={tagSuggestions}
-            onChange={setTags}
-            disabled={isLoading}
-          />
-          <Box sx={{ display: "grid", gap: 2 }}>
-            <Button type="submit" fullWidth disabled={isLoading}>
-              {isLoading ? "Guardando…" : "Guardar"}
-            </Button>
-            <Button
-              variant="text"
-              fullWidth
-              disabled={isLoading}
-              onClick={() => setIsEditing(false)}
+            {formError && <Alert severity="error">{formError}</Alert>}
+            <FloatingLabelInput
+              label="Ubicación"
+              value={location}
+              onChange={(event) => setLocation(event.target.value)}
+            />
+            <FloatingLabelInput
+              label="Formato"
+              value={format}
+              onChange={(event) => setFormat(event.target.value)}
+              slotProps={selectProps}
+              select
             >
-              Cancelar
-            </Button>
-          </Box>
-        </Box>
-      ) : (
-        <>
-          {rows.length === 0 ? (
-            <Typography color="text.secondary" sx={{ fontSize: "1rem", mb: 3 }}>
-              Todavía no has añadido datos de tu ejemplar.
-            </Typography>
-          ) : (
-            <Box component="dl" sx={{ m: 0, mb: 3, display: "grid", gap: 3 }}>
-              {rows.map(([label, value]) => (
-                <Box key={label}>
-                  <Typography
-                    component="dt"
-                    color="text.secondary"
-                    sx={{ fontSize: "0.875rem" }}
-                  >
-                    {label}
-                  </Typography>
-                  <Typography
-                    component="dd"
-                    sx={{ m: 0, fontSize: "1rem", whiteSpace: "pre-line" }}
-                  >
-                    {value}
-                  </Typography>
-                </Box>
+              <option value="" />
+              {Object.entries(formatLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
+            </FloatingLabelInput>
+            <FloatingLabelInput
+              label="Procedencia"
+              value={provenance}
+              onChange={(event) => setProvenance(event.target.value)}
+              slotProps={selectProps}
+              select
+            >
+              <option value="" />
+              {Object.entries(provenanceLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </FloatingLabelInput>
+            <FloatingLabelInput
+              label="Fecha de adquisición"
+              type="date"
+              value={acquisitionDate}
+              onChange={(event) => setAcquisitionDate(event.target.value)}
+            />
+            <FloatingLabelInput
+              label="Notas"
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              multiline
+              minRows={3}
+            />
+            <TagsEditor
+              tags={tags}
+              suggestions={tagSuggestions}
+              onChange={setTags}
+              disabled={isLoading}
+            />
+            <Box sx={{ display: "grid", gap: 2 }}>
+              <Button type="submit" fullWidth disabled={isLoading}>
+                {isLoading ? "Guardando…" : "Guardar"}
+              </Button>
+              <Button
+                variant="text"
+                fullWidth
+                disabled={isLoading}
+                onClick={() => setIsEditing(false)}
+              >
+                Cancelar
+              </Button>
             </Box>
-          )}
-          <Button variant="neutral" onClick={startEditing}>
-            {rows.length === 0 && !book.tags?.length
-              ? "Añadir datos"
-              : "Editar datos"}
-          </Button>
-        </>
-      )}
+          </Box>
+        ) : (
+          <>
+            {rows.length === 0 ? (
+              <Typography color="text.secondary" sx={{ fontSize: "1rem" }}>
+                Todavía no has añadido datos de tu ejemplar.
+              </Typography>
+            ) : (
+              <Box component="dl" sx={{ m: 0, display: "grid", gap: 3 }}>
+                {rows.map(([label, value]) => (
+                  <Box key={label}>
+                    <Typography
+                      component="dt"
+                      sx={{ fontSize: "0.875rem", fontWeight: 700 }}
+                    >
+                      {label}
+                    </Typography>
+                    <Typography
+                      component="dd"
+                      sx={{ m: 0, fontSize: "1rem", whiteSpace: "pre-line" }}
+                    >
+                      {value}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            )}
+          </>
+        )}
+      </Box>
     </Box>
   );
 };
