@@ -161,4 +161,21 @@ describe("Given the library page", () => {
       expect(await screen.findByText("Rayuela")).toBeInTheDocument();
     });
   });
+
+  describe("When the user opens a book from the grid", () => {
+    it("Then the card links to its detail page", async () => {
+      mockBooks(() =>
+        HttpResponse.json({
+          items: [entry("1", "Libro Uno")],
+          nextCursor: null,
+        }),
+      );
+
+      renderRoutes(routes, ["/library"]);
+
+      expect(
+        await screen.findByRole("link", { name: /Libro Uno/ }),
+      ).toHaveAttribute("href", "/library/book-1");
+    });
+  });
 });
