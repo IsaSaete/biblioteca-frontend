@@ -30,6 +30,16 @@ const entry = (overrides?: object) => ({
   },
 });
 
+// Las sugerencias de etiquetas salen de la biblioteca cargada.
+const mockLibrary = (items: object[] = []) =>
+  server.use(
+    http.get(`${baseUrl}/books`, () =>
+      HttpResponse.json({ items, nextCursor: null }),
+    ),
+  );
+
+beforeEach(() => mockLibrary());
+
 describe("Given the book detail page", () => {
   describe("When the book loads", () => {
     it("Then it shows its data, status and synopsis", async () => {
@@ -97,9 +107,9 @@ describe("Given the book detail page", () => {
       );
 
       expect(
-        within(screen.getByRole("list", { name: "Etiquetas" })).getAllByRole(
-          "listitem",
-        ),
+        within(
+          screen.getByRole("list", { name: "Etiquetas del libro" }),
+        ).getAllByRole("listitem"),
       ).toHaveLength(2);
       expect(screen.getByText("Salón")).toBeInTheDocument();
       expect(screen.getByText("Bolsillo")).toBeInTheDocument();
@@ -120,7 +130,7 @@ describe("Given the book detail page", () => {
       );
 
       expect(
-        screen.getByText("Todavía no hay datos de tu ejemplar."),
+        screen.getByText("Todavía no has añadido datos de tu ejemplar."),
       ).toBeInTheDocument();
     });
   });
@@ -222,6 +232,170 @@ describe("Given the book detail page", () => {
         "false",
       );
       expect(body).toEqual({ status: "read" });
+    });
+  });
+
+  describe("When the user edits the data of the copy", () => {
+    it("Then it sends the filled fields and clears the empty ones", async () => {
+      let body: unknown;
+      const base = entry();
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () =>
+          HttpResponse.json({
+            ...base,
+            ejemplar: { ...base.ejemplar, location: "Salón", notes: "Viejo" },
+          }),
+        ),
+        http.patch(`${baseUrl}/books/book-1/ejemplar`, async ({ request }) => {
+          body = await request.json();
+          return HttpResponse.json({ ejemplar: base.ejemplar });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Datos de tu ejemplar" }),
+      );
+      await user.click(screen.getByRole("button", { name: "Editar datos" }));
+      await user.clear(screen.getByLabelText("Notas"));
+      await user.selectOptions(screen.getByLabelText("Formato"), "pocket");
+      await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+      expect(body).toEqual({
+        location: "Salón",
+        format: "pocket",
+        provenance: null,
+        acquisitionDate: null,
+        notes: null,
+      });
+      expect(
+        await screen.findByRole("button", { name: "Editar datos" }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the user cancels editing the copy data", () => {
+    it("Then nothing is sent and the data is shown again", async () => {
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Datos de tu ejemplar" }),
+      );
+      await user.click(screen.getByRole("button", { name: "Añadir datos" }));
+      await user.click(screen.getByRole("button", { name: "Cancelar" }));
+
+      expect(
+        screen.getByRole("button", { name: "Añadir datos" }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the user adds a tag", () => {
+    it("Then it sends the whole list with the new one", async () => {
+      let body: unknown;
+      const base = entry();
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () =>
+          HttpResponse.json({
+            ...base,
+            ejemplar: { ...base.ejemplar, tags: ["clásicos"] },
+          }),
+        ),
+        http.patch(`${baseUrl}/books/book-1/ejemplar`, async ({ request }) => {
+          body = await request.json();
+          return HttpResponse.json({ ejemplar: base.ejemplar });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.type(
+        await screen.findByLabelText("Añadir etiqueta"),
+        "  regalos {enter}",
+      );
+
+      expect(body).toEqual({ tags: ["clásicos", "regalos"] });
+    });
+  });
+
+  describe("When the user removes a tag", () => {
+    it("Then it sends the list without it", async () => {
+      let body: unknown;
+      const base = entry();
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () =>
+          HttpResponse.json({
+            ...base,
+            ejemplar: { ...base.ejemplar, tags: ["clásicos", "regalos"] },
+          }),
+        ),
+        http.patch(`${baseUrl}/books/book-1/ejemplar`, async ({ request }) => {
+          body = await request.json();
+          return HttpResponse.json({ ejemplar: base.ejemplar });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", {
+          name: "Quitar la etiqueta clásicos",
+        }),
+      );
+
+      expect(body).toEqual({ tags: ["regalos"] });
+    });
+  });
+
+  describe("When the book already has five tags", () => {
+    it("Then it explains the limit and offers no more", async () => {
+      const base = entry();
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () =>
+          HttpResponse.json({
+            ...base,
+            ejemplar: { ...base.ejemplar, tags: ["a", "b", "c", "d", "e"] },
+          }),
+        ),
+      );
+
+      renderRoutes(routes, ["/library/book-1"]);
+
+      expect(
+        await screen.findByText("Has llegado al máximo de 5 etiquetas."),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByLabelText("Añadir etiqueta"),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("When other books use tags the book does not have", () => {
+    it("Then it suggests them and filters them as the user types", async () => {
+      const other = entry();
+      mockLibrary([
+        {
+          ...other,
+          ejemplar: { ...other.ejemplar, tags: ["clásicos", "regalos"] },
+        },
+      ]);
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      const suggestions = await screen.findByRole("group", {
+        name: "Etiquetas sugeridas",
+      });
+      expect(within(suggestions).getAllByRole("button")).toHaveLength(2);
+
+      await user.type(screen.getByLabelText("Añadir etiqueta"), "reg");
+
+      expect(within(suggestions).getAllByRole("button")).toHaveLength(1);
+      expect(
+        within(suggestions).getByRole("button", { name: "regalos" }),
+      ).toBeInTheDocument();
     });
   });
 
