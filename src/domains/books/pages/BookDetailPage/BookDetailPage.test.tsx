@@ -399,6 +399,116 @@ describe("Given the book detail page", () => {
     });
   });
 
+  describe("When the user corrects the title of the book", () => {
+    it("Then it sends only that override and closes the dialog", async () => {
+      let body: unknown;
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
+        http.patch(`${baseUrl}/books/book-1/ejemplar`, async ({ request }) => {
+          body = await request.json();
+          return HttpResponse.json({ ejemplar: entry().ejemplar });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Editar datos del libro" }),
+      );
+      const title = screen.getByLabelText("Título");
+      await user.clear(title);
+      await user.type(title, "Mi título");
+      await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+      expect(body).toEqual({ overrides: { title: "Mi título" } });
+      expect(
+        await screen.findByRole("button", { name: "Editar datos del libro" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("dialog", { name: "Edita los datos del libro" }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("When the user saves the book data without changes", () => {
+    it("Then it closes without sending anything", async () => {
+      let hasPatched = false;
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
+        http.patch(`${baseUrl}/books/book-1/ejemplar`, () => {
+          hasPatched = true;
+          return HttpResponse.json({ ejemplar: entry().ejemplar });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Editar datos del libro" }),
+      );
+      await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+      expect(
+        screen.queryByRole("dialog", { name: "Edita los datos del libro" }),
+      ).not.toBeInTheDocument();
+      expect(hasPatched).toBe(false);
+    });
+  });
+
+  describe("When the user empties the title", () => {
+    it("Then it asks for it and does not send", async () => {
+      let hasPatched = false;
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
+        http.patch(`${baseUrl}/books/book-1/ejemplar`, () => {
+          hasPatched = true;
+          return HttpResponse.json({ ejemplar: entry().ejemplar });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Editar datos del libro" }),
+      );
+      await user.clear(screen.getByLabelText("Título"));
+      await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+      expect(await screen.findByText("Escribe el título")).toBeInTheDocument();
+      expect(hasPatched).toBe(false);
+    });
+  });
+
+  describe("When the server rejects a field of the book data", () => {
+    it("Then the message appears next to that field", async () => {
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
+        http.patch(`${baseUrl}/books/book-1/ejemplar`, () =>
+          HttpResponse.json(
+            {
+              error: {
+                code: "VALIDATION_ERROR",
+                message: "El año de publicación no es válido",
+                field: "overrides.publishedYear",
+              },
+            },
+            { status: 400 },
+          ),
+        ),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Editar datos del libro" }),
+      );
+      const year = screen.getByLabelText("Año de publicación");
+      await user.clear(year);
+      await user.type(year, "1999");
+      await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+      expect(
+        await screen.findByText("El año de publicación no es válido"),
+      ).toBeInTheDocument();
+    });
+  });
+
   describe("When the book is still loading", () => {
     it("Then it shows a loading state", () => {
       server.use(

@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Skeleton from "@mui/material/Skeleton";
 import Typography from "@mui/material/Typography";
+import Button from "../../../../components/ui/Button/Button";
 import ExpandableText from "../../../../components/ui/ExpandableText/ExpandableText";
 import Pill from "../../../../components/ui/Pill/Pill";
 import type { PillTone } from "../../../../components/ui/Pill/Pill";
@@ -15,6 +17,7 @@ import {
   useUpdateEjemplarMutation,
 } from "../../booksApi";
 import BookCover from "../../components/BookCover/BookCover";
+import EditBookDialog from "../../components/EditBookDialog/EditBookDialog";
 import EjemplarDataSection from "../../components/EjemplarDataSection/EjemplarDataSection";
 import TagsEditor from "../../components/TagsEditor/TagsEditor";
 import type { BookStatus } from "../../dto/BookStatus";
@@ -81,6 +84,7 @@ const BookDetailPage = () => {
   // Sugerencias a partir de los libros que ya hay cargados: el contrato no
   // tiene un endpoint de etiquetas.
   const { data: library } = useGetBooksQuery();
+  const [isEditingBook, setIsEditingBook] = useState(false);
 
   // Volver al sitio de origen (Biblioteca o Citas); si se entró directamente
   // por el enlace, a la Biblioteca.
@@ -178,6 +182,12 @@ const BookDetailPage = () => {
         >
           {details.join(" · ")}
         </Typography>
+        <Button variant="text" onClick={() => setIsEditingBook(true)}>
+          Editar datos del libro
+        </Button>
+        {isEditingBook && (
+          <EditBookDialog book={book} onClose={() => setIsEditingBook(false)} />
+        )}
         <TagsEditor
           tags={book.tags ?? []}
           suggestions={getTagSuggestions(library?.items ?? [])}
