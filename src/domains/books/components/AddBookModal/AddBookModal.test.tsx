@@ -4,6 +4,12 @@ import AppLayout from "../../../../components/navigation/AppLayout/AppLayout";
 import { renderRoutes } from "../../../../test/renderRoutes";
 import { server } from "../../../../test/server";
 
+const detectMock = vi.hoisted(() => vi.fn());
+
+vi.mock("../../scanner/loadBarcodeDetector", () => ({
+  loadBarcodeDetector: () => Promise.resolve({ detect: detectMock }),
+}));
+
 const baseUrl = import.meta.env.VITE_API_URL ?? "";
 
 const routes = [
@@ -393,6 +399,66 @@ describe("Given the add book flow", () => {
       );
       expect(
         screen.getByRole("button", { name: "Añadir manualmente" }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the device has a camera", () => {
+    const stubCamera = () => {
+      const stopTrack = vi.fn();
+      Object.defineProperty(navigator, "mediaDevices", {
+        value: {
+          getUserMedia: vi
+            .fn()
+            .mockResolvedValue({ getTracks: () => [{ stop: stopTrack }] }),
+          enumerateDevices: vi.fn().mockResolvedValue([{ kind: "videoinput" }]),
+        },
+        configurable: true,
+      });
+      HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue(undefined);
+    };
+    afterEach(() =>
+      Object.defineProperty(navigator, "mediaDevices", {
+        value: undefined,
+        configurable: true,
+      }),
+    );
+
+    it("Then it offers to scan, and a scanned ISBN is looked up and confirmed", async () => {
+      stubCamera();
+      detectMock.mockResolvedValue([{ rawValue: "9788437604947" }]);
+      mockLookup();
+      const { user } = renderRoutes(routes, ["/library"]);
+      await user.click(screen.getByRole("button", { name: "Añadir libro" }));
+
+      await user.click(
+        await screen.findByRole("button", {
+          name: "Escanear código de barras",
+        }),
+      );
+
+      expect(
+        await screen.findByText("Confirma los datos", {}, { timeout: 4000 }),
+      ).toBeInTheDocument();
+      expect(screen.getByText("Cien años de soledad")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: "Volver" }));
+
+      expect(screen.getByLabelText("ISBN")).toHaveValue("9788437604947");
+    });
+  });
+
+  describe("When the device has no camera", () => {
+    it("Then it does not offer to scan", async () => {
+      const { user } = renderRoutes(routes, ["/library"]);
+
+      await user.click(screen.getByRole("button", { name: "Añadir libro" }));
+
+      expect(
+        screen.queryByRole("button", { name: "Escanear código de barras" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Escribir ISBN" }),
       ).toBeInTheDocument();
     });
   });

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
@@ -12,6 +12,10 @@ import { isValidIsbn } from "../../utils/isValidIsbn";
 import { normalizeIsbn } from "../../utils/normalizeIsbn";
 
 interface IsbnStepProps {
+  // ISBN con el que arranca el campo. Con `autoLookup` se consulta nada más
+  // abrir (ISBN leído con la cámara, ya validado).
+  initialIsbn?: string;
+  autoLookup?: boolean;
   onBookFound: (book: ExternalBook) => void;
   // Recibe el ISBN escrito para no obligar a repetirlo en el alta manual.
   onManualEntry: (isbn: string) => void;
@@ -19,22 +23,26 @@ interface IsbnStepProps {
 
 // «Escribir ISBN» (HU-41): la consulta solo se lanza con un ISBN completo y
 // válido, al pulsar el botón o Enter; nunca en cada tecla.
-const IsbnStep = ({ onBookFound, onManualEntry }: IsbnStepProps) => {
-  const [isbn, setIsbn] = useState("");
+const IsbnStep = ({
+  initialIsbn = "",
+  autoLookup = false,
+  onBookFound,
+  onManualEntry,
+}: IsbnStepProps) => {
+  const [isbn, setIsbn] = useState(initialIsbn);
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [formError, setFormError] = useState<BookLookupError | null>(null);
   const [lookupIsbn, { isFetching }] = useLazyLookupIsbnQuery();
 
-  const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault();
+  const search = async (value: string) => {
     setFormError(null);
 
-    if (isbn.trim() === "") {
+    if (value.trim() === "") {
       setFieldError("Escribe el ISBN");
       return;
     }
 
-    if (!isValidIsbn(isbn)) {
+    if (!isValidIsbn(value)) {
       setFieldError(
         "El ISBN no es válido. Debe tener 10 o 13 cifras y estar bien escrito.",
       );
@@ -42,7 +50,7 @@ const IsbnStep = ({ onBookFound, onManualEntry }: IsbnStepProps) => {
     }
 
     setFieldError(null);
-    const result = await lookupIsbn(normalizeIsbn(isbn), true);
+    const result = await lookupIsbn(normalizeIsbn(value), true);
 
     if (result.data) {
       onBookFound(result.data);
@@ -56,6 +64,22 @@ const IsbnStep = ({ onBookFound, onManualEntry }: IsbnStepProps) => {
     } else {
       setFormError(lookupError);
     }
+  };
+
+  const hasAutoLookedUp = useRef(false);
+
+  useEffect(() => {
+    if (autoLookup && !hasAutoLookedUp.current) {
+      hasAutoLookedUp.current = true;
+      void search(initialIsbn);
+    }
+    // Solo al abrir el paso.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    await search(isbn);
   };
 
   return (
