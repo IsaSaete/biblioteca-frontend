@@ -29,6 +29,12 @@ export const booksApi = createApi({
       }),
       providesTags: ["Book"],
     }),
+    getBook: builder.query<LibraryBook, string>({
+      query: (bookId) => `/books/${encodeURIComponent(bookId)}`,
+      transformResponse: (response: BookEntry) =>
+        mapBookEntryToLibraryBook(response),
+      providesTags: (_result, _error, bookId) => [{ type: "Book", id: bookId }],
+    }),
     // Cada consulta gasta cuota del proveedor (30/min por usuario): se usan los
     // hooks `lazy` para lanzarlas solo con un ISBN completo, y la caché evita
     // repetir la misma consulta.
@@ -52,6 +58,7 @@ export const booksApi = createApi({
 
 export const {
   useGetBooksQuery,
+  useGetBookQuery,
   useLazyLookupIsbnQuery,
   useSearchExternalQuery,
   useCreateBookMutation,

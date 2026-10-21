@@ -35,6 +35,15 @@ export const routes = [
           ).default,
         }),
       },
+      // Ficha de libro: pantalla de detalle, sin barra de navegación inferior.
+      {
+        path: "/library/:bookId",
+        lazy: async () => ({
+          Component: (
+            await import("../domains/books/pages/BookDetailPage/BookDetailPage")
+          ).default,
+        }),
+      },
       {
         element: <AppLayout />,
         children: [

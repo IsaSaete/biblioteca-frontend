@@ -1,4 +1,6 @@
+import { Link as RouterLink } from "react-router";
 import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import type { LibraryBook } from "../../dto/LibraryBook";
 import BookCover from "../BookCover/BookCover";
@@ -18,29 +20,38 @@ const clampLines = (lines: number) => ({
   overflowWrap: "anywhere",
 });
 
-// Tarjeta del grid: portada, título en negrita y autores debajo. Sin enlace
-// hasta que exista la ficha de libro.
+// Tarjeta del grid: portada, título en negrita y autores debajo. Toda la
+// tarjeta lleva a la ficha del libro.
 const BookCard = ({ book }: BookCardProps) => {
   const authors = book.authors.join(", ");
 
   return (
     <Box component="li" sx={{ listStyle: "none", minWidth: 0 }}>
-      <BookCover title={book.title} coverUrl={book.coverUrl} />
-      <Typography
-        sx={{ mt: 2, fontWeight: 700, ...clampLines(2) }}
-        title={book.title}
+      <Link
+        component={RouterLink}
+        to={`/library/${book.id}`}
+        underline="none"
+        color="inherit"
+        aria-label={`${book.title}, ${authors}`}
+        sx={{ display: "block", borderRadius: 1.5 }}
       >
-        {book.title}
-      </Typography>
-      <Typography
-        color="text.secondary"
-        variant="caption"
-        component="p"
-        sx={clampLines(2)}
-        title={authors}
-      >
-        {authors}
-      </Typography>
+        <BookCover title={book.title} coverUrl={book.coverUrl} />
+        <Typography
+          sx={{ mt: 2, fontWeight: 700, ...clampLines(2) }}
+          title={book.title}
+        >
+          {book.title}
+        </Typography>
+        <Typography
+          color="text.secondary"
+          variant="caption"
+          component="p"
+          sx={clampLines(2)}
+          title={authors}
+        >
+          {authors}
+        </Typography>
+      </Link>
     </Box>
   );
 };
