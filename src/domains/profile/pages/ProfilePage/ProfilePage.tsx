@@ -75,7 +75,7 @@ const ProfilePage = () => {
         </Alert>
       )}
 
-      <Button variant="text" onClick={handleLogout} disabled={isLoading}>
+      <Button variant="neutral" onClick={handleLogout} disabled={isLoading}>
         Cerrar sesión
       </Button>
     </Box>

@@ -49,6 +49,20 @@ describe("Given a pill", () => {
     });
   });
 
+  describe("When it is selected", () => {
+    it("Then it shows a check so the state does not rely on color alone", () => {
+      const { pill } = renderPill({ selected: true, tone: "neutral" });
+
+      expect(pill.querySelector("svg")).toBeInTheDocument();
+    });
+
+    it("Then it shows no check when it is not selected", () => {
+      const { pill } = renderPill({ selected: false, tone: "neutral" });
+
+      expect(pill.querySelector("svg")).not.toBeInTheDocument();
+    });
+  });
+
   describe("When it takes the full width", () => {
     it("Then it fills its container", () => {
       const { pill } = renderPill({ fullWidth: true });

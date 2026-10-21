@@ -18,39 +18,56 @@ interface PillProps {
   fullWidth?: boolean;
 }
 
-// Colores de cada tono. El texto no usa siempre el color del contorno: el
-// terracota no llega a 4,5:1 como texto y el verde oscuro tampoco sobre su
-// fondo suave, así que ahí se usa un tono legible (WCAG AA).
+// Colores de cada tono. `outline` es el color del contorno y del texto sobre
+// fondo transparente; `solid` / `onSolid` rellenan la pastilla seleccionada o
+// de acción. El texto del contorno no usa siempre el color del relleno: el
+// terracota claro no llega a 4,5:1 como texto sobre blanco y el verde tampoco,
+// así que en contorno se usa un tono legible (WCAG AA).
 const getToneColors = (theme: Theme, tone: PillTone) => {
   const { palette } = theme.vars ?? theme;
 
   switch (tone) {
     case "success":
       return {
-        border: palette.success.main,
-        soft: palette.success.light,
-        text: palette.success.main,
-        textOnSoft: palette.text.primary,
+        solid: palette.success.main,
+        onSolid: palette.success.contrastText,
+        outlineText: palette.success.main,
       };
     case "neutral":
       return {
-        border: palette.text.secondary,
-        soft: palette.action.selected,
-        text: palette.text.secondary,
-        textOnSoft: palette.text.primary,
+        solid: palette.text.secondary,
+        onSolid: palette.background.default,
+        outlineText: palette.text.secondary,
       };
     case "accent":
       return {
-        border: palette.primary.main,
-        soft: palette.secondary.main,
-        text: palette.secondary.contrastText,
-        textOnSoft: palette.secondary.contrastText,
+        solid: palette.primary.main,
+        onSolid: palette.primary.contrastText,
+        outlineText: palette.text.primary,
       };
   }
 };
 
+const CheckIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M5 12.5l4.5 4.5L19 7" />
+  </svg>
+);
+
 // Cápsula tocable (inventario-componentes.md). Alto mínimo táctil de 44px.
-// Sin `selected` es una acción sencilla: fondo suave y sin contorno visible.
+// Sin `selected` es una acción sencilla con el relleno sólido del tono. Con
+// `selected` es un interruptor: seleccionada se rellena y lleva un ✓ (no depende
+// solo del color), y sin seleccionar queda solo con contorno.
 const Pill = ({
   label,
   onClick,
@@ -62,20 +79,15 @@ const Pill = ({
 }: PillProps) => (
   <Chip
     label={label}
-    icon={icon}
+    icon={selected ? <CheckIcon /> : icon}
     onClick={onClick}
     disabled={disabled}
     aria-pressed={selected}
     sx={(theme) => {
       const colors = getToneColors(theme, tone);
       const isOutlined = selected === false;
-      const background = isOutlined ? "transparent" : colors.soft;
-      const textColor = isOutlined
-        ? colors.text
-        : selected
-          ? colors.textOnSoft
-          : colors.text;
-      const borderColor = selected === undefined ? colors.soft : colors.border;
+      const background = isOutlined ? "transparent" : colors.solid;
+      const textColor = isOutlined ? colors.outlineText : colors.onSolid;
 
       return {
         height: 44,
@@ -85,7 +97,7 @@ const Pill = ({
         width: fullWidth ? "100%" : undefined,
         justifyContent: "center",
         border: "1px solid",
-        borderColor,
+        borderColor: colors.solid,
         backgroundColor: background,
         color: textColor,
         transition: "background-color 120ms, border-color 120ms, color 120ms",
@@ -97,7 +109,7 @@ const Pill = ({
         "&.Mui-focusVisible": {
           backgroundColor: background,
           outline: "2px solid",
-          outlineColor: colors.border,
+          outlineColor: colors.solid,
           outlineOffset: 2,
         },
       };

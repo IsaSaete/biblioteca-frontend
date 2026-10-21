@@ -84,7 +84,19 @@ const FullScreenModal = ({
               onClick={onClose}
               sx={{ width: 44, height: 44 }}
             >
-              <span aria-hidden="true">✕</span>
+              <svg
+                width={isMobile ? 24 : 20}
+                height={isMobile ? 24 : 20}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
             </IconButton>
           )}
         </Box>
