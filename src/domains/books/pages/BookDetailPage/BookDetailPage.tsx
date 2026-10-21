@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
@@ -8,15 +7,18 @@ import Typography from "@mui/material/Typography";
 import ExpandableText from "../../../../components/ui/ExpandableText/ExpandableText";
 import Pill from "../../../../components/ui/Pill/Pill";
 import type { PillTone } from "../../../../components/ui/Pill/Pill";
-import Accordion from "../../../../components/ui/Accordion/Accordion";
 import InlineError from "../../../../components/ui/InlineError/InlineError";
 import { parseApiError } from "../../../auth/utils/parseApiError";
-import { useGetBookQuery, useUpdateEjemplarMutation } from "../../booksApi";
+import {
+  useGetBookQuery,
+  useGetBooksQuery,
+  useUpdateEjemplarMutation,
+} from "../../booksApi";
 import BookCover from "../../components/BookCover/BookCover";
-import type { BookFormat } from "../../dto/BookFormat";
-import type { BookProvenance } from "../../dto/BookProvenance";
+import EjemplarDataSection from "../../components/EjemplarDataSection/EjemplarDataSection";
+import TagsEditor from "../../components/TagsEditor/TagsEditor";
 import type { BookStatus } from "../../dto/BookStatus";
-import type { LibraryBook } from "../../dto/LibraryBook";
+import { getTagSuggestions } from "../../utils/getTagSuggestions";
 
 const statusOptions: { value: BookStatus; label: string; tone: PillTone }[] = [
   { value: "pending", label: "Pendiente", tone: "neutral" },
@@ -24,42 +26,6 @@ const statusOptions: { value: BookStatus; label: string; tone: PillTone }[] = [
   { value: "read", label: "Leído", tone: "success" },
   { value: "abandoned", label: "Abandonado", tone: "neutral" },
 ];
-
-const formatLabels: Record<BookFormat, string> = {
-  hardcover: "Tapa dura",
-  paperback: "Tapa blanda",
-  pocket: "Bolsillo",
-};
-
-const provenanceLabels: Record<BookProvenance, string> = {
-  bought: "Comprado",
-  gift: "Regalo",
-  borrowed: "Prestado",
-  inherited: "Heredado",
-};
-
-const formatDate = (isoDate: string): string => {
-  const date = new Date(isoDate);
-
-  return Number.isNaN(date.getTime())
-    ? isoDate
-    : date.toLocaleDateString("es", { dateStyle: "long", timeZone: "UTC" });
-};
-
-// Solo las filas con dato: nunca una fila en blanco.
-const getCopyRows = (book: LibraryBook): [string, string][] =>
-  (
-    [
-      ["Ubicación", book.location],
-      ["Formato", book.format && formatLabels[book.format]],
-      ["Procedencia", book.provenance && provenanceLabels[book.provenance]],
-      [
-        "Fecha de adquisición",
-        book.acquisitionDate && formatDate(book.acquisitionDate),
-      ],
-      ["Notas", book.notes],
-    ] as [string, string | undefined][]
-  ).filter((row): row is [string, string] => Boolean(row[1]));
 
 const languageNames = new Intl.DisplayNames(["es"], { type: "language" });
 
@@ -110,9 +76,11 @@ const BookDetailPage = () => {
   const navigate = useNavigate();
   const { bookId = "" } = useParams();
   const { data: book, isLoading, error, refetch } = useGetBookQuery(bookId);
-  const [isCopyExpanded, setIsCopyExpanded] = useState(false);
-  const [updateEjemplar, { isError: hasUpdateFailed }] =
+  const [updateEjemplar, { isError: hasUpdateFailed, isLoading: isUpdating }] =
     useUpdateEjemplarMutation();
+  // Sugerencias a partir de los libros que ya hay cargados: el contrato no
+  // tiene un endpoint de etiquetas.
+  const { data: library } = useGetBooksQuery();
 
   // Volver al sitio de origen (Biblioteca o Citas); si se entró directamente
   // por el enlace, a la Biblioteca.
@@ -163,7 +131,6 @@ const BookDetailPage = () => {
       book.pageCount ? `${book.pageCount} páginas` : undefined,
       book.language ? getLanguageName(book.language) : undefined,
     ].filter((detail): detail is string => Boolean(detail));
-    const copyRows = getCopyRows(book);
 
     return (
       <Box sx={{ display: "grid", gap: 5, justifyItems: "center" }}>
@@ -211,38 +178,14 @@ const BookDetailPage = () => {
         >
           {details.join(" · ")}
         </Typography>
-        {book.tags && book.tags.length > 0 && (
-          <Box
-            component="ul"
-            aria-label="Etiquetas"
-            sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              gap: 2,
-              m: 0,
-              p: 0,
-              listStyle: "none",
-            }}
-          >
-            {book.tags.map((tag) => (
-              <Typography
-                key={tag}
-                component="li"
-                variant="caption"
-                sx={{
-                  px: 3,
-                  py: 1,
-                  borderRadius: "999px",
-                  border: 1,
-                  borderColor: "divider",
-                }}
-              >
-                {tag}
-              </Typography>
-            ))}
-          </Box>
-        )}
+        <TagsEditor
+          tags={book.tags ?? []}
+          suggestions={getTagSuggestions(library?.items ?? [])}
+          disabled={isUpdating}
+          onChange={(tags) =>
+            void updateEjemplar({ bookId: book.id, changes: { tags } })
+          }
+        />
         {book.synopsis && (
           <Box component="section" aria-labelledby="synopsis-title">
             <Typography
@@ -259,35 +202,7 @@ const BookDetailPage = () => {
           </Box>
         )}
         <Box sx={{ width: "100%" }}>
-          <Accordion
-            title="Datos de tu ejemplar"
-            expanded={isCopyExpanded}
-            onChange={setIsCopyExpanded}
-            isEditable={false}
-          >
-            {copyRows.length === 0 ? (
-              <Typography color="text.secondary">
-                Todavía no hay datos de tu ejemplar.
-              </Typography>
-            ) : (
-              <Box component="dl" sx={{ m: 0, display: "grid", gap: 3 }}>
-                {copyRows.map(([label, value]) => (
-                  <Box key={label}>
-                    <Typography
-                      component="dt"
-                      variant="caption"
-                      color="text.secondary"
-                    >
-                      {label}
-                    </Typography>
-                    <Typography component="dd" sx={{ m: 0 }}>
-                      {value}
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
-            )}
-          </Accordion>
+          <EjemplarDataSection book={book} />
         </Box>
       </Box>
     );

@@ -9,7 +9,7 @@ type FloatingLabelInputProps = Omit<
   "variant" | "type" | "label"
 > & {
   label: string;
-  type?: "text" | "email" | "password";
+  type?: "text" | "email" | "password" | "date";
 };
 
 const EyeIcon = ({ crossed }: { crossed: boolean }) => (
@@ -45,6 +45,9 @@ const FloatingLabelInput = ({
       type={isPassword && isPasswordVisible ? "text" : type}
       slotProps={{
         ...slotProps,
+        // Un campo de fecha nunca está «vacío» para el navegador: la etiqueta
+        // va siempre arriba para no pisar el selector.
+        ...(type === "date" && { inputLabel: { shrink: true } }),
         input: {
           sx: { borderRadius: "6px", minHeight: 44 },
           endAdornment: isPassword ? (
