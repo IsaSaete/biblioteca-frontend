@@ -20,6 +20,7 @@
     "@hookform/resolvers": "^5.9.1",
     "@mui/material": "^9.5.0",
     "@reduxjs/toolkit": "^2.13.0",
+    "barcode-detector": "^3.2.3",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-hook-form": "^7.90.0",
