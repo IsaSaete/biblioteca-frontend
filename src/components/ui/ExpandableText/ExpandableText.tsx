@@ -32,6 +32,7 @@ const ExpandableText = ({ text, lines = 5 }: ExpandableTextProps) => {
         id={id}
         ref={textRef}
         sx={{
+          fontSize: "1rem",
           whiteSpace: "pre-line",
           overflowWrap: "anywhere",
           ...(!isExpanded && {

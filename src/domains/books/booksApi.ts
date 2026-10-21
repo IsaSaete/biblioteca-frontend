@@ -55,6 +55,13 @@ export const booksApi = createApi({
         mapBookEntryToLibraryBook(response),
       invalidatesTags: ["Book"],
     }),
+    deleteBook: builder.mutation<void, string>({
+      query: (bookId) => ({
+        url: `/books/${encodeURIComponent(bookId)}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Book"],
+    }),
     // Favorito y estado se reflejan al instante en la ficha y se deshacen si el
     // servidor rechaza el cambio; el resto de campos esperan a la respuesta.
     updateEjemplar: builder.mutation<
@@ -99,4 +106,5 @@ export const {
   useSearchExternalQuery,
   useCreateBookMutation,
   useUpdateEjemplarMutation,
+  useDeleteBookMutation,
 } = booksApi;

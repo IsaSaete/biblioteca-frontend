@@ -63,6 +63,14 @@ describe("Given a pill", () => {
     });
   });
 
+  describe("When it is a danger action", () => {
+    it("Then it is only an outline, never filled", () => {
+      const { pill } = renderPill({ tone: "danger" });
+
+      expect(getComputedStyle(pill).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    });
+  });
+
   describe("When it takes the full width", () => {
     it("Then it fills its container", () => {
       const { pill } = renderPill({ fullWidth: true });

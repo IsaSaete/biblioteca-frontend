@@ -8,27 +8,20 @@ import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import ExpandableText from "../../../../components/ui/ExpandableText/ExpandableText";
 import Pill from "../../../../components/ui/Pill/Pill";
-import type { PillTone } from "../../../../components/ui/Pill/Pill";
+import BottomSheet from "../../../../components/ui/BottomSheet/BottomSheet";
 import InlineError from "../../../../components/ui/InlineError/InlineError";
 import { parseApiError } from "../../../auth/utils/parseApiError";
 import {
   useGetBookQuery,
+  useDeleteBookMutation,
   useGetBooksQuery,
   useUpdateEjemplarMutation,
 } from "../../booksApi";
 import BookCover from "../../components/BookCover/BookCover";
 import EditBookDialog from "../../components/EditBookDialog/EditBookDialog";
 import EjemplarDataSection from "../../components/EjemplarDataSection/EjemplarDataSection";
-import TagsEditor from "../../components/TagsEditor/TagsEditor";
-import type { BookStatus } from "../../dto/BookStatus";
+import StatusSelector from "../../components/StatusSelector/StatusSelector";
 import { getTagSuggestions } from "../../utils/getTagSuggestions";
-
-const statusOptions: { value: BookStatus; label: string; tone: PillTone }[] = [
-  { value: "pending", label: "Pendiente", tone: "neutral" },
-  { value: "reading", label: "Leyendo", tone: "accent" },
-  { value: "read", label: "Leído", tone: "success" },
-  { value: "abandoned", label: "Abandonado", tone: "neutral" },
-];
 
 const languageNames = new Intl.DisplayNames(["es"], { type: "language" });
 
@@ -85,6 +78,17 @@ const BookDetailPage = () => {
   // tiene un endpoint de etiquetas.
   const { data: library } = useGetBooksQuery();
   const [isEditingBook, setIsEditingBook] = useState(false);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [deleteBook, { isLoading: isDeleting, isError: hasDeleteFailed }] =
+    useDeleteBookMutation();
+
+  const handleDelete = async () => {
+    const result = await deleteBook(bookId);
+
+    if (!result.error) {
+      await navigate("/library", { replace: true });
+    }
+  };
 
   // Volver al sitio de origen (Biblioteca o Citas); si se entró directamente
   // por el enlace, a la Biblioteca.
@@ -145,64 +149,68 @@ const BookDetailPage = () => {
           <Typography variant="h6" component="h1">
             {book.title}
           </Typography>
-          <Typography color="text.secondary">
+          <Typography color="text.secondary" sx={{ fontSize: "1rem" }}>
             {book.authors.join(", ")}
           </Typography>
         </Box>
-        <Box
-          role="group"
-          aria-label="Estado de lectura"
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
-            gap: 2,
-            width: "100%",
-          }}
-        >
-          {statusOptions.map(({ value, label, tone }) => (
-            <Pill
-              key={value}
-              label={label}
-              tone={tone}
-              fullWidth
-              selected={book.status === value}
-              onClick={() =>
-                void updateEjemplar({
-                  bookId: book.id,
-                  changes: { status: value },
-                })
-              }
-            />
-          ))}
-        </Box>
+        <StatusSelector
+          status={book.status}
+          disabled={isUpdating}
+          onChange={(status) =>
+            void updateEjemplar({ bookId: book.id, changes: { status } })
+          }
+        />
         <Typography
           color="text.secondary"
-          variant="caption"
-          sx={{ textAlign: "center" }}
+          sx={{ textAlign: "center", fontSize: "0.875rem" }}
         >
           {details.join(" · ")}
         </Typography>
+        {book.tags && book.tags.length > 0 && (
+          <Box
+            component="ul"
+            aria-label="Etiquetas"
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: 2,
+              m: 0,
+              p: 0,
+              listStyle: "none",
+            }}
+          >
+            {book.tags.map((tag) => (
+              <Typography
+                key={tag}
+                component="li"
+                sx={{
+                  px: 3,
+                  py: 1,
+                  fontSize: "0.875rem",
+                  borderRadius: "999px",
+                  border: 1,
+                  borderColor: "divider",
+                }}
+              >
+                {tag}
+              </Typography>
+            ))}
+          </Box>
+        )}
         <Button variant="text" onClick={() => setIsEditingBook(true)}>
           Editar datos del libro
         </Button>
         {isEditingBook && (
           <EditBookDialog book={book} onClose={() => setIsEditingBook(false)} />
         )}
-        <TagsEditor
-          tags={book.tags ?? []}
-          suggestions={getTagSuggestions(library?.items ?? [])}
-          disabled={isUpdating}
-          onChange={(tags) =>
-            void updateEjemplar({ bookId: book.id, changes: { tags } })
-          }
-        />
         {book.synopsis && (
           <Box component="section" aria-labelledby="synopsis-title">
             <Typography
               id="synopsis-title"
               component="h2"
-              variant="caption"
               color="text.secondary"
+              sx={{ fontSize: "0.875rem" }}
             >
               Sinopsis
             </Typography>
@@ -211,9 +219,48 @@ const BookDetailPage = () => {
             </Box>
           </Box>
         )}
-        <Box sx={{ width: "100%" }}>
-          <EjemplarDataSection book={book} />
-        </Box>
+        <EjemplarDataSection
+          book={book}
+          tagSuggestions={getTagSuggestions(library?.items ?? [])}
+        />
+        {hasDeleteFailed && (
+          <Alert severity="error" sx={{ width: "100%" }}>
+            No se pudo eliminar el libro. Inténtalo de nuevo.
+          </Alert>
+        )}
+        <Pill
+          tone="danger"
+          label="Eliminar libro de mi biblioteca"
+          fullWidth
+          onClick={() => setIsConfirmingDelete(true)}
+        />
+        <BottomSheet
+          open={isConfirmingDelete}
+          title="¿Eliminar este libro?"
+          onClose={() => setIsConfirmingDelete(false)}
+        >
+          <Typography color="text.secondary" sx={{ mt: 1, mb: 4 }}>
+            Se quitará de tu biblioteca junto con sus citas. Esta acción no se
+            puede deshacer.
+          </Typography>
+          <Box sx={{ display: "grid", gap: 2 }}>
+            <Pill
+              tone="danger"
+              label={isDeleting ? "Eliminando…" : "Sí, eliminar"}
+              fullWidth
+              disabled={isDeleting}
+              onClick={() => void handleDelete()}
+            />
+            <Button
+              variant="text"
+              fullWidth
+              disabled={isDeleting}
+              onClick={() => setIsConfirmingDelete(false)}
+            >
+              Cancelar
+            </Button>
+          </Box>
+        </BottomSheet>
       </Box>
     );
   };

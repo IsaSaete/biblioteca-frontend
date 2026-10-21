@@ -56,10 +56,12 @@ describe("Given the book detail page", () => {
         }),
       ).toBeInTheDocument();
       expect(screen.getByText("Albert Espinosa")).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Leyendo" })).toHaveAttribute(
-        "aria-pressed",
-        "true",
-      );
+      expect(
+        screen.getByRole("button", { name: "Leyendo" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Pendiente" }),
+      ).not.toBeInTheDocument();
       expect(
         screen.getByText("Debolsillo · 2012 · 170 páginas · español"),
       ).toBeInTheDocument();
@@ -101,14 +103,11 @@ describe("Given the book detail page", () => {
         ),
       );
 
-      const { user } = renderRoutes(routes, ["/library/book-1"]);
-      await user.click(
-        await screen.findByRole("button", { name: "Datos de tu ejemplar" }),
-      );
+      renderRoutes(routes, ["/library/book-1"]);
 
       expect(
         within(
-          screen.getByRole("list", { name: "Etiquetas del libro" }),
+          await screen.findByRole("list", { name: "Etiquetas" }),
         ).getAllByRole("listitem"),
       ).toHaveLength(2);
       expect(screen.getByText("Salón")).toBeInTheDocument();
@@ -124,13 +123,10 @@ describe("Given the book detail page", () => {
         http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
       );
 
-      const { user } = renderRoutes(routes, ["/library/book-1"]);
-      await user.click(
-        await screen.findByRole("button", { name: "Datos de tu ejemplar" }),
-      );
+      renderRoutes(routes, ["/library/book-1"]);
 
       expect(
-        screen.getByText("Todavía no has añadido datos de tu ejemplar."),
+        await screen.findByText("Todavía no has añadido datos de tu ejemplar."),
       ).toBeInTheDocument();
     });
   });
@@ -201,7 +197,7 @@ describe("Given the book detail page", () => {
   });
 
   describe("When the user changes the reading status", () => {
-    it("Then it sends the new status and marks it selected", async () => {
+    it("Then only the current status shows until it is opened, and the new one is sent", async () => {
       let body: unknown;
       let status = "reading";
       server.use(
@@ -221,16 +217,12 @@ describe("Given the book detail page", () => {
       );
 
       const { user } = renderRoutes(routes, ["/library/book-1"]);
-      await user.click(await screen.findByRole("button", { name: "Leído" }));
+      await user.click(await screen.findByRole("button", { name: "Leyendo" }));
+      await user.click(screen.getByRole("radio", { name: "Leído" }));
 
-      expect(screen.getByRole("button", { name: "Leído" })).toHaveAttribute(
-        "aria-pressed",
-        "true",
-      );
-      expect(screen.getByRole("button", { name: "Leyendo" })).toHaveAttribute(
-        "aria-pressed",
-        "false",
-      );
+      expect(
+        await screen.findByRole("button", { name: "Leído" }),
+      ).toBeInTheDocument();
       expect(body).toEqual({ status: "read" });
     });
   });
@@ -254,9 +246,8 @@ describe("Given the book detail page", () => {
 
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
-        await screen.findByRole("button", { name: "Datos de tu ejemplar" }),
+        await screen.findByRole("button", { name: "Editar datos" }),
       );
-      await user.click(screen.getByRole("button", { name: "Editar datos" }));
       await user.clear(screen.getByLabelText("Notas"));
       await user.selectOptions(screen.getByLabelText("Formato"), "pocket");
       await user.click(screen.getByRole("button", { name: "Guardar" }));
@@ -267,6 +258,7 @@ describe("Given the book detail page", () => {
         provenance: null,
         acquisitionDate: null,
         notes: null,
+        tags: [],
       });
       expect(
         await screen.findByRole("button", { name: "Editar datos" }),
@@ -282,9 +274,8 @@ describe("Given the book detail page", () => {
 
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
-        await screen.findByRole("button", { name: "Datos de tu ejemplar" }),
+        await screen.findByRole("button", { name: "Añadir datos" }),
       );
-      await user.click(screen.getByRole("button", { name: "Añadir datos" }));
       await user.click(screen.getByRole("button", { name: "Cancelar" }));
 
       expect(
@@ -311,12 +302,16 @@ describe("Given the book detail page", () => {
       );
 
       const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Editar datos" }),
+      );
       await user.type(
-        await screen.findByLabelText("Añadir etiqueta"),
+        screen.getByLabelText("Añadir etiqueta"),
         "  regalos {enter}",
       );
+      await user.click(screen.getByRole("button", { name: "Guardar" }));
 
-      expect(body).toEqual({ tags: ["clásicos", "regalos"] });
+      expect(body).toMatchObject({ tags: ["clásicos", "regalos"] });
     });
   });
 
@@ -339,12 +334,14 @@ describe("Given the book detail page", () => {
 
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
-        await screen.findByRole("button", {
-          name: "Quitar la etiqueta clásicos",
-        }),
+        await screen.findByRole("button", { name: "Editar datos" }),
       );
+      await user.click(
+        screen.getByRole("button", { name: "Quitar la etiqueta clásicos" }),
+      );
+      await user.click(screen.getByRole("button", { name: "Guardar" }));
 
-      expect(body).toEqual({ tags: ["regalos"] });
+      expect(body).toMatchObject({ tags: ["regalos"] });
     });
   });
 
@@ -360,7 +357,10 @@ describe("Given the book detail page", () => {
         ),
       );
 
-      renderRoutes(routes, ["/library/book-1"]);
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Editar datos" }),
+      );
 
       expect(
         await screen.findByText("Has llegado al máximo de 5 etiquetas."),
@@ -385,6 +385,9 @@ describe("Given the book detail page", () => {
       );
 
       const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Añadir datos" }),
+      );
       const suggestions = await screen.findByRole("group", {
         name: "Etiquetas sugeridas",
       });
@@ -506,6 +509,84 @@ describe("Given the book detail page", () => {
       expect(
         await screen.findByText("El año de publicación no es válido"),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the user confirms deleting the book", () => {
+    it("Then it deletes it and goes back to the library", async () => {
+      let hasDeleted = false;
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
+        http.delete(`${baseUrl}/books/book-1`, () => {
+          hasDeleted = true;
+          return new HttpResponse(null, { status: 204 });
+        }),
+      );
+
+      const { user, router } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", {
+          name: "Eliminar libro de mi biblioteca",
+        }),
+      );
+      await user.click(screen.getByRole("button", { name: "Sí, eliminar" }));
+
+      await screen.findByText("Biblioteca");
+      expect(hasDeleted).toBe(true);
+      expect(router.state.location.pathname).toBe("/library");
+    });
+  });
+
+  describe("When the user cancels deleting the book", () => {
+    it("Then nothing is deleted", async () => {
+      let hasDeleted = false;
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
+        http.delete(`${baseUrl}/books/book-1`, () => {
+          hasDeleted = true;
+          return new HttpResponse(null, { status: 204 });
+        }),
+      );
+
+      const { user, router } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", {
+          name: "Eliminar libro de mi biblioteca",
+        }),
+      );
+      await user.click(screen.getByRole("button", { name: "Cancelar" }));
+
+      expect(hasDeleted).toBe(false);
+      expect(router.state.location.pathname).toBe("/library/book-1");
+    });
+  });
+
+  describe("When deleting the book fails", () => {
+    it("Then it stays on the page and shows an error", async () => {
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
+        http.delete(`${baseUrl}/books/book-1`, () =>
+          HttpResponse.json(
+            { error: { code: "INTERNAL_ERROR", message: "Error" } },
+            { status: 500 },
+          ),
+        ),
+      );
+
+      const { user, router } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", {
+          name: "Eliminar libro de mi biblioteca",
+        }),
+      );
+      await user.click(screen.getByRole("button", { name: "Sí, eliminar" }));
+
+      expect(
+        await screen.findByText(
+          "No se pudo eliminar el libro. Inténtalo de nuevo.",
+        ),
+      ).toBeInTheDocument();
+      expect(router.state.location.pathname).toBe("/library/book-1");
     });
   });
 

@@ -3,9 +3,9 @@ import type { FormEvent } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Accordion from "../../../../components/ui/Accordion/Accordion";
 import Button from "../../../../components/ui/Button/Button";
 import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
+import TagsEditor from "../TagsEditor/TagsEditor";
 import { getFormErrorMessage } from "../../../auth/utils/getFormErrorMessage";
 import { useUpdateEjemplarMutation } from "../../booksApi";
 import type { BookFormat } from "../../dto/BookFormat";
@@ -14,6 +14,7 @@ import type { LibraryBook } from "../../dto/LibraryBook";
 
 interface EjemplarDataSectionProps {
   book: LibraryBook;
+  tagSuggestions: string[];
 }
 
 const formatLabels: Record<BookFormat, string> = {
@@ -63,14 +64,17 @@ const selectProps = {
 
 // «Datos de tu ejemplar» (HU-21): se leen en el desplegable y un único botón los
 // abre a edición. Vaciar un campo lo borra (`null`) en el servidor.
-const EjemplarDataSection = ({ book }: EjemplarDataSectionProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+const EjemplarDataSection = ({
+  book,
+  tagSuggestions,
+}: EjemplarDataSectionProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [location, setLocation] = useState("");
   const [format, setFormat] = useState("");
   const [provenance, setProvenance] = useState("");
   const [acquisitionDate, setAcquisitionDate] = useState("");
   const [notes, setNotes] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
   const [updateEjemplar, { isLoading }] = useUpdateEjemplarMutation();
   const rows = getRows(book);
@@ -81,6 +85,7 @@ const EjemplarDataSection = ({ book }: EjemplarDataSectionProps) => {
     setProvenance(book.provenance ?? "");
     setAcquisitionDate(book.acquisitionDate ?? "");
     setNotes(book.notes ?? "");
+    setTags(book.tags ?? []);
     setFormError(null);
     setIsEditing(true);
   };
@@ -97,6 +102,7 @@ const EjemplarDataSection = ({ book }: EjemplarDataSectionProps) => {
         provenance: isProvenance(provenance) ? provenance : null,
         acquisitionDate: acquisitionDate || null,
         notes: notes.trim() || null,
+        tags,
       },
     });
 
@@ -114,12 +120,19 @@ const EjemplarDataSection = ({ book }: EjemplarDataSectionProps) => {
   };
 
   return (
-    <Accordion
-      title="Datos de tu ejemplar"
-      expanded={isExpanded}
-      onChange={setIsExpanded}
-      isEditable={false}
+    <Box
+      component="section"
+      aria-labelledby="copy-title"
+      sx={{ width: "100%" }}
     >
+      <Typography
+        id="copy-title"
+        component="h2"
+        color="text.secondary"
+        sx={{ fontSize: "0.875rem", mb: 3 }}
+      >
+        Datos de tu ejemplar
+      </Typography>
       {isEditing ? (
         <Box
           component="form"
@@ -174,6 +187,12 @@ const EjemplarDataSection = ({ book }: EjemplarDataSectionProps) => {
             multiline
             minRows={3}
           />
+          <TagsEditor
+            tags={tags}
+            suggestions={tagSuggestions}
+            onChange={setTags}
+            disabled={isLoading}
+          />
           <Box sx={{ display: "grid", gap: 2 }}>
             <Button type="submit" fullWidth disabled={isLoading}>
               {isLoading ? "Guardando…" : "Guardar"}
@@ -191,23 +210,23 @@ const EjemplarDataSection = ({ book }: EjemplarDataSectionProps) => {
       ) : (
         <>
           {rows.length === 0 ? (
-            <Typography color="text.secondary">
+            <Typography color="text.secondary" sx={{ fontSize: "1rem", mb: 3 }}>
               Todavía no has añadido datos de tu ejemplar.
             </Typography>
           ) : (
-            <Box component="dl" sx={{ m: 0, display: "grid", gap: 3 }}>
+            <Box component="dl" sx={{ m: 0, mb: 3, display: "grid", gap: 3 }}>
               {rows.map(([label, value]) => (
                 <Box key={label}>
                   <Typography
                     component="dt"
-                    variant="caption"
                     color="text.secondary"
+                    sx={{ fontSize: "0.875rem" }}
                   >
                     {label}
                   </Typography>
                   <Typography
                     component="dd"
-                    sx={{ m: 0, whiteSpace: "pre-line" }}
+                    sx={{ m: 0, fontSize: "1rem", whiteSpace: "pre-line" }}
                   >
                     {value}
                   </Typography>
@@ -216,11 +235,13 @@ const EjemplarDataSection = ({ book }: EjemplarDataSectionProps) => {
             </Box>
           )}
           <Button variant="neutral" onClick={startEditing}>
-            {rows.length === 0 ? "Añadir datos" : "Editar datos"}
+            {rows.length === 0 && !book.tags?.length
+              ? "Añadir datos"
+              : "Editar datos"}
           </Button>
         </>
       )}
-    </Accordion>
+    </Box>
   );
 };
 
