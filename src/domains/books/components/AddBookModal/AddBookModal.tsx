@@ -5,7 +5,9 @@ import FullScreenModal from "../../../../components/ui/FullScreenModal/FullScree
 import Pill from "../../../../components/ui/Pill/Pill";
 import type { ExternalBook } from "../../dto/ExternalBook";
 import ConfirmBookStep from "../ConfirmBookStep/ConfirmBookStep";
+import { useHasCamera } from "../../hooks/useHasCamera";
 import IsbnStep from "../IsbnStep/IsbnStep";
+import ScanStep from "../ScanStep/ScanStep";
 import SearchStep from "../SearchStep/SearchStep";
 
 interface AddBookModalProps {
@@ -14,7 +16,8 @@ interface AddBookModalProps {
 
 type Step =
   | { name: "choose" }
-  | { name: "isbn" }
+  | { name: "scan" }
+  | { name: "isbn"; isbn?: string; autoLookup?: boolean }
   | { name: "search"; query?: string }
   | { name: "manual"; isbn?: string; back: Step }
   | { name: "confirm"; book: ExternalBook; back: Step };
@@ -23,6 +26,10 @@ const headings: Record<Step["name"], { title: string; subtitle: string }> = {
   choose: {
     title: "Añade un libro",
     subtitle: "Elige cómo quieres añadirlo",
+  },
+  scan: {
+    title: "Escanea el código",
+    subtitle: "Apunta la cámara al código de barras del libro.",
   },
   isbn: {
     title: "Escribe el ISBN",
@@ -78,6 +85,22 @@ const SearchIcon = () => (
   </svg>
 );
 
+const BarcodeIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M3 5v14M7 5v14M11 5v14M15 5v14M19 5v14M21 5v14" />
+  </svg>
+);
+
 const KeyboardIcon = () => (
   <svg
     width="20"
@@ -95,15 +118,20 @@ const KeyboardIcon = () => (
   </svg>
 );
 
-// Flujo «Añadir libro». Solo se ofrecen las vías ya implementadas (el escaneo
-// se suma con su historia): nunca una función que no existe. Cada paso que
-// avanza guarda a dónde vuelve «Volver».
+// Flujo «Añadir libro». Cada paso que avanza guarda a dónde vuelve «Volver».
+// «Escanear código de barras» solo se ofrece si hay cámara (en escritorio sin
+// ella queda «Escribir ISBN», que llega al mismo autocompletado).
 const AddBookModal = ({ onClose }: AddBookModalProps) => {
   const [step, setStep] = useState<Step>({ name: "choose" });
   const heading = headings[step.name];
+  const hasCamera = useHasCamera();
 
   const handleBack = (): void => {
-    if (step.name === "isbn" || step.name === "search") {
+    if (
+      step.name === "isbn" ||
+      step.name === "search" ||
+      step.name === "scan"
+    ) {
       setStep({ name: "choose" });
     } else if (step.name === "manual" || step.name === "confirm") {
       setStep(step.back);
@@ -128,6 +156,14 @@ const AddBookModal = ({ onClose }: AddBookModalProps) => {
 
         {step.name === "choose" && (
           <Box sx={{ display: "grid", gap: 3 }}>
+            {hasCamera && (
+              <Pill
+                fullWidth
+                icon={<BarcodeIcon />}
+                label="Escanear código de barras"
+                onClick={() => setStep({ name: "scan" })}
+              />
+            )}
             <Pill
               fullWidth
               icon={<KeyboardIcon />}
@@ -148,13 +184,32 @@ const AddBookModal = ({ onClose }: AddBookModalProps) => {
             />
           </Box>
         )}
+        {step.name === "scan" && (
+          <ScanStep
+            onIsbnScanned={(isbn) =>
+              setStep({ name: "isbn", isbn, autoLookup: true })
+            }
+            onWriteIsbn={() => setStep({ name: "isbn" })}
+          />
+        )}
         {step.name === "isbn" && (
           <IsbnStep
+            initialIsbn={step.isbn}
+            autoLookup={step.autoLookup}
             onBookFound={(book) =>
-              setStep({ name: "confirm", book, back: step })
+              setStep({
+                name: "confirm",
+                book,
+                // Volver no debe repetir la consulta automática.
+                back: { name: "isbn", isbn: step.isbn },
+              })
             }
             onManualEntry={(isbn) =>
-              setStep({ name: "manual", isbn, back: step })
+              setStep({
+                name: "manual",
+                isbn,
+                back: { name: "isbn", isbn: step.isbn },
+              })
             }
           />
         )}
