@@ -8,6 +8,8 @@ interface AccordionProps {
   title: string;
   expanded: boolean;
   onChange: (expanded: boolean) => void;
+  // El lápiz anuncia que el bloque se puede editar: solo se muestra si es así.
+  isEditable?: boolean;
   children: ReactNode;
 }
 
@@ -31,7 +33,13 @@ const PencilIcon = () => (
 // Sección desplegable con el icono de lápiz a nivel de bloque (patrón de
 // «Más detalles» en Añadir libro). Los hijos siguen montados al plegarse, así
 // que sus campos de formulario conservan el valor.
-const Accordion = ({ title, expanded, onChange, children }: AccordionProps) => (
+const Accordion = ({
+  title,
+  expanded,
+  onChange,
+  isEditable = true,
+  children,
+}: AccordionProps) => (
   <MuiAccordion
     expanded={expanded}
     onChange={(_event, isExpanded) => onChange(isExpanded)}
@@ -50,7 +58,7 @@ const Accordion = ({ title, expanded, onChange, children }: AccordionProps) => (
         component="span"
         sx={{ display: "flex", alignItems: "center", gap: 2, fontWeight: 500 }}
       >
-        <PencilIcon />
+        {isEditable && <PencilIcon />}
         {title}
       </Typography>
     </AccordionSummary>

@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { renderRoutes } from "../../../../test/renderRoutes";
 import { server } from "../../../../test/server";
@@ -66,6 +66,58 @@ describe("Given the book detail page", () => {
 
       expect(
         await screen.findByRole("heading", { level: 1, name: "Mi título" }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the ejemplar has tags and personal data", () => {
+    it("Then it lists the tags and the filled rows of the copy data", async () => {
+      const base = entry();
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () =>
+          HttpResponse.json({
+            ...base,
+            ejemplar: {
+              ...base.ejemplar,
+              tags: ["clásicos", "regalos"],
+              location: "Salón",
+              format: "pocket",
+              acquisitionDate: "2026-05-01",
+            },
+          }),
+        ),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Datos de tu ejemplar" }),
+      );
+
+      expect(
+        within(screen.getByRole("list", { name: "Etiquetas" })).getAllByRole(
+          "listitem",
+        ),
+      ).toHaveLength(2);
+      expect(screen.getByText("Salón")).toBeInTheDocument();
+      expect(screen.getByText("Bolsillo")).toBeInTheDocument();
+      expect(screen.getByText("1 de mayo de 2026")).toBeInTheDocument();
+      expect(screen.queryByText("Procedencia")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("When the ejemplar has no personal data", () => {
+    it("Then the copy section says so instead of showing empty rows", async () => {
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Datos de tu ejemplar" }),
+      );
+
+      expect(
+        screen.getByText("Todavía no hay datos de tu ejemplar."),
       ).toBeInTheDocument();
     });
   });

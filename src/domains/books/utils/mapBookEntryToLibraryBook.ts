@@ -17,5 +17,12 @@ export const mapBookEntryToLibraryBook = ({
     ...definedOverrides,
     ejemplarId: ejemplar.id,
     status: ejemplar.status,
+    favorite: ejemplar.favorite,
+    location: ejemplar.location,
+    format: ejemplar.format,
+    provenance: ejemplar.provenance,
+    acquisitionDate: ejemplar.acquisitionDate,
+    notes: ejemplar.notes,
+    tags: ejemplar.tags,
   };
 };

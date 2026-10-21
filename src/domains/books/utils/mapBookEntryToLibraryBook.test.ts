@@ -15,6 +15,7 @@ const buildEntry = (
     id: "ejemplar-1",
     bookId: "book-1",
     status: "reading",
+    favorite: false,
     overrides,
     createdAt: "2026-10-20T10:00:00.000Z",
   },
@@ -33,6 +34,36 @@ describe("Given a saved book with its ejemplar", () => {
         publisher: "Cátedra",
         ejemplarId: "ejemplar-1",
         status: "reading",
+        favorite: false,
+      });
+    });
+  });
+
+  describe("When the ejemplar has personal data", () => {
+    it("Then the library book carries it", () => {
+      const entry = buildEntry();
+      const libraryBook = mapBookEntryToLibraryBook({
+        ...entry,
+        ejemplar: {
+          ...entry.ejemplar,
+          favorite: true,
+          location: "Salón",
+          format: "paperback",
+          provenance: "gift",
+          acquisitionDate: "2026-05-01",
+          notes: "Dedicado",
+          tags: ["clásicos"],
+        },
+      });
+
+      expect(libraryBook).toMatchObject({
+        favorite: true,
+        location: "Salón",
+        format: "paperback",
+        provenance: "gift",
+        acquisitionDate: "2026-05-01",
+        notes: "Dedicado",
+        tags: ["clásicos"],
       });
     });
   });
