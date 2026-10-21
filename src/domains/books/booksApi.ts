@@ -7,6 +7,8 @@ import type { GetBooksParams } from "./dto/GetBooksParams";
 import type { GetBooksResponse } from "./dto/GetBooksResponse";
 import type { LibraryBook } from "./dto/LibraryBook";
 import type { LookupIsbnResponse } from "./dto/LookupIsbnResponse";
+import type { UpdateEjemplarRequest } from "./dto/UpdateEjemplarRequest";
+import type { UpdateEjemplarResponse } from "./dto/UpdateEjemplarResponse";
 import type { SearchExternalResponse } from "./dto/SearchExternalResponse";
 import { mapBookEntryToLibraryBook } from "./utils/mapBookEntryToLibraryBook";
 
@@ -53,6 +55,40 @@ export const booksApi = createApi({
         mapBookEntryToLibraryBook(response),
       invalidatesTags: ["Book"],
     }),
+    // Favorito y estado se reflejan al instante en la ficha y se deshacen si el
+    // servidor rechaza el cambio; el resto de campos esperan a la respuesta.
+    updateEjemplar: builder.mutation<
+      UpdateEjemplarResponse,
+      { bookId: string; changes: UpdateEjemplarRequest }
+    >({
+      query: ({ bookId, changes }) => ({
+        url: `/books/${encodeURIComponent(bookId)}/ejemplar`,
+        method: "PATCH",
+        body: changes,
+      }),
+      async onQueryStarted({ bookId, changes }, { dispatch, queryFulfilled }) {
+        const patch = dispatch(
+          booksApi.util.updateQueryData("getBook", bookId, (book) => {
+            if (changes.favorite !== undefined) {
+              book.favorite = changes.favorite;
+            }
+            if (changes.status !== undefined) {
+              book.status = changes.status;
+            }
+          }),
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
+      invalidatesTags: (_result, _error, { bookId }) => [
+        { type: "Book", id: bookId },
+        "Book",
+      ],
+    }),
   }),
 });
 
@@ -62,4 +98,5 @@ export const {
   useLazyLookupIsbnQuery,
   useSearchExternalQuery,
   useCreateBookMutation,
+  useUpdateEjemplarMutation,
 } = booksApi;

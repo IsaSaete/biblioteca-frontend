@@ -46,7 +46,10 @@ describe("Given the book detail page", () => {
         }),
       ).toBeInTheDocument();
       expect(screen.getByText("Albert Espinosa")).toBeInTheDocument();
-      expect(screen.getByText("Leyendo")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Leyendo" })).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
       expect(
         screen.getByText("Debolsillo · 2012 · 170 páginas · español"),
       ).toBeInTheDocument();
@@ -119,6 +122,106 @@ describe("Given the book detail page", () => {
       expect(
         screen.getByText("Todavía no hay datos de tu ejemplar."),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the user marks the book as favorite", () => {
+    it("Then it sends the change and shows the star as pressed", async () => {
+      let body: unknown;
+      let favorite = false;
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () =>
+          HttpResponse.json({
+            ...entry(),
+            ejemplar: { ...entry().ejemplar, favorite },
+          }),
+        ),
+        http.patch(`${baseUrl}/books/book-1/ejemplar`, async ({ request }) => {
+          body = await request.json();
+          favorite = true;
+          return HttpResponse.json({
+            ejemplar: { ...entry().ejemplar, favorite },
+          });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Añadir a favoritos" }),
+      );
+
+      expect(
+        await screen.findByRole("button", { name: "Quitar de favoritos" }),
+      ).toHaveAttribute("aria-pressed", "true");
+      expect(body).toEqual({ favorite: true });
+    });
+  });
+
+  describe("When saving the favorite fails", () => {
+    it("Then the star goes back and an error is shown", async () => {
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () =>
+          HttpResponse.json({
+            ...entry(),
+            ejemplar: { ...entry().ejemplar, favorite: false },
+          }),
+        ),
+        http.patch(`${baseUrl}/books/book-1/ejemplar`, () =>
+          HttpResponse.json(
+            { error: { code: "INTERNAL_ERROR", message: "Error" } },
+            { status: 500 },
+          ),
+        ),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Añadir a favoritos" }),
+      );
+
+      expect(
+        await screen.findByText(
+          "No se pudo guardar el cambio. Inténtalo de nuevo.",
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Añadir a favoritos" }),
+      ).toHaveAttribute("aria-pressed", "false");
+    });
+  });
+
+  describe("When the user changes the reading status", () => {
+    it("Then it sends the new status and marks it selected", async () => {
+      let body: unknown;
+      let status = "reading";
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () =>
+          HttpResponse.json({
+            ...entry(),
+            ejemplar: { ...entry().ejemplar, status },
+          }),
+        ),
+        http.patch(`${baseUrl}/books/book-1/ejemplar`, async ({ request }) => {
+          body = await request.json();
+          status = "read";
+          return HttpResponse.json({
+            ejemplar: { ...entry().ejemplar, status },
+          });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(await screen.findByRole("button", { name: "Leído" }));
+
+      expect(screen.getByRole("button", { name: "Leído" })).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      expect(screen.getByRole("button", { name: "Leyendo" })).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
+      expect(body).toEqual({ status: "read" });
     });
   });
 
