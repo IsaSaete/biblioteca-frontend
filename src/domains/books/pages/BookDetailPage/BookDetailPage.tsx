@@ -1,25 +1,29 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Skeleton from "@mui/material/Skeleton";
 import Typography from "@mui/material/Typography";
+import ExpandableText from "../../../../components/ui/ExpandableText/ExpandableText";
+import Pill from "../../../../components/ui/Pill/Pill";
+import type { PillTone } from "../../../../components/ui/Pill/Pill";
 import Accordion from "../../../../components/ui/Accordion/Accordion";
 import InlineError from "../../../../components/ui/InlineError/InlineError";
 import { parseApiError } from "../../../auth/utils/parseApiError";
-import { useGetBookQuery } from "../../booksApi";
+import { useGetBookQuery, useUpdateEjemplarMutation } from "../../booksApi";
 import BookCover from "../../components/BookCover/BookCover";
 import type { BookFormat } from "../../dto/BookFormat";
 import type { BookProvenance } from "../../dto/BookProvenance";
 import type { BookStatus } from "../../dto/BookStatus";
 import type { LibraryBook } from "../../dto/LibraryBook";
 
-const statusLabels: Record<BookStatus, string> = {
-  pending: "Pendiente",
-  reading: "Leyendo",
-  read: "Leído",
-  abandoned: "Abandonado",
-};
+const statusOptions: { value: BookStatus; label: string; tone: PillTone }[] = [
+  { value: "pending", label: "Pendiente", tone: "neutral" },
+  { value: "reading", label: "Leyendo", tone: "accent" },
+  { value: "read", label: "Leído", tone: "success" },
+  { value: "abandoned", label: "Abandonado", tone: "neutral" },
+];
 
 const formatLabels: Record<BookFormat, string> = {
   hardcover: "Tapa dura",
@@ -67,6 +71,22 @@ const getLanguageName = (code: string): string => {
   }
 };
 
+const StarIcon = ({ filled }: { filled: boolean }) => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill={filled ? "currentColor" : "none"}
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" />
+  </svg>
+);
+
 const BackIcon = () => (
   <svg
     width="20"
@@ -91,6 +111,8 @@ const BookDetailPage = () => {
   const { bookId = "" } = useParams();
   const { data: book, isLoading, error, refetch } = useGetBookQuery(bookId);
   const [isCopyExpanded, setIsCopyExpanded] = useState(false);
+  const [updateEjemplar, { isError: hasUpdateFailed }] =
+    useUpdateEjemplarMutation();
 
   // Volver al sitio de origen (Biblioteca o Citas); si se entró directamente
   // por el enlace, a la Biblioteca.
@@ -156,17 +178,32 @@ const BookDetailPage = () => {
             {book.authors.join(", ")}
           </Typography>
         </Box>
-        <Typography
+        <Box
+          role="group"
+          aria-label="Estado de lectura"
           sx={{
-            px: 3,
-            py: 1,
-            borderRadius: "999px",
-            bgcolor: "secondary.main",
-            color: "secondary.contrastText",
+            display: "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gap: 2,
+            width: "100%",
           }}
         >
-          {statusLabels[book.status]}
-        </Typography>
+          {statusOptions.map(({ value, label, tone }) => (
+            <Pill
+              key={value}
+              label={label}
+              tone={tone}
+              fullWidth
+              selected={book.status === value}
+              onClick={() =>
+                void updateEjemplar({
+                  bookId: book.id,
+                  changes: { status: value },
+                })
+              }
+            />
+          ))}
+        </Box>
         <Typography
           color="text.secondary"
           variant="caption"
@@ -216,9 +253,9 @@ const BookDetailPage = () => {
             >
               Sinopsis
             </Typography>
-            <Typography sx={{ mt: 1, whiteSpace: "pre-line" }}>
-              {book.synopsis}
-            </Typography>
+            <Box sx={{ mt: 1 }}>
+              <ExpandableText text={book.synopsis} />
+            </Box>
           </Box>
         )}
         <Box sx={{ width: "100%" }}>
@@ -261,7 +298,13 @@ const BookDetailPage = () => {
       component="main"
       sx={{ maxWidth: 480, mx: "auto", px: 4, pb: 8, display: "grid", gap: 4 }}
     >
-      <Box sx={{ pt: "calc(env(safe-area-inset-top) + 8px)" }}>
+      <Box
+        sx={{
+          pt: "calc(env(safe-area-inset-top) + 8px)",
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
         <IconButton
           aria-label="Volver"
           onClick={goBack}
@@ -269,7 +312,33 @@ const BookDetailPage = () => {
         >
           <BackIcon />
         </IconButton>
+        {book && (
+          <IconButton
+            aria-label={
+              book.favorite ? "Quitar de favoritos" : "Añadir a favoritos"
+            }
+            aria-pressed={book.favorite}
+            onClick={() =>
+              void updateEjemplar({
+                bookId: book.id,
+                changes: { favorite: !book.favorite },
+              })
+            }
+            sx={{
+              width: 44,
+              height: 44,
+              color: book.favorite ? "primary.main" : "text.secondary",
+            }}
+          >
+            <StarIcon filled={book.favorite} />
+          </IconButton>
+        )}
       </Box>
+      {hasUpdateFailed && (
+        <Alert severity="error">
+          No se pudo guardar el cambio. Inténtalo de nuevo.
+        </Alert>
+      )}
       {renderContent()}
     </Box>
   );
