@@ -59,10 +59,34 @@ const theme = createTheme({
         }),
       },
     },
+    // MUI encoge la etiqueta con `scale(0.75)` (10,5–12px, muy pequeña): se sube
+    // el factor para que mida 14px (`text-md`) en móvil y 12px (`text-sm`) desde
+    // tablet. El hueco del borde (`legend`) debe medir lo mismo que la etiqueta
+    // encogida, o el borde corta su última letra.
     MuiInputLabel: {
       styleOverrides: {
         root: ({ theme }) => ({
-          [theme.breakpoints.down("sm")]: { fontSize: "1rem" },
+          [theme.breakpoints.down("sm")]: {
+            fontSize: "1rem",
+            "&.MuiInputLabel-shrink": {
+              transform: "translate(14px, -10px) scale(0.875)",
+            },
+          },
+          [theme.breakpoints.up("sm")]: {
+            "&.MuiInputLabel-shrink": {
+              transform: "translate(14px, -9px) scale(0.857)",
+            },
+          },
+        }),
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        notchedOutline: ({ theme }) => ({
+          "& legend": {
+            [theme.breakpoints.down("sm")]: { fontSize: "0.875rem" },
+            [theme.breakpoints.up("sm")]: { fontSize: "0.75rem" },
+          },
         }),
       },
     },
