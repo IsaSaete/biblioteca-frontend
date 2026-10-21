@@ -1,10 +1,11 @@
 import { useState } from "react";
-import type { FormEvent } from "react";
+import type { KeyboardEvent } from "react";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
+import { capitalizeWords } from "../../utils/capitalizeFirst";
 import Pill from "../../../../components/ui/Pill/Pill";
 
 export const MAX_TAGS = 5;
@@ -21,9 +22,10 @@ interface TagsEditorProps {
 const sameTag = (a: string, b: string): boolean =>
   a.toLocaleLowerCase("es") === b.toLocaleLowerCase("es");
 
-// Etiquetas propias (HU-22): hasta 5, sin repetidos (ignorando mayúsculas). Antes
-// de escribir se sugieren las más usadas; al escribir se filtran por texto y se
-// excluyen las que el libro ya tiene.
+// Etiquetas propias (HU-22), dentro del formulario de «Datos de tu ejemplar»:
+// hasta 5, sin repetidos (ignorando mayúsculas). Antes de escribir se sugieren
+// las más usadas; al escribir se filtran por texto y se excluyen las que el
+// libro ya tiene. Los cambios se guardan con el resto del formulario.
 const TagsEditor = ({
   tags,
   suggestions,
@@ -51,14 +53,25 @@ const TagsEditor = ({
     setText("");
   };
 
-  const handleSubmit = (event: FormEvent) => {
-    event.preventDefault();
-    addTag(text);
+  // Enter añade la etiqueta en vez de enviar todo el formulario.
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      addTag(text);
+    }
   };
 
   return (
-    <Box sx={{ display: "grid", gap: 3, width: "100%" }}>
-      <Typography component="h2" variant="caption" color="text.secondary">
+    <Box
+      role="group"
+      aria-label="Etiquetas"
+      sx={{ display: "grid", gap: 3, width: "100%" }}
+    >
+      <Typography
+        component="h3"
+        sx={{ fontSize: "0.875rem" }}
+        color="text.secondary"
+      >
         Etiquetas
       </Typography>
       {tags.length > 0 && (
@@ -77,11 +90,14 @@ const TagsEditor = ({
                 alignItems: "center",
                 borderRadius: "999px",
                 border: 1,
-                borderColor: "divider",
+                borderColor: "primary.main",
+                color: "secondary.contrastText",
                 pl: 3,
               }}
             >
-              <Typography variant="caption">{tag}</Typography>
+              <Typography sx={{ fontSize: "0.875rem" }}>
+                {capitalizeWords(tag)}
+              </Typography>
               <IconButton
                 aria-label={`Quitar la etiqueta ${tag}`}
                 disabled={disabled}
@@ -108,24 +124,25 @@ const TagsEditor = ({
         </Box>
       )}
       {isFull ? (
-        <Typography variant="caption" color="text.secondary">
+        <Typography sx={{ fontSize: "0.875rem" }} color="text.secondary">
           Has llegado al máximo de {MAX_TAGS} etiquetas.
         </Typography>
       ) : (
         <>
-          <Box
-            component="form"
-            noValidate
-            onSubmit={handleSubmit}
-            sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}
-          >
+          <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
             <FloatingLabelInput
               label="Añadir etiqueta"
               value={text}
               disabled={disabled}
               onChange={(event) => setText(event.target.value)}
+              onKeyDown={handleKeyDown}
             />
-            <Button type="submit" disabled={disabled || !text.trim()}>
+            <Button
+              variant="neutral"
+              disabled={disabled || !text.trim()}
+              onClick={() => addTag(text)}
+              sx={{ minHeight: 56 }}
+            >
               Añadir
             </Button>
           </Box>
@@ -138,7 +155,7 @@ const TagsEditor = ({
               {visibleSuggestions.map((suggestion) => (
                 <Pill
                   key={suggestion}
-                  label={suggestion}
+                  label={capitalizeWords(suggestion)}
                   disabled={disabled}
                   onClick={() => addTag(suggestion)}
                 />

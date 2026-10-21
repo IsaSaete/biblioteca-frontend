@@ -32,6 +32,7 @@ const ExpandableText = ({ text, lines = 5 }: ExpandableTextProps) => {
         id={id}
         ref={textRef}
         sx={{
+          fontSize: "1rem",
           whiteSpace: "pre-line",
           overflowWrap: "anywhere",
           ...(!isExpanded && {
@@ -50,6 +51,19 @@ const ExpandableText = ({ text, lines = 5 }: ExpandableTextProps) => {
           aria-expanded={isExpanded}
           aria-controls={id}
           onClick={() => setIsExpanded((expanded) => !expanded)}
+          // Más estrecho en vertical (también su fondo al pasar el ratón), con
+          // el área táctil de 44px intacta: la zona extra es invisible.
+          sx={{
+            minHeight: 32,
+            mt: 2,
+            py: 0,
+            position: "relative",
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              inset: "-6px 0",
+            },
+          }}
         >
           {isExpanded ? "Ver menos" : "Ver más"}
         </Button>

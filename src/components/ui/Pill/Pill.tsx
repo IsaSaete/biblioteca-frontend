@@ -1,11 +1,12 @@
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import Chip from "@mui/material/Chip";
 import type { Theme } from "@mui/material/styles";
 
-export type PillTone = "neutral" | "accent" | "success";
+// `danger` es para acciones destructivas: solo contorno de alerta, sin relleno.
+export type PillTone = "neutral" | "accent" | "success" | "danger";
 
 interface PillProps {
-  label: string;
+  label: ReactNode;
   onClick: () => void;
   disabled?: boolean;
   icon?: ReactElement;
@@ -38,6 +39,12 @@ const getToneColors = (theme: Theme, tone: PillTone) => {
         solid: palette.text.secondary,
         onSolid: palette.background.default,
         outlineText: palette.text.secondary,
+      };
+    case "danger":
+      return {
+        solid: palette.error.main,
+        onSolid: palette.error.contrastText,
+        outlineText: palette.error.main,
       };
     case "accent":
       return {
@@ -85,7 +92,7 @@ const Pill = ({
     aria-pressed={selected}
     sx={(theme) => {
       const colors = getToneColors(theme, tone);
-      const isOutlined = selected === false;
+      const isOutlined = selected === false || tone === "danger";
       const background = isOutlined ? "transparent" : colors.solid;
       const textColor = isOutlined ? colors.outlineText : colors.onSolid;
 
