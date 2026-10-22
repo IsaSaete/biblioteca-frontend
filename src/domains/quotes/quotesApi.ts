@@ -4,6 +4,7 @@ import type { CreateQuoteRequest } from "./dto/CreateQuoteRequest";
 import type { GetQuotesParams } from "./dto/GetQuotesParams";
 import type { GetQuotesResponse } from "./dto/GetQuotesResponse";
 import type { Quote } from "./dto/Quote";
+import type { QuoteBook } from "./dto/QuoteBook";
 import type { UpdateQuoteRequest } from "./dto/UpdateQuoteRequest";
 
 export const quotesApi = createApi({
@@ -14,6 +15,12 @@ export const quotesApi = createApi({
     // Tandas fijas de 24, la más reciente primero; `nextCursor` es opaco.
     getQuotes: builder.query<GetQuotesResponse, GetQuotesParams | void>({
       query: (params) => ({ url: "/quotes", params: params ?? undefined }),
+      providesTags: ["Quote"],
+    }),
+    // Alimenta el filtro por libro: solo libros con citas, por título.
+    getQuoteBooks: builder.query<QuoteBook[], void>({
+      query: () => "/quotes/books",
+      transformResponse: (response: { items: QuoteBook[] }) => response.items,
       providesTags: ["Quote"],
     }),
     getQuote: builder.query<Quote, string>({
@@ -53,6 +60,7 @@ export const quotesApi = createApi({
 export const {
   useGetQuotesQuery,
   useGetQuoteQuery,
+  useGetQuoteBooksQuery,
   useCreateQuoteMutation,
   useUpdateQuoteMutation,
   useDeleteQuoteMutation,

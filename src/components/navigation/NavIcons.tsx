@@ -33,3 +33,12 @@ export const ProfileIcon = () => (
     <path d="M4 21a8 8 0 0 1 16 0" />
   </NavIcon>
 );
+
+export const QuotesIcon = () => (
+  <NavIcon>
+    <path d="M4 18v-5a6 6 0 0 1 6-6" />
+    <path d="M14 18v-5a6 6 0 0 1 6-6" />
+    <path d="M4 18h6v-5H4z" />
+    <path d="M14 18h6v-5h-6z" />
+  </NavIcon>
+);
