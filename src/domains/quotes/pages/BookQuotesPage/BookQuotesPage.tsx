@@ -9,6 +9,7 @@ import InlineError from "../../../../components/ui/InlineError/InlineError";
 import { useOnVisible } from "../../../../hooks/useOnVisible";
 import { parseApiError } from "../../../auth/utils/parseApiError";
 import { useGetBookQuery } from "../../../books/booksApi";
+import NoQuotesCard from "../../components/NoQuotesCard/NoQuotesCard";
 import QuoteCard from "../../components/QuoteCard/QuoteCard";
 import QuoteFormDialog from "../../components/QuoteFormDialog/QuoteFormDialog";
 import { useGetQuotesQuery } from "../../quotesApi";
@@ -161,11 +162,7 @@ const BookQuotesPage = () => {
     }
 
     if (data.items.length === 0) {
-      return (
-        <Typography color="text.secondary" sx={{ fontSize: "1rem" }}>
-          Todavía no has guardado citas de este libro.
-        </Typography>
-      );
+      return <NoQuotesCard />;
     }
 
     return (

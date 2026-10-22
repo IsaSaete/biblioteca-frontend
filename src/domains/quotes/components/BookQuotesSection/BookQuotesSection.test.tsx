@@ -74,7 +74,7 @@ describe("Given the quotes section of a book", () => {
       renderRoutes(routes, ["/"]);
 
       expect(
-        await screen.findByRole("link", { name: "Ver todas (2)" }),
+        await screen.findByRole("link", { name: /Ver todas/ }),
       ).toHaveAttribute("href", "/library/book-1/quotes");
     });
   });

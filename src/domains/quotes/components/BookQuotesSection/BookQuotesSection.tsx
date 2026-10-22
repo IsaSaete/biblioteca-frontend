@@ -7,6 +7,7 @@ import Button from "../../../../components/ui/Button/Button";
 import InlineError from "../../../../components/ui/InlineError/InlineError";
 import { useGetQuotesQuery } from "../../quotesApi";
 import QuoteFormDialog from "../QuoteFormDialog/QuoteFormDialog";
+import NoQuotesCard from "../NoQuotesCard/NoQuotesCard";
 import QuoteCard from "../QuoteCard/QuoteCard";
 
 interface BookQuotesSectionProps {
@@ -44,9 +45,7 @@ const BookQuotesSection = ({
     return latest ? (
       <QuoteCard quote={latest} showBook={false} />
     ) : (
-      <Typography color="text.secondary" sx={{ fontSize: "1rem" }}>
-        Todavía no has guardado citas de este libro.
-      </Typography>
+      <NoQuotesCard />
     );
   };
 
@@ -56,25 +55,41 @@ const BookQuotesSection = ({
       aria-labelledby="quotes-title"
       sx={{ width: "100%" }}
     >
-      <Typography
-        id="quotes-title"
-        component="h2"
-        color="text.secondary"
-        sx={{ fontSize: "0.875rem", mb: 1 }}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          mb: 1,
+        }}
       >
-        {data ? `Citas (${data.total})` : "Citas"}
-      </Typography>
-      <Box sx={{ display: "grid", gap: 4 }}>
-        {renderContent()}
+        <Typography
+          id="quotes-title"
+          component="h2"
+          color="text.secondary"
+          sx={{ fontSize: "0.875rem" }}
+        >
+          {data ? `Citas (${data.total})` : "Citas"}
+        </Typography>
         {data && data.total > 1 && (
           <Link
             component={RouterLink}
             to={`/library/${bookId}/quotes`}
-            sx={{ justifySelf: "center", py: 2 }}
+            underline="hover"
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              minHeight: 44,
+              fontSize: "0.875rem",
+              color: "secondary.contrastText",
+            }}
           >
-            Ver todas ({data.total})
+            Ver todas ›
           </Link>
         )}
+      </Box>
+      <Box sx={{ display: "grid", gap: 4 }}>
+        {renderContent()}
         <Button fullWidth onClick={() => setIsAdding(true)}>
           Añadir cita
         </Button>
