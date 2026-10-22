@@ -26,6 +26,8 @@ const LoadingQuotes = ({ count }: { count: number }) => (
 interface QuotesListProps {
   // Sin `bookId`, el feed de todas las citas.
   bookId?: string;
+  // Solo las citas sin libro (no se combina con `bookId`).
+  unlinked?: boolean;
   showBook: boolean;
   // Qué mostrar si no hay ninguna cita.
   empty: ReactNode;
@@ -33,6 +35,7 @@ interface QuotesListProps {
 
 interface QuotesChunkProps {
   bookId?: string;
+  unlinked?: boolean;
   showBook: boolean;
   cursor: string;
   isLast: boolean;
@@ -44,6 +47,7 @@ interface QuotesChunkProps {
 // invalidación no mezclan páginas.
 const QuotesChunk = ({
   bookId,
+  unlinked,
   showBook,
   cursor,
   isLast,
@@ -51,6 +55,7 @@ const QuotesChunk = ({
 }: QuotesChunkProps) => {
   const { data, isFetching, isError, refetch } = useGetQuotesQuery({
     bookId,
+    unlinked,
     cursor,
   });
 
@@ -88,8 +93,11 @@ const QuotesChunk = ({
 
 // Citas de la más reciente a la más antigua con scroll infinito, para el feed
 // y para las citas de un libro.
-const QuotesList = ({ bookId, showBook, empty }: QuotesListProps) => {
-  const { data, isLoading, isError, refetch } = useGetQuotesQuery({ bookId });
+const QuotesList = ({ bookId, unlinked, showBook, empty }: QuotesListProps) => {
+  const { data, isLoading, isError, refetch } = useGetQuotesQuery({
+    bookId,
+    unlinked,
+  });
   const [moreCursors, setMoreCursors] = useState<string[]>([]);
 
   const loadMore = useCallback(
@@ -144,6 +152,7 @@ const QuotesList = ({ bookId, showBook, empty }: QuotesListProps) => {
         <QuotesChunk
           key={cursor}
           bookId={bookId}
+          unlinked={unlinked}
           showBook={showBook}
           cursor={cursor}
           isLast={index === moreCursors.length - 1}

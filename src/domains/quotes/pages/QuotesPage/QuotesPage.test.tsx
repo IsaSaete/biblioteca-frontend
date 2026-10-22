@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { renderRoutes } from "../../../../test/renderRoutes";
 import { server } from "../../../../test/server";
@@ -216,6 +216,56 @@ describe("Given the quotes page", () => {
       ).toBeInTheDocument();
       expect(
         within(sheet).getByRole("button", { name: /El principito/ }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the user has quotes without a book", () => {
+    const loose = {
+      id: "q9",
+      text: "Cita suelta",
+      source: "Paper de Historia",
+      createdAt: "2026-10-22T10:00:00.000Z",
+    };
+
+    it("Then the feed shows the source in place of the book and the filter lists Sin libro", async () => {
+      const requests: string[] = [];
+      server.use(
+        http.get(`${baseUrl}/quotes/books`, () =>
+          HttpResponse.json({ items: quoteBooks, unlinkedCount: 1 }),
+        ),
+        http.get(`${baseUrl}/quotes`, ({ request }) => {
+          const url = new URL(request.url);
+          requests.push(url.searchParams.get("unlinked") ?? "");
+          const unlinked = url.searchParams.get("unlinked") === "true";
+
+          return HttpResponse.json({
+            items: unlinked
+              ? [loose]
+              : [loose, quote("q1", "Con libro", "book-1", "1984")],
+            nextCursor: null,
+            total: unlinked ? 1 : 2,
+          });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/quotes"]);
+      expect(await screen.findByText("Cita suelta")).toBeInTheDocument();
+      expect(screen.getByText("Paper de Historia")).toBeInTheDocument();
+      await user.click(
+        await screen.findByRole("button", { name: /Todos los libros/ }),
+      );
+      const sheet = await screen.findByRole("dialog", {
+        name: "Filtrar por libro",
+      });
+      await user.click(
+        within(sheet).getByRole("button", { name: /Sin libro/ }),
+      );
+
+      await waitFor(() => expect(requests.at(-1)).toBe("true"));
+      expect(screen.queryByText("Con libro")).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Sin libro/ }),
       ).toBeInTheDocument();
     });
   });

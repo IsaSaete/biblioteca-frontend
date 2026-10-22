@@ -19,7 +19,8 @@ import { quoteSchema } from "../../utils/quoteSchema";
 import type { QuoteFormValues } from "../../utils/quoteSchema";
 
 interface QuoteFormProps {
-  ejemplarId: string;
+  // Sin `ejemplarId` (y sin `quote`) la cita no va ligada a ningún libro.
+  ejemplarId?: string;
   // Si se informa, el formulario edita esa cita en vez de crear una nueva.
   quote?: Quote;
   // Texto de partida (el reconocido por el OCR) y de dónde viene.
@@ -41,6 +42,7 @@ const QuoteForm = ({
     resolver: zodResolver(quoteSchema),
     defaultValues: {
       text: quote?.text ?? initialText,
+      source: quote?.source ?? "",
       page: quote?.page?.toString() ?? "",
     },
   });
@@ -51,6 +53,8 @@ const QuoteForm = ({
     formState: { errors },
   } = form;
   const validationHandlers = useFieldValidation(form);
+  // Solo las citas sin libro tienen fuente.
+  const isLoose = quote ? !quote.book : ejemplarId === undefined;
   const [formError, setFormError] = useState<string | null>(null);
   const [createQuote, { isLoading: isCreating }] = useCreateQuoteMutation();
   const [updateQuote, { isLoading: isUpdating }] = useUpdateQuoteMutation();
@@ -82,7 +86,11 @@ const QuoteForm = ({
     const apiError = parseApiError(result.error);
 
     if (apiError?.code === "VALIDATION_ERROR") {
-      if (apiError.field === "text" || apiError.field === "page") {
+      if (
+        apiError.field === "text" ||
+        apiError.field === "page" ||
+        apiError.field === "source"
+      ) {
         setError(apiError.field, { message: apiError.message });
         return;
       }
@@ -112,6 +120,16 @@ const QuoteForm = ({
         helperText={errors.text?.message}
         {...field("text", validationHandlers("text"))}
       />
+      {isLoose && (
+        <FloatingLabelInput
+          label="Fuente (opcional)"
+          error={!!errors.source}
+          helperText={
+            errors.source?.message ?? "Por ejemplo, un paper o una biblioteca."
+          }
+          {...field("source", validationHandlers("source"))}
+        />
+      )}
       <FloatingLabelInput
         label="Página (opcional)"
         error={!!errors.page}

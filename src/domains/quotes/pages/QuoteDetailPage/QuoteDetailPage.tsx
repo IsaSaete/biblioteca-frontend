@@ -82,14 +82,18 @@ const QuoteDetailPage = () => {
   const { data: quote, isLoading, error, refetch } = useGetQuoteQuery(quoteId);
   // La cita no trae portada (api-contract.md): se toma del libro, que suele
   // estar ya en caché por la ficha.
-  const { data: book } = useGetBookQuery(quote?.book.id ?? "", {
-    skip: !quote,
+  const { data: book } = useGetBookQuery(quote?.book?.id ?? "", {
+    skip: !quote?.book,
   });
   const [isEditing, setIsEditing] = useState(false);
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [deleteQuote, { isLoading: isDeleting, isError: hasDeleteFailed }] =
     useDeleteQuoteMutation();
+
+  // Dónde queda el usuario al salir: la ficha del libro de la cita o, si es una
+  // cita sin libro, la pestaña Citas.
+  const homePath = quote?.book ? `/library/${quote.book.id}` : "/quotes";
 
   const handleCopy = async () => {
     try {
@@ -104,9 +108,7 @@ const QuoteDetailPage = () => {
     const result = await deleteQuote(quoteId);
 
     if (!result.error) {
-      await navigate(quote ? `/library/${quote.book.id}` : "/library", {
-        replace: true,
-      });
+      await navigate(homePath, { replace: true });
     }
   };
 
@@ -118,7 +120,7 @@ const QuoteDetailPage = () => {
     if (hasHistory) {
       void navigate(-1);
     } else {
-      void navigate(quote ? `/library/${quote.book.id}` : "/library");
+      void navigate(homePath);
     }
   };
 
@@ -175,38 +177,66 @@ const QuoteDetailPage = () => {
                 Pág. {quote.page}
               </Typography>
             )}
-            <Box
-              sx={{
-                mt: 4,
-                pt: 4,
-                display: "flex",
-                alignItems: "center",
-                gap: 3,
-                borderTop: 1,
-                borderColor: "divider",
-              }}
-            >
-              <Box sx={{ width: 40, flexShrink: 0 }}>
-                <BookCover title={quote.book.title} coverUrl={book?.coverUrl} />
+            {quote.book ? (
+              <Box
+                sx={{
+                  mt: 4,
+                  pt: 4,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 3,
+                  borderTop: 1,
+                  borderColor: "divider",
+                }}
+              >
+                <Box sx={{ width: 40, flexShrink: 0 }}>
+                  <BookCover
+                    title={quote.book.title}
+                    coverUrl={book?.coverUrl}
+                  />
+                </Box>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography
+                    sx={{ fontWeight: 700, overflowWrap: "anywhere" }}
+                  >
+                    {quote.book.title}
+                  </Typography>
+                  <Typography
+                    color="text.secondary"
+                    sx={{ fontSize: "0.875rem", overflowWrap: "anywhere" }}
+                  >
+                    {quote.book.authors.join(", ")}
+                  </Typography>
+                </Box>
+                <Pill
+                  tone="accent"
+                  label="Ir al libro"
+                  endIcon="chevron-right"
+                  onClick={() => void navigate(`/library/${quote.book?.id}`)}
+                />
               </Box>
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography sx={{ fontWeight: 700, overflowWrap: "anywhere" }}>
-                  {quote.book.title}
-                </Typography>
-                <Typography
-                  color="text.secondary"
-                  sx={{ fontSize: "0.875rem", overflowWrap: "anywhere" }}
+            ) : (
+              quote.source && (
+                <Box
+                  sx={{
+                    mt: 4,
+                    pt: 4,
+                    borderTop: 1,
+                    borderColor: "divider",
+                  }}
                 >
-                  {quote.book.authors.join(", ")}
-                </Typography>
-              </Box>
-              <Pill
-                tone="accent"
-                label="Ir al libro"
-                endIcon="chevron-right"
-                onClick={() => void navigate(`/library/${quote.book.id}`)}
-              />
-            </Box>
+                  <Typography
+                    color="text.secondary"
+                    sx={{ fontSize: "0.875rem" }}
+                  >
+                    Fuente
+                  </Typography>
+                  <Typography sx={{ overflowWrap: "anywhere" }}>
+                    {quote.source}
+                  </Typography>
+                </Box>
+              )
+            )}
           </Box>
           <Typography
             color="text.secondary"
@@ -231,7 +261,7 @@ const QuoteDetailPage = () => {
         {isEditing && (
           <QuoteFormDialog
             ejemplarId={quote.ejemplarId}
-            bookTitle={quote.book.title}
+            bookTitle={quote.book?.title}
             quote={quote}
             onClose={() => setIsEditing(false)}
           />

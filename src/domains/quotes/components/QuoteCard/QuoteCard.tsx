@@ -6,6 +6,7 @@ import type { Quote } from "../../dto/Quote";
 interface QuoteCardProps {
   quote: Quote;
   // En la ficha la cita ya está dentro de su libro: no se repite la referencia.
+  // Una cita sin libro muestra su fuente, si la tiene, en su lugar.
   showBook?: boolean;
 }
 
@@ -14,7 +15,7 @@ interface QuoteCardProps {
 // texto completo.
 const QuoteCard = ({ quote, showBook = true }: QuoteCardProps) => {
   const reference = [
-    showBook ? quote.book.title : undefined,
+    showBook ? (quote.book?.title ?? quote.source) : undefined,
     quote.page ? `Pág. ${quote.page}` : undefined,
   ].filter((part): part is string => Boolean(part));
 

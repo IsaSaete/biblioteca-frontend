@@ -7,13 +7,21 @@ import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/Flo
 import Pill from "../../../../components/ui/Pill/Pill";
 import type { QuoteBook } from "../../dto/QuoteBook";
 
+export interface QuoteFilterSelection {
+  bookId?: string;
+  unlinked?: boolean;
+}
+
 interface QuoteBookFilterProps {
   books: QuoteBook[];
-  selectedBookId?: string;
-  onSelect: (bookId?: string) => void;
+  // Citas sin libro: la entrada «Sin libro» solo aparece si hay alguna.
+  unlinkedCount: number;
+  selection: QuoteFilterSelection;
+  onSelect: (selection: QuoteFilterSelection) => void;
 }
 
 const ALL_BOOKS = "Todos los libros";
+const NO_BOOK = "Sin libro";
 // La hoja nunca necesita scroll: se listan los más citados y el resto se
 // encuentra escribiendo en el buscador, que está siempre.
 const MAX_OPTIONS = 5;
@@ -68,12 +76,15 @@ const Option = ({ label, count, selected, onClick }: OptionProps) => (
 // propio, más «Todos los libros» para quitarlo.
 const QuoteBookFilter = ({
   books,
-  selectedBookId,
+  unlinkedCount,
+  selection,
   onSelect,
 }: QuoteBookFilterProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const selectedBookId = selection.bookId;
   const selected = books.find((book) => book.bookId === selectedBookId);
+  const isUnlinkedSelected = selection.unlinked === true;
   const matches = books
     .filter((book) => normalize(book.title).includes(normalize(query.trim())))
     .sort((a, b) => b.count - a.count || a.title.localeCompare(b.title, "es"));
@@ -85,8 +96,8 @@ const QuoteBookFilter = ({
     setQuery("");
   };
 
-  const choose = (bookId?: string) => {
-    onSelect(bookId);
+  const choose = (next: QuoteFilterSelection) => {
+    onSelect(next);
     close();
   };
 
@@ -97,7 +108,7 @@ const QuoteBookFilter = ({
         outlined
         hasPopup
         endIcon="chevron-down"
-        label={selected?.title ?? ALL_BOOKS}
+        label={isUnlinkedSelected ? NO_BOOK : (selected?.title ?? ALL_BOOKS)}
         onClick={() => setIsOpen(true)}
       />
       <BottomSheet open={isOpen} title="Filtrar por libro" onClose={close}>
@@ -111,8 +122,16 @@ const QuoteBookFilter = ({
             {query.trim() === "" && (
               <Option
                 label={ALL_BOOKS}
-                selected={selectedBookId === undefined}
-                onClick={() => choose(undefined)}
+                selected={selectedBookId === undefined && !isUnlinkedSelected}
+                onClick={() => choose({})}
+              />
+            )}
+            {query.trim() === "" && unlinkedCount > 0 && (
+              <Option
+                label={NO_BOOK}
+                count={unlinkedCount}
+                selected={isUnlinkedSelected}
+                onClick={() => choose({ unlinked: true })}
               />
             )}
             {visibleBooks.map((book) => (
@@ -121,7 +140,7 @@ const QuoteBookFilter = ({
                 label={book.title}
                 count={book.count}
                 selected={book.bookId === selectedBookId}
-                onClick={() => choose(book.bookId)}
+                onClick={() => choose({ bookId: book.bookId })}
               />
             ))}
             {visibleBooks.length === 0 && (
