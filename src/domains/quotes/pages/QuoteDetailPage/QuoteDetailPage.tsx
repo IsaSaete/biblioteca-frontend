@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Link as RouterLink, useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
-import Link from "@mui/material/Link";
 import Skeleton from "@mui/material/Skeleton";
+import Snackbar from "@mui/material/Snackbar";
 import Typography from "@mui/material/Typography";
 import BottomSheet from "../../../../components/ui/BottomSheet/BottomSheet";
 import Button from "../../../../components/ui/Button/Button";
@@ -32,6 +32,31 @@ const PencilIcon = () => (
     <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
   </svg>
 );
+
+const CopyIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <rect x="9" y="9" width="11" height="11" rx="2" />
+    <path d="M5 15V6a2 2 0 0 1 2-2h9" />
+  </svg>
+);
+
+const formatSavedDate = (isoDate: string): string => {
+  const date = new Date(isoDate);
+
+  return Number.isNaN(date.getTime())
+    ? isoDate
+    : date.toLocaleDateString("es", { dateStyle: "medium", timeZone: "UTC" });
+};
 
 const BackIcon = () => (
   <svg
@@ -61,9 +86,19 @@ const QuoteDetailPage = () => {
     skip: !quote,
   });
   const [isEditing, setIsEditing] = useState(false);
+  const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [deleteQuote, { isLoading: isDeleting, isError: hasDeleteFailed }] =
     useDeleteQuoteMutation();
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(quote?.text ?? "");
+      setCopyMessage("Cita copiada");
+    } catch {
+      setCopyMessage("No se pudo copiar la cita");
+    }
+  };
 
   const handleDelete = async () => {
     const result = await deleteQuote(quoteId);
@@ -117,55 +152,69 @@ const QuoteDetailPage = () => {
 
     return (
       <Box sx={{ display: "grid", gap: 5 }}>
-        <Box
-          component="article"
-          sx={{ bgcolor: "background.paper", borderRadius: 1.5, p: 4 }}
-        >
-          <Typography
-            variant="quote"
-            sx={{ whiteSpace: "pre-line", overflowWrap: "anywhere" }}
+        <Box>
+          <Box
+            component="article"
+            sx={{ bgcolor: "background.paper", borderRadius: 1.5, p: 4 }}
           >
-            {quote.text}
+            <Typography
+              variant="quote"
+              sx={{
+                fontSize: "1.125rem",
+                whiteSpace: "pre-line",
+                overflowWrap: "anywhere",
+              }}
+            >
+              {quote.text}
+            </Typography>
+            {quote.page && (
+              <Typography
+                color="text.secondary"
+                sx={{ mt: 2, fontSize: "0.875rem" }}
+              >
+                Pág. {quote.page}
+              </Typography>
+            )}
+            <Box
+              sx={{
+                mt: 4,
+                pt: 4,
+                display: "flex",
+                alignItems: "center",
+                gap: 3,
+                borderTop: 1,
+                borderColor: "divider",
+              }}
+            >
+              <Box sx={{ width: 40, flexShrink: 0 }}>
+                <BookCover title={quote.book.title} coverUrl={book?.coverUrl} />
+              </Box>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography sx={{ fontWeight: 700, overflowWrap: "anywhere" }}>
+                  {quote.book.title}
+                </Typography>
+                <Typography
+                  color="text.secondary"
+                  sx={{ fontSize: "0.875rem", overflowWrap: "anywhere" }}
+                >
+                  {quote.book.authors.join(", ")}
+                </Typography>
+              </Box>
+              <Pill
+                tone="accent"
+                label="Ir al libro ›"
+                onClick={() => void navigate(`/library/${quote.book.id}`)}
+              />
+            </Box>
+          </Box>
+          <Typography
+            color="text.secondary"
+            sx={{ mt: 2, fontSize: "0.875rem", textAlign: "center" }}
+          >
+            Guardada el {formatSavedDate(quote.createdAt)}
           </Typography>
-          {quote.page && (
-            <Typography
-              color="text.secondary"
-              sx={{ mt: 2, fontSize: "0.875rem" }}
-            >
-              Pág. {quote.page}
-            </Typography>
-          )}
         </Box>
-        <Link
-          component={RouterLink}
-          to={`/library/${quote.book.id}`}
-          underline="none"
-          color="inherit"
-          aria-label={`Ir al libro ${quote.book.title}`}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 3,
-            bgcolor: "background.paper",
-            borderRadius: 1.5,
-            p: 3,
-          }}
-        >
-          <Box sx={{ width: 40, flexShrink: 0 }}>
-            <BookCover title={quote.book.title} coverUrl={book?.coverUrl} />
-          </Box>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography sx={{ fontWeight: 700, overflowWrap: "anywhere" }}>
-              {quote.book.title}
-            </Typography>
-            <Typography
-              sx={{ fontSize: "0.875rem", color: "secondary.contrastText" }}
-            >
-              Ir al libro ›
-            </Typography>
-          </Box>
-        </Link>
-        <Box sx={{ display: "grid", gap: 2 }}>
+        <Box sx={{ display: "grid", gap: 2, mt: 4 }}>
           {hasDeleteFailed && (
             <Alert severity="error">
               No se pudo eliminar la cita. Inténtalo de nuevo.
@@ -236,16 +285,31 @@ const QuoteDetailPage = () => {
           <BackIcon />
         </IconButton>
         {quote && (
-          <IconButton
-            aria-label="Editar cita"
-            onClick={() => setIsEditing(true)}
-            sx={{ width: 44, height: 44 }}
-          >
-            <PencilIcon />
-          </IconButton>
+          <Box>
+            <IconButton
+              aria-label="Copiar cita"
+              onClick={() => void handleCopy()}
+              sx={{ width: 44, height: 44 }}
+            >
+              <CopyIcon />
+            </IconButton>
+            <IconButton
+              aria-label="Editar cita"
+              onClick={() => setIsEditing(true)}
+              sx={{ width: 44, height: 44 }}
+            >
+              <PencilIcon />
+            </IconButton>
+          </Box>
         )}
       </Box>
       {renderContent()}
+      <Snackbar
+        open={copyMessage !== null}
+        autoHideDuration={3000}
+        onClose={() => setCopyMessage(null)}
+        message={copyMessage}
+      />
     </Box>
   );
 };

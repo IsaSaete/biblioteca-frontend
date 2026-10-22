@@ -59,12 +59,57 @@ describe("Given the quote detail page", () => {
       expect(await screen.findByText(longText)).toBeInTheDocument();
       expect(screen.getByText("Pág. 9")).toBeInTheDocument();
       expect(
-        screen.getByRole("link", { name: "Ir al libro 1984" }),
-      ).toHaveAttribute("href", "/library/book-1");
-      expect(
         await screen.findByRole("img", { name: "Portada de 1984" }),
       ).toBeInTheDocument();
+      expect(screen.getByText("George Orwell")).toBeInTheDocument();
+      expect(screen.getByText("Guardada el 22 oct 2026")).toBeInTheDocument();
       expect(screen.queryByText("Ficha del libro")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("When the user taps Go to the book", () => {
+    it("Then it opens the book detail", async () => {
+      mockQuote();
+
+      const { user } = renderRoutes(routes, ["/quotes/q1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Ir al libro ›" }),
+      );
+
+      expect(await screen.findByText("Ficha del libro")).toBeInTheDocument();
+    });
+  });
+
+  describe("When the user copies the quote", () => {
+    it("Then the text goes to the clipboard and a notice is shown", async () => {
+      mockQuote();
+
+      const { user } = renderRoutes(routes, ["/quotes/q1"]);
+      await screen.findByText(longText);
+      const writeText = vi
+        .spyOn(navigator.clipboard, "writeText")
+        .mockResolvedValue();
+      await user.click(screen.getByRole("button", { name: "Copiar cita" }));
+
+      expect(writeText).toHaveBeenCalledWith(longText);
+      expect(await screen.findByText("Cita copiada")).toBeInTheDocument();
+    });
+  });
+
+  describe("When copying the quote fails", () => {
+    it("Then it says it could not be copied", async () => {
+      mockQuote();
+
+      const { user } = renderRoutes(routes, ["/quotes/q1"]);
+      await screen.findByText(longText);
+      vi.spyOn(navigator.clipboard, "writeText").mockRejectedValue(
+        new Error("denied"),
+      );
+      await user.click(screen.getByRole("button", { name: "Copiar cita" }));
+
+      expect(
+        await screen.findByText("No se pudo copiar la cita"),
+      ).toBeInTheDocument();
     });
   });
 
