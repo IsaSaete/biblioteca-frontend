@@ -17,6 +17,8 @@ const SEARCH_DEBOUNCE_MS = 250;
 const MIN_QUERY_LENGTH = 2;
 const MAX_SUGGESTIONS = 5;
 const SEARCH_LABEL = "Buscar en tu biblioteca";
+// Buscador y botón de escaneo miden lo mismo.
+const BAR_HEIGHT = 48;
 
 const SearchIcon = () => (
   <svg
@@ -159,7 +161,11 @@ const TopBar = () => {
               },
               input: {
                 ...params.slotProps.input,
-                sx: { borderRadius: "999px", minHeight: 44 },
+                sx: {
+                  borderRadius: "999px",
+                  height: BAR_HEIGHT,
+                  "& .MuiInputBase-input": { py: 0, height: "100%" },
+                },
                 startAdornment: (
                   <InputAdornment
                     position="start"
@@ -177,7 +183,14 @@ const TopBar = () => {
         <IconButton
           aria-label="Escanear el código de barras de un libro"
           onClick={openScan}
-          sx={{ width: 44, height: 44, color: "primary.main" }}
+          sx={{
+            width: BAR_HEIGHT,
+            height: BAR_HEIGHT,
+            flexShrink: 0,
+            color: "primary.main",
+            border: 1,
+            borderColor: "primary.main",
+          }}
         >
           <ScanIcon />
         </IconButton>
