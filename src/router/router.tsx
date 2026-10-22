@@ -44,6 +44,15 @@ export const routes = [
           ).default,
         }),
       },
+      // Citas del libro: pantalla de detalle, sin barra de navegación inferior.
+      {
+        path: "/library/:bookId/quotes",
+        lazy: async () => ({
+          Component: (
+            await import("../domains/quotes/pages/BookQuotesPage/BookQuotesPage")
+          ).default,
+        }),
+      },
       // Detalle de cita: pantalla de detalle, sin barra de navegación inferior.
       {
         path: "/quotes/:quoteId",

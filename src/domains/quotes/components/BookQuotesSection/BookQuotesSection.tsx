@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { Link as RouterLink } from "react-router";
 import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import InlineError from "../../../../components/ui/InlineError/InlineError";
@@ -64,6 +66,15 @@ const BookQuotesSection = ({
       </Typography>
       <Box sx={{ display: "grid", gap: 4 }}>
         {renderContent()}
+        {data && data.total > 1 && (
+          <Link
+            component={RouterLink}
+            to={`/library/${bookId}/quotes`}
+            sx={{ justifySelf: "center", py: 2 }}
+          >
+            Ver todas ({data.total})
+          </Link>
+        )}
         <Button fullWidth onClick={() => setIsAdding(true)}>
           Añadir cita
         </Button>

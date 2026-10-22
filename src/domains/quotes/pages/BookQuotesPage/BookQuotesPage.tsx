@@ -1,0 +1,239 @@
+import { useCallback, useState } from "react";
+import { useNavigate, useParams } from "react-router";
+import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import Skeleton from "@mui/material/Skeleton";
+import Typography from "@mui/material/Typography";
+import Button from "../../../../components/ui/Button/Button";
+import InlineError from "../../../../components/ui/InlineError/InlineError";
+import { useOnVisible } from "../../../../hooks/useOnVisible";
+import { parseApiError } from "../../../auth/utils/parseApiError";
+import { useGetBookQuery } from "../../../books/booksApi";
+import QuoteCard from "../../components/QuoteCard/QuoteCard";
+import QuoteFormDialog from "../../components/QuoteFormDialog/QuoteFormDialog";
+import { useGetQuotesQuery } from "../../quotesApi";
+
+const BackIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M19 12H5M12 19l-7-7 7-7" />
+  </svg>
+);
+
+const LoadMoreSentinel = ({ onVisible }: { onVisible: () => void }) => {
+  const ref = useOnVisible(onVisible);
+
+  return <Box component="li" ref={ref} aria-hidden="true" sx={{ height: 1 }} />;
+};
+
+const LoadingQuotes = ({ count }: { count: number }) => (
+  <>
+    {Array.from({ length: count }, (_, index) => (
+      <Box component="li" key={index} sx={{ listStyle: "none" }} aria-hidden>
+        <Skeleton variant="rounded" sx={{ height: 96, borderRadius: 1.5 }} />
+      </Box>
+    ))}
+  </>
+);
+
+interface QuotesChunkProps {
+  bookId: string;
+  cursor: string;
+  isLast: boolean;
+  onLoadMore: (cursor: string) => void;
+}
+
+// Una tanda de 24 citas a partir de un cursor. Cada tanda es su propia
+// consulta (mismo patrón que la Biblioteca): la caché y las recargas por
+// invalidación no mezclan páginas.
+const QuotesChunk = ({
+  bookId,
+  cursor,
+  isLast,
+  onLoadMore,
+}: QuotesChunkProps) => {
+  const { data, isFetching, isError, refetch } = useGetQuotesQuery({
+    bookId,
+    cursor,
+  });
+
+  if (isError) {
+    return (
+      <Box component="li" sx={{ listStyle: "none" }}>
+        <InlineError
+          message="No hemos podido cargar más citas."
+          onRetry={() => void refetch()}
+        />
+      </Box>
+    );
+  }
+
+  if (!data) {
+    return <LoadingQuotes count={2} />;
+  }
+
+  const { nextCursor } = data;
+
+  return (
+    <>
+      {data.items.map((quote) => (
+        <Box component="li" key={quote.id} sx={{ listStyle: "none" }}>
+          <QuoteCard quote={quote} showBook={false} />
+        </Box>
+      ))}
+      {isFetching && <LoadingQuotes count={2} />}
+      {isLast && nextCursor && (
+        <LoadMoreSentinel onVisible={() => onLoadMore(nextCursor)} />
+      )}
+    </>
+  );
+};
+
+// Citas del libro: todas las citas de un libro, de la más reciente a la más
+// antigua, con scroll infinito. Se llega desde «Ver todas» en la ficha.
+const BookQuotesPage = () => {
+  const navigate = useNavigate();
+  const { bookId = "" } = useParams();
+  const { data: book, error: bookError } = useGetBookQuery(bookId);
+  const { data, isLoading, isError, refetch } = useGetQuotesQuery({ bookId });
+  const [moreCursors, setMoreCursors] = useState<string[]>([]);
+  const [isAdding, setIsAdding] = useState(false);
+
+  const loadMore = useCallback(
+    (cursor: string) =>
+      setMoreCursors((cursors) =>
+        cursors.includes(cursor) ? cursors : [...cursors, cursor],
+      ),
+    [],
+  );
+
+  // Volver a la ficha; si se entró directamente por el enlace, también a ella.
+  const goBack = () => {
+    const hasHistory = (window.history.state as { idx?: number } | null)?.idx;
+
+    if (hasHistory) {
+      void navigate(-1);
+    } else {
+      void navigate(`/library/${bookId}`);
+    }
+  };
+
+  const renderContent = () => {
+    if (parseApiError(bookError)?.code === "BOOK_NOT_FOUND") {
+      return (
+        <Box role="alert" sx={{ textAlign: "center", py: 8 }}>
+          <Typography color="text.secondary">
+            Este libro no está en tu biblioteca.
+          </Typography>
+        </Box>
+      );
+    }
+
+    if (isLoading) {
+      return (
+        <Box
+          component="ul"
+          role="status"
+          aria-label="Cargando las citas"
+          sx={{ m: 0, p: 0, display: "grid", gap: 3 }}
+        >
+          <LoadingQuotes count={3} />
+        </Box>
+      );
+    }
+
+    if (isError || !data) {
+      return (
+        <InlineError
+          message="No hemos podido cargar las citas."
+          onRetry={() => void refetch()}
+        />
+      );
+    }
+
+    if (data.items.length === 0) {
+      return (
+        <Typography color="text.secondary" sx={{ fontSize: "1rem" }}>
+          Todavía no has guardado citas de este libro.
+        </Typography>
+      );
+    }
+
+    return (
+      <Box
+        component="ul"
+        aria-label="Citas"
+        sx={{ m: 0, p: 0, display: "grid", gap: 3 }}
+      >
+        {data.items.map((quote) => (
+          <Box component="li" key={quote.id} sx={{ listStyle: "none" }}>
+            <QuoteCard quote={quote} showBook={false} />
+          </Box>
+        ))}
+        {moreCursors.length === 0 && data.nextCursor && (
+          <LoadMoreSentinel onVisible={() => loadMore(data.nextCursor ?? "")} />
+        )}
+        {moreCursors.map((cursor, index) => (
+          <QuotesChunk
+            key={cursor}
+            bookId={bookId}
+            cursor={cursor}
+            isLast={index === moreCursors.length - 1}
+            onLoadMore={loadMore}
+          />
+        ))}
+      </Box>
+    );
+  };
+
+  return (
+    <Box
+      component="main"
+      sx={{ maxWidth: 480, mx: "auto", px: 4, pb: 8, display: "grid", gap: 4 }}
+    >
+      <Box sx={{ pt: "calc(env(safe-area-inset-top) + 8px)" }}>
+        <IconButton
+          aria-label="Volver"
+          onClick={goBack}
+          sx={{ width: 44, height: 44 }}
+        >
+          <BackIcon />
+        </IconButton>
+      </Box>
+      <Box sx={{ textAlign: "center" }}>
+        <Typography variant="h6" component="h1">
+          {data ? `Citas (${data.total})` : "Citas"}
+        </Typography>
+        {book && (
+          <Typography color="text.secondary" sx={{ fontSize: "1rem" }}>
+            {book.title}
+          </Typography>
+        )}
+      </Box>
+      {renderContent()}
+      {book && (
+        <Button fullWidth onClick={() => setIsAdding(true)}>
+          Añadir cita
+        </Button>
+      )}
+      {book && isAdding && (
+        <QuoteFormDialog
+          ejemplarId={book.ejemplarId}
+          bookTitle={book.title}
+          onClose={() => setIsAdding(false)}
+        />
+      )}
+    </Box>
+  );
+};
+
+export default BookQuotesPage;
