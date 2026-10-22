@@ -20,6 +20,7 @@ import {
 import BookCover from "../../components/BookCover/BookCover";
 import EditBookDialog from "../../components/EditBookDialog/EditBookDialog";
 import EjemplarDataSection from "../../components/EjemplarDataSection/EjemplarDataSection";
+import BookQuotesSection from "../../../quotes/components/BookQuotesSection/BookQuotesSection";
 import StatusSelector from "../../components/StatusSelector/StatusSelector";
 import { capitalizeWords } from "../../utils/capitalizeFirst";
 import { getTagSuggestions } from "../../utils/getTagSuggestions";
@@ -237,6 +238,11 @@ const BookDetailPage = () => {
           </Box>
         )}
         <EjemplarDataSection book={book} />
+        <BookQuotesSection
+          bookId={book.id}
+          ejemplarId={book.ejemplarId}
+          bookTitle={book.title}
+        />
         {hasDeleteFailed && (
           <Alert severity="error" sx={{ width: "100%" }}>
             No se pudo eliminar el libro. Inténtalo de nuevo.

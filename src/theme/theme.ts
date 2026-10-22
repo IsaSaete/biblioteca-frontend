@@ -1,6 +1,22 @@
 import { createTheme } from "@mui/material/styles";
 
 // Tokens de sistema-diseno-visual.md traducidos a MUI (arquitectura-tecnica.md).
+// Variante tipográfica de las citas: Lora cursiva (sistema-diseno-visual.md).
+declare module "@mui/material/styles" {
+  interface TypographyVariants {
+    quote: React.CSSProperties;
+  }
+  interface TypographyVariantsOptions {
+    quote?: React.CSSProperties;
+  }
+}
+
+declare module "@mui/material/Typography" {
+  interface TypographyPropsVariantOverrides {
+    quote: true;
+  }
+}
+
 const theme = createTheme({
   cssVariables: { colorSchemeSelector: "data" },
   colorSchemes: {
@@ -45,6 +61,12 @@ const theme = createTheme({
     subtitle1: { fontSize: "1rem", lineHeight: 1.5 },
     body1: { fontSize: "0.875rem", lineHeight: 1.5 },
     body2: { fontSize: "0.875rem", lineHeight: 1.5 },
+    quote: {
+      fontFamily: '"Lora", Georgia, serif',
+      fontStyle: "italic",
+      fontSize: "1rem",
+      lineHeight: 1.6,
+    },
     caption: { fontSize: "0.75rem", lineHeight: 1.5 },
     button: { fontSize: "0.875rem", fontWeight: 500, textTransform: "none" },
   },
