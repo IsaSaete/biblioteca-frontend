@@ -59,6 +59,47 @@ describe("Given the quotes section of a book", () => {
     });
   });
 
+  describe("When the book has more than one quote", () => {
+    it("Then it links to all of them", async () => {
+      server.use(
+        http.get(`${baseUrl}/quotes`, () =>
+          HttpResponse.json({
+            items: [quote("q2", "Segunda"), quote("q1", "Primera")],
+            nextCursor: null,
+            total: 2,
+          }),
+        ),
+      );
+
+      renderRoutes(routes, ["/"]);
+
+      expect(
+        await screen.findByRole("link", { name: /Ver todas/ }),
+      ).toHaveAttribute("href", "/library/book-1/quotes");
+    });
+  });
+
+  describe("When the book has a single quote", () => {
+    it("Then there is nothing else to see and no link", async () => {
+      server.use(
+        http.get(`${baseUrl}/quotes`, () =>
+          HttpResponse.json({
+            items: [quote("q1", "Primera")],
+            nextCursor: null,
+            total: 1,
+          }),
+        ),
+      );
+
+      renderRoutes(routes, ["/"]);
+      await screen.findByText("Primera");
+
+      expect(
+        screen.queryByRole("link", { name: /Ver todas/ }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe("When the book has no quotes", () => {
     it("Then it says so instead of showing an empty card", async () => {
       server.use(

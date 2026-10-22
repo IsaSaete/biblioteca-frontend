@@ -10,7 +10,7 @@ import { visuallyHidden } from "../../../../utils/visuallyHidden";
 import { useGetBooksQuery } from "../../booksApi";
 import BookCard from "../../components/BookCard/BookCard";
 import BooksGrid from "../../components/BooksGrid/BooksGrid";
-import { useOnVisible } from "../../hooks/useOnVisible";
+import { useOnVisible } from "../../../../hooks/useOnVisible";
 
 const SKELETON_COUNT = 9;
 
