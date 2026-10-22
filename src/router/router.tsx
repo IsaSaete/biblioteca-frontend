@@ -5,6 +5,7 @@ import ForgotPasswordPage from "../domains/auth/pages/ForgotPasswordPage/ForgotP
 import RegisterPage from "../domains/auth/pages/RegisterPage/RegisterPage";
 import ResetPasswordPage from "../domains/auth/pages/ResetPasswordPage/ResetPasswordPage";
 import LibraryPage from "../domains/books/pages/LibraryPage/LibraryPage";
+import QuotesPage from "../domains/quotes/pages/QuotesPage/QuotesPage";
 import ProfilePage from "../domains/profile/pages/ProfilePage/ProfilePage";
 import RequireAuth from "./RequireAuth/RequireAuth";
 
@@ -66,6 +67,7 @@ export const routes = [
         element: <AppLayout />,
         children: [
           { path: "/library", element: <LibraryPage /> },
+          { path: "/quotes", element: <QuotesPage /> },
           { path: "/profile", element: <ProfilePage /> },
         ],
       },
