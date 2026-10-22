@@ -1,7 +1,7 @@
 import type { LibraryBook } from "../dto/LibraryBook";
 import type { UpdateEjemplarRequest } from "../dto/UpdateEjemplarRequest";
 import { parseAuthors } from "./confirmBookSchema";
-import type { EditBookFormValues } from "./editBookSchema";
+import type { BookDataFormValues } from "./editBookSchema";
 
 type Overrides = NonNullable<UpdateEjemplarRequest["overrides"]>;
 
@@ -13,7 +13,7 @@ const sameList = (a: string[], b: string[]): boolean =>
 // y vuelve a verse el dato original del libro. `undefined` = nada que guardar.
 export const buildOverridesRequest = (
   book: LibraryBook,
-  values: EditBookFormValues,
+  values: BookDataFormValues,
 ): Overrides | undefined => {
   const overrides: Overrides = {};
   const title = values.title.trim();
