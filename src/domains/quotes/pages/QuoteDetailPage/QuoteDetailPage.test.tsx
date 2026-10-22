@@ -27,6 +27,28 @@ const mockQuote = (value = quote()) =>
     http.get(`${baseUrl}/quotes/q1`, () => HttpResponse.json({ quote: value })),
   );
 
+beforeEach(() =>
+  server.use(
+    http.get(`${baseUrl}/books/book-1`, () =>
+      HttpResponse.json({
+        book: {
+          id: "book-1",
+          title: "1984",
+          authors: ["George Orwell"],
+          publisher: "Debolsillo",
+          coverUrl: "https://covers.test/1984.jpg",
+        },
+        ejemplar: {
+          id: "ejemplar-1",
+          bookId: "book-1",
+          status: "reading",
+          createdAt: "2026-10-20T10:00:00.000Z",
+        },
+      }),
+    ),
+  ),
+);
+
 describe("Given the quote detail page", () => {
   describe("When the quote loads", () => {
     it("Then it shows the full text, the page and the book without leaving", async () => {
@@ -39,6 +61,9 @@ describe("Given the quote detail page", () => {
       expect(
         screen.getByRole("link", { name: "Ir al libro 1984" }),
       ).toHaveAttribute("href", "/library/book-1");
+      expect(
+        await screen.findByRole("img", { name: "Portada de 1984" }),
+      ).toBeInTheDocument();
       expect(screen.queryByText("Ficha del libro")).not.toBeInTheDocument();
     });
   });

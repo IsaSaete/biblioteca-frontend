@@ -12,7 +12,26 @@ import InlineError from "../../../../components/ui/InlineError/InlineError";
 import Pill from "../../../../components/ui/Pill/Pill";
 import { parseApiError } from "../../../auth/utils/parseApiError";
 import QuoteFormDialog from "../../components/QuoteFormDialog/QuoteFormDialog";
+import BookCover from "../../../books/components/BookCover/BookCover";
+import { useGetBookQuery } from "../../../books/booksApi";
 import { useDeleteQuoteMutation, useGetQuoteQuery } from "../../quotesApi";
+
+const PencilIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+  </svg>
+);
 
 const BackIcon = () => (
   <svg
@@ -36,6 +55,11 @@ const QuoteDetailPage = () => {
   const navigate = useNavigate();
   const { quoteId = "" } = useParams();
   const { data: quote, isLoading, error, refetch } = useGetQuoteQuery(quoteId);
+  // La cita no trae portada (api-contract.md): se toma del libro, que suele
+  // estar ya en caché por la ficha.
+  const { data: book } = useGetBookQuery(quote?.book.id ?? "", {
+    skip: !quote,
+  });
   const [isEditing, setIsEditing] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [deleteQuote, { isLoading: isDeleting, isError: hasDeleteFailed }] =
@@ -119,27 +143,29 @@ const QuoteDetailPage = () => {
           color="inherit"
           aria-label={`Ir al libro ${quote.book.title}`}
           sx={{
-            display: "block",
+            display: "flex",
+            alignItems: "center",
+            gap: 3,
             bgcolor: "background.paper",
             borderRadius: 1.5,
-            p: 4,
+            p: 3,
           }}
         >
-          <Typography color="text.secondary" sx={{ fontSize: "0.875rem" }}>
-            Ir al libro
-          </Typography>
-          <Typography sx={{ fontWeight: 700 }}>{quote.book.title}</Typography>
-          <Typography color="text.secondary" sx={{ fontSize: "1rem" }}>
-            {quote.book.authors.join(", ")}
-          </Typography>
+          <Box sx={{ width: 40, flexShrink: 0 }}>
+            <BookCover title={quote.book.title} coverUrl={book?.coverUrl} />
+          </Box>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography sx={{ fontWeight: 700, overflowWrap: "anywhere" }}>
+              {quote.book.title}
+            </Typography>
+            <Typography
+              sx={{ fontSize: "0.875rem", color: "secondary.contrastText" }}
+            >
+              Ir al libro ›
+            </Typography>
+          </Box>
         </Link>
         <Box sx={{ display: "grid", gap: 2 }}>
-          <Pill
-            tone="accent"
-            label="Editar cita"
-            fullWidth
-            onClick={() => setIsEditing(true)}
-          />
           {hasDeleteFailed && (
             <Alert severity="error">
               No se pudo eliminar la cita. Inténtalo de nuevo.
@@ -195,7 +221,13 @@ const QuoteDetailPage = () => {
       component="main"
       sx={{ maxWidth: 480, mx: "auto", px: 4, pb: 8, display: "grid", gap: 4 }}
     >
-      <Box sx={{ pt: "calc(env(safe-area-inset-top) + 8px)" }}>
+      <Box
+        sx={{
+          pt: "calc(env(safe-area-inset-top) + 8px)",
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
         <IconButton
           aria-label="Volver"
           onClick={goBack}
@@ -203,6 +235,15 @@ const QuoteDetailPage = () => {
         >
           <BackIcon />
         </IconButton>
+        {quote && (
+          <IconButton
+            aria-label="Editar cita"
+            onClick={() => setIsEditing(true)}
+            sx={{ width: 44, height: 44 }}
+          >
+            <PencilIcon />
+          </IconButton>
+        )}
       </Box>
       {renderContent()}
     </Box>
