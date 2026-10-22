@@ -68,7 +68,11 @@ export const routes = [
         children: [
           { path: "/library", element: <LibraryPage /> },
           { path: "/quotes", element: <QuotesPage /> },
-          { path: "/profile", element: <ProfilePage /> },
+          {
+            path: "/profile",
+            element: <ProfilePage />,
+            handle: { topBar: false },
+          },
         ],
       },
     ],

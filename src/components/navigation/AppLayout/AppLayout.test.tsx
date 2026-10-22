@@ -8,7 +8,11 @@ const routes = [
     children: [
       { path: "/library", element: <p>Contenido de biblioteca</p> },
       { path: "/quotes", element: <p>Contenido de citas</p> },
-      { path: "/profile", element: <p>Contenido de perfil</p> },
+      {
+        path: "/profile",
+        element: <p>Contenido de perfil</p>,
+        handle: { topBar: false },
+      },
     ],
   },
 ];
@@ -101,6 +105,30 @@ describe("Given the layout of the screens with a session", () => {
           .getAllByRole("link")
           .map((link) => link.textContent),
       ).toEqual(["Biblioteca", "Citas", "Perfil"]);
+    });
+  });
+
+  describe("When the section has content to search", () => {
+    it("Then the top bar with the search box is shown above it", () => {
+      setDesktopViewport(false);
+
+      renderRoutes(routes, ["/library"]);
+
+      expect(
+        screen.getByRole("combobox", { name: "Buscar en tu biblioteca" }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the user is on the profile", () => {
+    it("Then there is no top bar", () => {
+      setDesktopViewport(false);
+
+      renderRoutes(routes, ["/profile"]);
+
+      expect(
+        screen.queryByRole("combobox", { name: "Buscar en tu biblioteca" }),
+      ).not.toBeInTheDocument();
     });
   });
 });
