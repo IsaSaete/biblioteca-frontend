@@ -17,6 +17,7 @@ describe("Given the edit quote form values", () => {
         buildUpdateQuoteRequest(quote, {
           text: " La guerra es la paz. ",
           page: "9",
+          source: "",
         }),
       ).toBeUndefined();
     });
@@ -25,7 +26,11 @@ describe("Given the edit quote form values", () => {
   describe("When only the text changed", () => {
     it("Then only the trimmed text is sent", () => {
       expect(
-        buildUpdateQuoteRequest(quote, { text: " Otra ", page: "9" }),
+        buildUpdateQuoteRequest(quote, {
+          text: " Otra ",
+          page: "9",
+          source: "",
+        }),
       ).toEqual({ text: "Otra" });
     });
   });
@@ -36,6 +41,7 @@ describe("Given the edit quote form values", () => {
         buildUpdateQuoteRequest(quote, {
           text: "La guerra es la paz.",
           page: "",
+          source: "",
         }),
       ).toEqual({ page: null });
     });
@@ -46,8 +52,45 @@ describe("Given the edit quote form values", () => {
       expect(
         buildUpdateQuoteRequest(
           { ...quote, page: undefined },
-          { text: "La guerra es la paz.", page: "" },
+          { text: "La guerra es la paz.", page: "", source: "" },
         ),
+      ).toBeUndefined();
+    });
+  });
+
+  describe("When a quote without a book changes its source", () => {
+    const loose: Quote = {
+      id: "q2",
+      text: "Hola",
+      source: "Paper",
+      createdAt: "2026-10-22T10:00:00.000Z",
+    };
+
+    it("Then the new source is sent", () => {
+      expect(
+        buildUpdateQuoteRequest(loose, {
+          text: "Hola",
+          page: "",
+          source: " Biblioteca ",
+        }),
+      ).toEqual({ source: "Biblioteca" });
+    });
+
+    it("Then emptying it sends null", () => {
+      expect(
+        buildUpdateQuoteRequest(loose, { text: "Hola", page: "", source: "" }),
+      ).toEqual({ source: null });
+    });
+  });
+
+  describe("When a quote with a book is edited", () => {
+    it("Then the source is never sent", () => {
+      expect(
+        buildUpdateQuoteRequest(quote, {
+          text: "La guerra es la paz.",
+          page: "9",
+          source: "Paper",
+        }),
       ).toBeUndefined();
     });
   });
