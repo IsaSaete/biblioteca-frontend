@@ -18,24 +18,6 @@ const routes = [
   },
 ];
 
-const renderSection = (previewCount: number) =>
-  renderRoutes(
-    [
-      {
-        path: "/",
-        element: (
-          <BookQuotesSection
-            bookId="book-1"
-            ejemplarId="ejemplar-1"
-            bookTitle="1984"
-            previewCount={previewCount}
-          />
-        ),
-      },
-    ],
-    ["/"],
-  );
-
 const quote = (id: string, text: string, page?: number) => ({
   id,
   ejemplarId: "ejemplar-1",
@@ -92,7 +74,7 @@ describe("Given the quotes section of a book", () => {
       renderRoutes(routes, ["/"]);
 
       expect(
-        await screen.findByRole("link", { name: /Ver todas/ }),
+        await screen.findByRole("link", { name: /Ver las 2 citas/ }),
       ).toHaveAttribute("href", "/library/book-1/quotes");
     });
   });
@@ -113,8 +95,25 @@ describe("Given the quotes section of a book", () => {
       await screen.findByText("Primera");
 
       expect(
-        screen.queryByRole("link", { name: /Ver todas/ }),
+        screen.queryByRole("link", { name: /Ver las/ }),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("When the book has no quotes and the user looks for how to add one", () => {
+    it("Then the add button is in the heading, not as a big button below", async () => {
+      server.use(
+        http.get(`${baseUrl}/quotes`, () =>
+          HttpResponse.json({ items: [], nextCursor: null, total: 0 }),
+        ),
+      );
+
+      renderRoutes(routes, ["/"]);
+      const heading = await screen.findByRole("heading", { name: "Citas (0)" });
+
+      expect(heading.parentElement).toContainElement(
+        screen.getByRole("button", { name: "Añadir cita" }),
+      );
     });
   });
 
@@ -272,54 +271,6 @@ describe("Given the quotes section of a book", () => {
       expect(
         await screen.findByText("La página no es válida"),
       ).toBeInTheDocument();
-    });
-  });
-
-  describe("When there is room for several quotes", () => {
-    it("Then it previews that many and links to the rest", async () => {
-      server.use(
-        http.get(`${baseUrl}/quotes`, () =>
-          HttpResponse.json({
-            items: [
-              quote("q4", "Cuarta"),
-              quote("q3", "Tercera"),
-              quote("q2", "Segunda"),
-              quote("q1", "Primera"),
-            ],
-            nextCursor: null,
-            total: 4,
-          }),
-        ),
-      );
-
-      renderSection(3);
-
-      expect(await screen.findByText("Cuarta")).toBeInTheDocument();
-      expect(screen.getByText("Tercera")).toBeInTheDocument();
-      expect(screen.getByText("Segunda")).toBeInTheDocument();
-      expect(screen.queryByText("Primera")).not.toBeInTheDocument();
-      expect(
-        screen.getByRole("link", { name: /Ver todas/ }),
-      ).toBeInTheDocument();
-    });
-
-    it("Then there is no link when all of them already fit", async () => {
-      server.use(
-        http.get(`${baseUrl}/quotes`, () =>
-          HttpResponse.json({
-            items: [quote("q2", "Segunda"), quote("q1", "Primera")],
-            nextCursor: null,
-            total: 2,
-          }),
-        ),
-      );
-
-      renderSection(3);
-      await screen.findByText("Primera");
-
-      expect(
-        screen.queryByRole("link", { name: /Ver todas/ }),
-      ).not.toBeInTheDocument();
     });
   });
 });

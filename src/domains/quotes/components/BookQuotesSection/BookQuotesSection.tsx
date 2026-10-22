@@ -3,7 +3,6 @@ import { Link as RouterLink } from "react-router";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
-import Button from "../../../../components/ui/Button/Button";
 import InlineError from "../../../../components/ui/InlineError/InlineError";
 import { useGetQuotesQuery } from "../../quotesApi";
 import QuoteFormDialog from "../QuoteFormDialog/QuoteFormDialog";
@@ -14,23 +13,36 @@ interface BookQuotesSectionProps {
   bookId: string;
   ejemplarId: string;
   bookTitle: string;
-  // Cuántas citas se adelantan: una en móvil y varias en escritorio, donde hay
-  // sitio de sobra en la columna de las citas.
-  previewCount?: number;
 }
 
-// «Citas (n)» de la ficha: solo un adelanto con las últimas citas guardadas; el
-// listado completo vive en la pantalla de Citas. La API devuelve la más
-// reciente primero, y `total` cuenta todas las del libro, no solo las traídas.
+const ChevronIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M9 5l7 7-7 7" />
+  </svg>
+);
+
+// «Citas (n)» de la ficha: solo un adelanto con la última cita guardada y, si
+// hay más, una fila para verlas todas; el listado completo vive en «Citas del
+// libro». La API devuelve la más reciente primero, y `total` cuenta todas las
+// del libro, no solo las traídas.
 const BookQuotesSection = ({
   bookId,
   ejemplarId,
   bookTitle,
-  previewCount = 1,
 }: BookQuotesSectionProps) => {
   const [isAdding, setIsAdding] = useState(false);
   const { data, isLoading, isError, refetch } = useGetQuotesQuery({ bookId });
-  const previewed = data?.items.slice(0, previewCount) ?? [];
+  const latest = data?.items[0];
 
   const renderContent = () => {
     if (isLoading) {
@@ -46,14 +58,35 @@ const BookQuotesSection = ({
       );
     }
 
-    return previewed.length > 0 ? (
-      <Box sx={{ display: "grid", gap: 3 }}>
-        {previewed.map((quote) => (
-          <QuoteCard key={quote.id} quote={quote} showBook={false} />
-        ))}
+    if (!latest || !data) {
+      return <NoQuotesCard />;
+    }
+
+    return (
+      <Box sx={{ bgcolor: "background.paper", borderRadius: 1.5 }}>
+        <QuoteCard quote={latest} showBook={false} embedded />
+        {data.total > 1 && (
+          <Link
+            component={RouterLink}
+            to={`/library/${bookId}/quotes`}
+            underline="none"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              minHeight: 44,
+              px: 4,
+              borderTop: 1,
+              borderColor: "divider",
+              fontSize: "0.875rem",
+              color: "secondary.contrastText",
+            }}
+          >
+            Ver las {data.total} citas
+            <ChevronIcon />
+          </Link>
+        )}
       </Box>
-    ) : (
-      <NoQuotesCard />
     );
   };
 
@@ -79,29 +112,26 @@ const BookQuotesSection = ({
         >
           {data ? `Citas (${data.total})` : "Citas"}
         </Typography>
-        {data && data.total > previewed.length && (
-          <Link
-            component={RouterLink}
-            to={`/library/${bookId}/quotes`}
-            underline="hover"
-            sx={{
-              display: "inline-flex",
-              alignItems: "center",
-              minHeight: 44,
-              fontSize: "0.875rem",
-              color: "secondary.contrastText",
-            }}
-          >
-            Ver todas ›
-          </Link>
-        )}
-      </Box>
-      <Box sx={{ display: "grid", gap: 4 }}>
-        {renderContent()}
-        <Button fullWidth onClick={() => setIsAdding(true)}>
+        <Link
+          component="button"
+          type="button"
+          underline="none"
+          onClick={() => setIsAdding(true)}
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            minHeight: 44,
+            // Un <button> no hereda la tipografía: sin esto salía con otra
+            // fuente que «Ver las n citas».
+            font: "inherit",
+            fontSize: "0.875rem",
+            color: "secondary.contrastText",
+          }}
+        >
           Añadir cita
-        </Button>
+        </Link>
       </Box>
+      {renderContent()}
       {isAdding && (
         <QuoteFormDialog
           ejemplarId={ejemplarId}

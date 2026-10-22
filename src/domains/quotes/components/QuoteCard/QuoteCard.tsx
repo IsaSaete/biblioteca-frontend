@@ -8,12 +8,18 @@ interface QuoteCardProps {
   // En la ficha la cita ya está dentro de su libro: no se repite la referencia.
   // Una cita sin libro muestra su fuente, si la tiene, en su lugar.
   showBook?: boolean;
+  // Sin fondo ni esquinas propias, para vivir dentro de otra tarjeta.
+  embedded?: boolean;
 }
 
 // Tarjeta de cita: texto en Lora cursiva, truncado a 3 líneas, con la página y,
 // si procede, el libro debajo. Toda la tarjeta lleva al detalle, donde está el
 // texto completo.
-const QuoteCard = ({ quote, showBook = true }: QuoteCardProps) => {
+const QuoteCard = ({
+  quote,
+  showBook = true,
+  embedded = false,
+}: QuoteCardProps) => {
   const reference = [
     showBook ? (quote.book?.title ?? quote.source) : undefined,
     quote.page ? `Pág. ${quote.page}` : undefined,
@@ -28,9 +34,8 @@ const QuoteCard = ({ quote, showBook = true }: QuoteCardProps) => {
       aria-label={`Abrir la cita: ${quote.text}`}
       sx={{
         display: "block",
-        bgcolor: "background.paper",
-        borderRadius: 1.5,
         p: 4,
+        ...(!embedded && { bgcolor: "background.paper", borderRadius: 1.5 }),
       }}
     >
       <Typography
