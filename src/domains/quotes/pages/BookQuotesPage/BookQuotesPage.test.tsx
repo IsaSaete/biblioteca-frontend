@@ -179,6 +179,9 @@ describe("Given the quotes of a book page", () => {
       await user.click(
         await screen.findByRole("button", { name: "Añadir cita" }),
       );
+      await user.click(
+        await screen.findByRole("button", { name: "Escribir manualmente" }),
+      );
       await user.type(screen.getByLabelText("Cita"), "Nueva");
       await user.click(screen.getByRole("button", { name: "Guardar cita" }));
 

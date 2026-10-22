@@ -21,4 +21,16 @@ describe("Given the add quote form values", () => {
       ).toEqual({ ejemplarId: "ejemplar-1", text: "Hola", origin: "manual" });
     });
   });
+
+  describe("When the text came from the camera", () => {
+    it("Then the origin is ocr", () => {
+      expect(
+        buildCreateQuoteRequest(
+          "ejemplar-1",
+          { text: "Hola", page: "" },
+          "ocr",
+        ),
+      ).toMatchObject({ origin: "ocr" });
+    });
+  });
 });
