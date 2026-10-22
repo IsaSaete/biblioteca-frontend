@@ -1,6 +1,6 @@
 import type { LibraryBook } from "../dto/LibraryBook";
 import { buildOverridesRequest } from "./buildOverridesRequest";
-import type { EditBookFormValues } from "./editBookSchema";
+import type { BookDataFormValues } from "./editBookSchema";
 
 const book: LibraryBook = {
   id: "book-1",
@@ -17,7 +17,7 @@ const book: LibraryBook = {
   favorite: false,
 };
 
-const unchanged: EditBookFormValues = {
+const unchanged: BookDataFormValues = {
   title: "El mundo amarillo",
   authors: "Albert Espinosa",
   publisher: "Debolsillo",

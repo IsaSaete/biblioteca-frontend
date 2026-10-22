@@ -3,7 +3,7 @@ import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import Button from "../../../../components/ui/Button/Button";
 import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
 import FullScreenModal from "../../../../components/ui/FullScreenModal/FullScreenModal";
@@ -12,12 +12,15 @@ import { parseApiError } from "../../../auth/utils/parseApiError";
 import { useFieldValidation } from "../../../auth/hooks/useFieldValidation";
 import { useUpdateEjemplarMutation } from "../../booksApi";
 import type { LibraryBook } from "../../dto/LibraryBook";
-import { buildOverridesRequest } from "../../utils/buildOverridesRequest";
+import { buildEditBookRequest } from "../../utils/buildEditBookRequest";
+import { formatLabels, provenanceLabels } from "../../utils/ejemplarOptions";
+import TagsEditor from "../TagsEditor/TagsEditor";
 import { editBookSchema } from "../../utils/editBookSchema";
 import type { EditBookFormValues } from "../../utils/editBookSchema";
 
 interface EditBookDialogProps {
   book: LibraryBook;
+  tagSuggestions: string[];
   onClose: () => void;
 }
 
@@ -32,7 +35,24 @@ const fieldNames: (keyof EditBookFormValues)[] = [
   "pageCount",
   "synopsis",
   "categories",
+  "location",
+  "format",
+  "provenance",
+  "acquisitionDate",
+  "notes",
+  "tags",
 ];
+
+const selectProps = {
+  select: { native: true },
+  inputLabel: { shrink: true },
+} as const;
+
+// Dos campos cortos comparten fila (también en móvil).
+const pairSx = { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3 };
+
+const fieldsetSx = { display: "grid", gap: 5, border: 0, m: 0, p: 0 };
+const legendSx = { fontSize: "0.875rem", fontWeight: 700, mb: 4, p: 0 };
 
 const getDefaultValues = (book: LibraryBook): EditBookFormValues => ({
   title: book.title,
@@ -43,12 +63,23 @@ const getDefaultValues = (book: LibraryBook): EditBookFormValues => ({
   pageCount: book.pageCount?.toString() ?? "",
   synopsis: book.synopsis ?? "",
   categories: book.categories?.join(", ") ?? "",
+  location: book.location ?? "",
+  format: book.format ?? "",
+  provenance: book.provenance ?? "",
+  acquisitionDate: book.acquisitionDate ?? "",
+  notes: book.notes ?? "",
+  tags: book.tags ?? [],
 });
 
-// Corrección personal de los datos del libro (HU-21): se guarda como override
-// en el ejemplar, nunca en el libro compartido (modelo-de-datos.md). Vaciar un
-// campo opcional quita la corrección y vuelve a verse el dato original.
-const EditBookDialog = ({ book, onClose }: EditBookDialogProps) => {
+// Editor único (HU-21, HU-22) con dos secciones y un solo «Guardar»: los datos
+// del libro se guardan como override en el ejemplar, nunca en el libro
+// compartido (modelo-de-datos.md), y vaciar un campo opcional quita la
+// corrección; los datos del ejemplar y las etiquetas van en el mismo PATCH.
+const EditBookDialog = ({
+  book,
+  tagSuggestions,
+  onClose,
+}: EditBookDialogProps) => {
   const form = useForm<EditBookFormValues>({
     resolver: zodResolver(editBookSchema),
     defaultValues: getDefaultValues(book),
@@ -57,6 +88,7 @@ const EditBookDialog = ({ book, onClose }: EditBookDialogProps) => {
     register: field,
     handleSubmit,
     setError,
+    control,
     formState: { errors },
   } = form;
   const validationHandlers = useFieldValidation(form);
@@ -65,17 +97,14 @@ const EditBookDialog = ({ book, onClose }: EditBookDialogProps) => {
 
   const onSubmit = async (values: EditBookFormValues) => {
     setFormError(null);
-    const overrides = buildOverridesRequest(book, values);
+    const changes = buildEditBookRequest(book, values);
 
-    if (!overrides) {
+    if (!changes) {
       onClose();
       return;
     }
 
-    const result = await updateEjemplar({
-      bookId: book.id,
-      changes: { overrides },
-    });
+    const result = await updateEjemplar({ bookId: book.id, changes });
 
     if (!result.error) {
       onClose();
@@ -109,60 +138,124 @@ const EditBookDialog = ({ book, onClose }: EditBookDialogProps) => {
       >
         <Box sx={{ textAlign: "center" }}>
           <Typography id={TITLE_ID} variant="h6" component="h2">
-            Edita los datos del libro
+            Edita tu libro
           </Typography>
           <Typography color="text.secondary" sx={{ mt: 1 }}>
-            Solo cambian en tu biblioteca. Si vacías un dato opcional, vuelve el
-            original.
+            Los cambios solo afectan a tu biblioteca. Si vacías un dato opcional
+            del libro, vuelve el original.
           </Typography>
         </Box>
         {formError && <Alert severity="error">{formError}</Alert>}
-        <FloatingLabelInput
-          label="Título"
-          error={!!errors.title}
-          helperText={errors.title?.message}
-          {...field("title", validationHandlers("title"))}
-        />
-        <FloatingLabelInput
-          label="Autores"
-          error={!!errors.authors}
-          helperText={
-            errors.authors?.message ?? "Separa varios autores con comas."
-          }
-          {...field("authors", validationHandlers("authors"))}
-        />
-        <FloatingLabelInput
-          label="Editorial"
-          error={!!errors.publisher}
-          helperText={errors.publisher?.message}
-          {...field("publisher", validationHandlers("publisher"))}
-        />
-        <FloatingLabelInput
-          label="Año de publicación"
-          error={!!errors.publishedYear}
-          helperText={errors.publishedYear?.message}
-          slotProps={{ htmlInput: { inputMode: "numeric" } }}
-          {...field("publishedYear", validationHandlers("publishedYear"))}
-        />
-        <FloatingLabelInput
-          label="Páginas"
-          error={!!errors.pageCount}
-          helperText={errors.pageCount?.message}
-          slotProps={{ htmlInput: { inputMode: "numeric" } }}
-          {...field("pageCount", validationHandlers("pageCount"))}
-        />
-        <FloatingLabelInput label="Idioma" {...field("language")} />
-        <FloatingLabelInput
-          label="Géneros"
-          helperText="Separa varios géneros con comas."
-          {...field("categories")}
-        />
-        <FloatingLabelInput
-          label="Sinopsis"
-          multiline
-          minRows={4}
-          {...field("synopsis")}
-        />
+        <Box component="fieldset" sx={fieldsetSx}>
+          <Typography component="legend" sx={legendSx}>
+            Datos del libro
+          </Typography>
+          <FloatingLabelInput
+            label="Título"
+            error={!!errors.title}
+            helperText={errors.title?.message}
+            {...field("title", validationHandlers("title"))}
+          />
+          <FloatingLabelInput
+            label="Autores"
+            error={!!errors.authors}
+            helperText={
+              errors.authors?.message ?? "Separa varios autores con comas."
+            }
+            {...field("authors", validationHandlers("authors"))}
+          />
+          <FloatingLabelInput
+            label="Editorial"
+            error={!!errors.publisher}
+            helperText={errors.publisher?.message}
+            {...field("publisher", validationHandlers("publisher"))}
+          />
+          <Box sx={pairSx}>
+            <FloatingLabelInput
+              label="Año"
+              error={!!errors.publishedYear}
+              helperText={errors.publishedYear?.message}
+              slotProps={{ htmlInput: { inputMode: "numeric" } }}
+              {...field("publishedYear", validationHandlers("publishedYear"))}
+            />
+            <FloatingLabelInput
+              label="Páginas"
+              error={!!errors.pageCount}
+              helperText={errors.pageCount?.message}
+              slotProps={{ htmlInput: { inputMode: "numeric" } }}
+              {...field("pageCount", validationHandlers("pageCount"))}
+            />
+          </Box>
+          <FloatingLabelInput label="Idioma" {...field("language")} />
+          <FloatingLabelInput
+            label="Géneros"
+            helperText="Separa varios géneros con comas."
+            {...field("categories")}
+          />
+          <FloatingLabelInput
+            label="Sinopsis"
+            multiline
+            minRows={4}
+            {...field("synopsis")}
+          />
+        </Box>
+        <Box component="fieldset" sx={fieldsetSx}>
+          <Typography component="legend" sx={legendSx}>
+            Datos de tu ejemplar
+          </Typography>
+          <FloatingLabelInput label="Ubicación" {...field("location")} />
+          <Box sx={pairSx}>
+            <FloatingLabelInput
+              label="Formato"
+              slotProps={selectProps}
+              select
+              {...field("format")}
+            >
+              <option value="" />
+              {Object.entries(formatLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </FloatingLabelInput>
+            <FloatingLabelInput
+              label="Procedencia"
+              slotProps={selectProps}
+              select
+              {...field("provenance")}
+            >
+              <option value="" />
+              {Object.entries(provenanceLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </FloatingLabelInput>
+          </Box>
+          <FloatingLabelInput
+            label="Fecha de adquisición"
+            type="date"
+            {...field("acquisitionDate")}
+          />
+          <FloatingLabelInput
+            label="Notas"
+            multiline
+            minRows={3}
+            {...field("notes")}
+          />
+          <Controller
+            control={control}
+            name="tags"
+            render={({ field: { value, onChange } }) => (
+              <TagsEditor
+                tags={value}
+                suggestions={tagSuggestions}
+                onChange={onChange}
+                disabled={isLoading}
+              />
+            )}
+          />
+        </Box>
         <Box sx={{ display: "grid", gap: 2 }}>
           <Button type="submit" fullWidth disabled={isLoading}>
             {isLoading ? "Guardando…" : "Guardar"}

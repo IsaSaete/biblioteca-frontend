@@ -248,24 +248,17 @@ describe("Given the book detail page", () => {
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
         await screen.findByRole("button", {
-          name: "Editar datos del ejemplar",
+          name: "Editar datos",
         }),
       );
       await user.clear(screen.getByLabelText("Notas"));
       await user.selectOptions(screen.getByLabelText("Formato"), "pocket");
       await user.click(screen.getByRole("button", { name: "Guardar" }));
 
-      expect(body).toEqual({
-        location: "Salón",
-        format: "pocket",
-        provenance: null,
-        acquisitionDate: null,
-        notes: null,
-        tags: [],
-      });
+      expect(body).toEqual({ format: "pocket", notes: null });
       expect(
         await screen.findByRole("button", {
-          name: "Editar datos del ejemplar",
+          name: "Editar datos",
         }),
       ).toBeInTheDocument();
     });
@@ -280,13 +273,13 @@ describe("Given the book detail page", () => {
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
         await screen.findByRole("button", {
-          name: "Editar datos del ejemplar",
+          name: "Editar datos",
         }),
       );
       await user.click(screen.getByRole("button", { name: "Cancelar" }));
 
       expect(
-        screen.getByRole("button", { name: "Editar datos del ejemplar" }),
+        screen.getByRole("button", { name: "Editar datos" }),
       ).toBeInTheDocument();
     });
   });
@@ -311,7 +304,7 @@ describe("Given the book detail page", () => {
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
         await screen.findByRole("button", {
-          name: "Editar datos del ejemplar",
+          name: "Editar datos",
         }),
       );
       await user.type(
@@ -344,7 +337,7 @@ describe("Given the book detail page", () => {
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
         await screen.findByRole("button", {
-          name: "Editar datos del ejemplar",
+          name: "Editar datos",
         }),
       );
       await user.click(
@@ -371,7 +364,7 @@ describe("Given the book detail page", () => {
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
         await screen.findByRole("button", {
-          name: "Editar datos del ejemplar",
+          name: "Editar datos",
         }),
       );
 
@@ -400,7 +393,7 @@ describe("Given the book detail page", () => {
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
         await screen.findByRole("button", {
-          name: "Editar datos del ejemplar",
+          name: "Editar datos",
         }),
       );
       const suggestions = await screen.findByRole("group", {
@@ -430,7 +423,7 @@ describe("Given the book detail page", () => {
 
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
-        await screen.findByRole("button", { name: "Editar datos del libro" }),
+        await screen.findByRole("button", { name: "Editar datos" }),
       );
       const title = screen.getByLabelText("Título");
       await user.clear(title);
@@ -439,10 +432,10 @@ describe("Given the book detail page", () => {
 
       expect(body).toEqual({ overrides: { title: "Mi título" } });
       expect(
-        await screen.findByRole("button", { name: "Editar datos del libro" }),
+        await screen.findByRole("button", { name: "Editar datos" }),
       ).toBeInTheDocument();
       expect(
-        screen.queryByRole("dialog", { name: "Edita los datos del libro" }),
+        screen.queryByRole("dialog", { name: "Edita tu libro" }),
       ).not.toBeInTheDocument();
     });
   });
@@ -460,12 +453,12 @@ describe("Given the book detail page", () => {
 
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
-        await screen.findByRole("button", { name: "Editar datos del libro" }),
+        await screen.findByRole("button", { name: "Editar datos" }),
       );
       await user.click(screen.getByRole("button", { name: "Guardar" }));
 
       expect(
-        screen.queryByRole("dialog", { name: "Edita los datos del libro" }),
+        screen.queryByRole("dialog", { name: "Edita tu libro" }),
       ).not.toBeInTheDocument();
       expect(hasPatched).toBe(false);
     });
@@ -484,7 +477,7 @@ describe("Given the book detail page", () => {
 
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
-        await screen.findByRole("button", { name: "Editar datos del libro" }),
+        await screen.findByRole("button", { name: "Editar datos" }),
       );
       await user.clear(screen.getByLabelText("Título"));
       await user.click(screen.getByRole("button", { name: "Guardar" }));
@@ -514,9 +507,9 @@ describe("Given the book detail page", () => {
 
       const { user } = renderRoutes(routes, ["/library/book-1"]);
       await user.click(
-        await screen.findByRole("button", { name: "Editar datos del libro" }),
+        await screen.findByRole("button", { name: "Editar datos" }),
       );
-      const year = screen.getByLabelText("Año de publicación");
+      const year = screen.getByLabelText("Año");
       await user.clear(year);
       await user.type(year, "1999");
       await user.click(screen.getByRole("button", { name: "Guardar" }));

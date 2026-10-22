@@ -201,10 +201,14 @@ const BookDetailPage = () => {
           </Box>
         )}
         <Button variant="text" onClick={() => setIsEditingBook(true)}>
-          Editar datos del libro
+          Editar datos
         </Button>
         {isEditingBook && (
-          <EditBookDialog book={book} onClose={() => setIsEditingBook(false)} />
+          <EditBookDialog
+            book={book}
+            tagSuggestions={getTagSuggestions(library?.items ?? [])}
+            onClose={() => setIsEditingBook(false)}
+          />
         )}
         {book.synopsis && (
           <Box
@@ -232,10 +236,7 @@ const BookDetailPage = () => {
             </Box>
           </Box>
         )}
-        <EjemplarDataSection
-          book={book}
-          tagSuggestions={getTagSuggestions(library?.items ?? [])}
-        />
+        <EjemplarDataSection book={book} />
         {hasDeleteFailed && (
           <Alert severity="error" sx={{ width: "100%" }}>
             No se pudo eliminar el libro. Inténtalo de nuevo.
