@@ -47,6 +47,8 @@ const CameraCapture = ({ onCapture, onWrite }: CameraCaptureProps) => {
       <Box
         sx={{
           aspectRatio: "3 / 4",
+          // El botón «Capturar» debe verse sin hacer scroll en pantallas bajas.
+          maxHeight: "55dvh",
           borderRadius: 1.5,
           overflow: "hidden",
           bgcolor: "common.black",
