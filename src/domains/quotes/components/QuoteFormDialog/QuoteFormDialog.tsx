@@ -197,11 +197,16 @@ const QuoteFormDialog = ({
 
   return (
     <FullScreenModal titleId={TITLE_ID} onClose={onClose} onBack={goBack}>
-      <Box sx={{ display: "grid", gap: 5, pt: step.name === "scan" ? 0 : 4 }}>
-        <Box
-          sx={step.name === "scan" ? visuallyHidden : { textAlign: "center" }}
-        >
-          <Typography id={TITLE_ID} variant="h6" component="h2">
+      <Box sx={{ display: "grid", gap: 5, pt: 4 }}>
+        <Box sx={{ textAlign: "center" }}>
+          {/* En el visor, el título solo lo oyen los lectores de pantalla: así
+              el botón «Capturar» sube y se ve sin hacer scroll. */}
+          <Typography
+            id={TITLE_ID}
+            variant="h6"
+            component="h2"
+            sx={step.name === "scan" ? visuallyHidden : undefined}
+          >
             {heading.title}
           </Typography>
           <Typography color="text.secondary" sx={{ mt: 1, fontSize: "1rem" }}>

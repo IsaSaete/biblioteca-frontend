@@ -101,6 +101,25 @@ describe("Given the add quote dialog on a device with a camera", () => {
     });
   });
 
+  describe("When the viewfinder opens", () => {
+    it("Then the subtitle and the book stay visible and the title is only for screen readers", async () => {
+      const { user } = renderRoutes(routes, ["/"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Escanear con la cámara" }),
+      );
+
+      expect(
+        await screen.findByText(
+          "La foto se lee en tu dispositivo y no se guarda.",
+        ),
+      ).toBeVisible();
+      expect(screen.getByText("1984")).toBeVisible();
+      expect(
+        screen.getByRole("heading", { name: "Escanea la cita" }),
+      ).toBeInTheDocument();
+    });
+  });
+
   describe("When the photo is reduced for the reading", () => {
     it("Then the canvas handed to the OCR respects the size limit", async () => {
       recognizeText.mockResolvedValue("Texto");
