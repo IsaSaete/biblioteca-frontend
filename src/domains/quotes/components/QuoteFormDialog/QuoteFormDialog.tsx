@@ -14,8 +14,9 @@ import CameraCapture from "../CameraCapture/CameraCapture";
 import QuoteForm from "../QuoteForm/QuoteForm";
 
 interface QuoteFormDialogProps {
-  ejemplarId: string;
-  bookTitle: string;
+  // Sin `ejemplarId` ni `bookTitle`, una cita sin libro.
+  ejemplarId?: string;
+  bookTitle?: string;
   // Si se informa, el diálogo edita esa cita en vez de crear una nueva.
   quote?: Quote;
   onClose: () => void;
@@ -211,9 +212,9 @@ const QuoteFormDialog = ({
           <Typography color="text.secondary" sx={{ mt: 1, fontSize: "1rem" }}>
             {"subtitle" in heading && heading.subtitle
               ? heading.subtitle
-              : bookTitle}
+              : (bookTitle ?? "Cita sin libro")}
           </Typography>
-          {"subtitle" in heading && heading.subtitle && (
+          {"subtitle" in heading && heading.subtitle && bookTitle && (
             <Typography color="text.secondary" sx={{ mt: 1, fontSize: "1rem" }}>
               {bookTitle}
             </Typography>

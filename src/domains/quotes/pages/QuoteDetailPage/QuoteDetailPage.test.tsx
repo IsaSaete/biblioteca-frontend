@@ -237,4 +237,41 @@ describe("Given the quote detail page", () => {
       ).toBeInTheDocument();
     });
   });
+
+  describe("When the quote has no book", () => {
+    it("Then it shows the source, offers no way to the book and edits only its own fields", async () => {
+      let body: unknown;
+      let current = {
+        id: "q1",
+        text: "Cita suelta",
+        source: "Paper de Historia",
+        createdAt: "2026-10-22T10:00:00.000Z",
+      };
+      server.use(
+        http.get(`${baseUrl}/quotes/q1`, () =>
+          HttpResponse.json({ quote: current }),
+        ),
+        http.patch(`${baseUrl}/quotes/q1`, async ({ request }) => {
+          body = await request.json();
+          current = { ...current, source: "Biblioteca" };
+          return HttpResponse.json({ quote: current });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/quotes/q1"]);
+
+      expect(await screen.findByText("Paper de Historia")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Ir al libro" }),
+      ).not.toBeInTheDocument();
+      await user.click(screen.getByRole("button", { name: "Editar cita" }));
+      const source = screen.getByLabelText("Fuente (opcional)");
+      await user.clear(source);
+      await user.type(source, "Biblioteca");
+      await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
+
+      expect(await screen.findByText("Biblioteca")).toBeInTheDocument();
+      expect(body).toEqual({ source: "Biblioteca" });
+    });
+  });
 });

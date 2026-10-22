@@ -4,7 +4,7 @@ import type { CreateQuoteRequest } from "./dto/CreateQuoteRequest";
 import type { GetQuotesParams } from "./dto/GetQuotesParams";
 import type { GetQuotesResponse } from "./dto/GetQuotesResponse";
 import type { Quote } from "./dto/Quote";
-import type { QuoteBook } from "./dto/QuoteBook";
+import type { GetQuoteBooksResponse } from "./dto/GetQuoteBooksResponse";
 import type { UpdateQuoteRequest } from "./dto/UpdateQuoteRequest";
 
 export const quotesApi = createApi({
@@ -18,9 +18,8 @@ export const quotesApi = createApi({
       providesTags: ["Quote"],
     }),
     // Alimenta el filtro por libro: solo libros con citas, por título.
-    getQuoteBooks: builder.query<QuoteBook[], void>({
+    getQuoteBooks: builder.query<GetQuoteBooksResponse, void>({
       query: () => "/quotes/books",
-      transformResponse: (response: { items: QuoteBook[] }) => response.items,
       providesTags: ["Quote"],
     }),
     getQuote: builder.query<Quote, string>({
