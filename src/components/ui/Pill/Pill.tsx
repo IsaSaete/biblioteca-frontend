@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from "react";
+import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import type { Theme } from "@mui/material/styles";
 
@@ -17,6 +18,13 @@ interface PillProps {
   tone?: PillTone;
   // Ocupa todo el ancho disponible, con el contenido centrado.
   fullWidth?: boolean;
+  // Solo contorno, sin ser un interruptor (no lleva `aria-pressed`): para
+  // acciones que abren algo, como un filtro.
+  outlined?: boolean;
+  // Flecha tras el texto, centrada con él.
+  endIcon?: "chevron-right" | "chevron-down";
+  // Avisa a los lectores de pantalla de que abre un diálogo o una hoja.
+  hasPopup?: boolean;
 }
 
 // Colores de cada tono. `outline` es el color del contorno y del texto sobre
@@ -71,6 +79,22 @@ const CheckIcon = () => (
   </svg>
 );
 
+const ChevronIcon = ({ direction }: { direction: "right" | "down" }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d={direction === "right" ? "M9 5l7 7-7 7" : "M5 9l7 7 7-7"} />
+  </svg>
+);
+
 // Cápsula tocable (inventario-componentes.md). Alto mínimo táctil de 44px.
 // Sin `selected` es una acción sencilla con el relleno sólido del tono. Con
 // `selected` es un interruptor: seleccionada se rellena y lleva un ✓ (no depende
@@ -83,16 +107,34 @@ const Pill = ({
   selected,
   tone = "accent",
   fullWidth = false,
+  outlined = false,
+  endIcon,
+  hasPopup = false,
 }: PillProps) => (
   <Chip
-    label={label}
+    label={
+      endIcon ? (
+        <Box
+          component="span"
+          sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
+        >
+          {label}
+          <ChevronIcon
+            direction={endIcon === "chevron-down" ? "down" : "right"}
+          />
+        </Box>
+      ) : (
+        label
+      )
+    }
     icon={selected ? <CheckIcon /> : icon}
     onClick={onClick}
     disabled={disabled}
     aria-pressed={selected}
+    aria-haspopup={hasPopup ? "dialog" : undefined}
     sx={(theme) => {
       const colors = getToneColors(theme, tone);
-      const isOutlined = selected === false || tone === "danger";
+      const isOutlined = selected === false || outlined || tone === "danger";
       const background = isOutlined ? "transparent" : colors.solid;
       const textColor = isOutlined ? colors.outlineText : colors.onSolid;
 
@@ -109,6 +151,7 @@ const Pill = ({
         color: textColor,
         transition: "background-color 120ms, border-color 120ms, color 120ms",
         "& .MuiChip-icon": { color: "inherit" },
+        "& .MuiChip-label": { px: 0, display: "inline-flex" },
         "& .MuiTouchRipple-root": { display: "none" },
         // Sin cambio de color al pasar el ratón o tocar: era lo que hacía
         // parpadear la pastilla al seleccionarla.

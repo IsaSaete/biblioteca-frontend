@@ -26,6 +26,20 @@ describe("Given a pill", () => {
     });
   });
 
+  describe("When it is outlined and opens a sheet", () => {
+    it("Then it is not a toggle, announces the popup and shows a decorative arrow", () => {
+      const { pill } = renderPill({
+        outlined: true,
+        hasPopup: true,
+        endIcon: "chevron-down",
+      });
+
+      expect(pill).not.toHaveAttribute("aria-pressed");
+      expect(pill).toHaveAttribute("aria-haspopup", "dialog");
+      expect(pill.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+    });
+  });
+
   describe("When it is a toggle", () => {
     it.each([true, false])(
       "Then aria-pressed reflects selected=%s",
