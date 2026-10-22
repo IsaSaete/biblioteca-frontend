@@ -269,4 +269,126 @@ describe("Given the quotes page", () => {
       ).toBeInTheDocument();
     });
   });
+
+  describe("When the user adds a quote to one of their books", () => {
+    it("Then it searches their library, writes the quote and sends it with that book", async () => {
+      let body: unknown;
+      const searches: (string | null)[] = [];
+      mockFeed();
+      server.use(
+        http.get(`${baseUrl}/books`, ({ request }) => {
+          searches.push(new URL(request.url).searchParams.get("search"));
+          return HttpResponse.json({
+            items: [
+              {
+                book: {
+                  id: "book-1",
+                  title: "1984",
+                  authors: ["George Orwell"],
+                  publisher: "Debolsillo",
+                },
+                ejemplar: {
+                  id: "ejemplar-1",
+                  bookId: "book-1",
+                  status: "reading",
+                  createdAt: "2026-10-20T10:00:00.000Z",
+                },
+              },
+              {
+                book: {
+                  id: "book-2",
+                  title: "El principito",
+                  authors: ["Saint-Exupéry"],
+                  publisher: "Salamandra",
+                },
+                ejemplar: {
+                  id: "ejemplar-2",
+                  bookId: "book-2",
+                  status: "read",
+                  createdAt: "2026-10-20T10:00:00.000Z",
+                },
+              },
+            ],
+            nextCursor: null,
+          });
+        }),
+        http.post(`${baseUrl}/quotes`, async ({ request }) => {
+          body = await request.json();
+          return HttpResponse.json({ quote: {} }, { status: 201 });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/quotes"]);
+      await user.click(
+        await screen.findByRole("button", { name: "+ Añadir cita" }),
+      );
+      await user.type(
+        await screen.findByLabelText("Buscar un libro"),
+        "orwell",
+      );
+
+      expect(
+        screen.queryByRole("button", { name: /El principito/ }),
+      ).not.toBeInTheDocument();
+      await waitFor(() => expect(searches).toContain("orwell"));
+      await user.click(await screen.findByRole("button", { name: /1984/ }));
+      await user.click(
+        await screen.findByRole("button", { name: "Escribir manualmente" }),
+      );
+      await user.type(screen.getByLabelText("Cita"), "Una cita");
+      expect(
+        screen.queryByLabelText("Fuente (opcional)"),
+      ).not.toBeInTheDocument();
+      await user.click(screen.getByRole("button", { name: "Guardar cita" }));
+
+      await waitFor(() =>
+        expect(body).toEqual({
+          ejemplarId: "ejemplar-1",
+          text: "Una cita",
+          origin: "manual",
+        }),
+      );
+    });
+  });
+
+  describe("When the user adds a quote without a book", () => {
+    it("Then it asks for an optional source and sends no ejemplarId", async () => {
+      let body: unknown;
+      mockFeed();
+      server.use(
+        http.get(`${baseUrl}/books`, () =>
+          HttpResponse.json({ items: [], nextCursor: null }),
+        ),
+        http.post(`${baseUrl}/quotes`, async ({ request }) => {
+          body = await request.json();
+          return HttpResponse.json({ quote: {} }, { status: 201 });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/quotes"]);
+      await user.click(
+        await screen.findByRole("button", { name: "+ Añadir cita" }),
+      );
+      await user.click(
+        await screen.findByRole("button", { name: "Cita sin libro" }),
+      );
+      await user.click(
+        await screen.findByRole("button", { name: "Escribir manualmente" }),
+      );
+      await user.type(screen.getByLabelText("Cita"), "Una cita suelta");
+      await user.type(
+        screen.getByLabelText("Fuente (opcional)"),
+        "Paper de Historia",
+      );
+      await user.click(screen.getByRole("button", { name: "Guardar cita" }));
+
+      await waitFor(() =>
+        expect(body).toEqual({
+          text: "Una cita suelta",
+          source: "Paper de Historia",
+          origin: "manual",
+        }),
+      );
+    });
+  });
 });
