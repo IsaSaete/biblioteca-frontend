@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { renderRoutes } from "../../../../test/renderRoutes";
 import { server } from "../../../../test/server";
@@ -217,6 +217,178 @@ describe("Given the quotes page", () => {
       expect(
         within(sheet).getByRole("button", { name: /El principito/ }),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the user has quotes without a book", () => {
+    const loose = {
+      id: "q9",
+      text: "Cita suelta",
+      source: "Paper de Historia",
+      createdAt: "2026-10-22T10:00:00.000Z",
+    };
+
+    it("Then the feed shows the source in place of the book and the filter lists Sin libro", async () => {
+      const requests: string[] = [];
+      server.use(
+        http.get(`${baseUrl}/quotes/books`, () =>
+          HttpResponse.json({ items: quoteBooks, unlinkedCount: 1 }),
+        ),
+        http.get(`${baseUrl}/quotes`, ({ request }) => {
+          const url = new URL(request.url);
+          requests.push(url.searchParams.get("unlinked") ?? "");
+          const unlinked = url.searchParams.get("unlinked") === "true";
+
+          return HttpResponse.json({
+            items: unlinked
+              ? [loose]
+              : [loose, quote("q1", "Con libro", "book-1", "1984")],
+            nextCursor: null,
+            total: unlinked ? 1 : 2,
+          });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/quotes"]);
+      expect(await screen.findByText("Cita suelta")).toBeInTheDocument();
+      expect(screen.getByText("Paper de Historia")).toBeInTheDocument();
+      await user.click(
+        await screen.findByRole("button", { name: /Todos los libros/ }),
+      );
+      const sheet = await screen.findByRole("dialog", {
+        name: "Filtrar por libro",
+      });
+      await user.click(
+        within(sheet).getByRole("button", { name: /Sin libro/ }),
+      );
+
+      await waitFor(() => expect(requests.at(-1)).toBe("true"));
+      expect(screen.queryByText("Con libro")).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Sin libro/ }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the user adds a quote to one of their books", () => {
+    it("Then it searches their library, writes the quote and sends it with that book", async () => {
+      let body: unknown;
+      const searches: (string | null)[] = [];
+      mockFeed();
+      server.use(
+        http.get(`${baseUrl}/books`, ({ request }) => {
+          searches.push(new URL(request.url).searchParams.get("search"));
+          return HttpResponse.json({
+            items: [
+              {
+                book: {
+                  id: "book-1",
+                  title: "1984",
+                  authors: ["George Orwell"],
+                  publisher: "Debolsillo",
+                },
+                ejemplar: {
+                  id: "ejemplar-1",
+                  bookId: "book-1",
+                  status: "reading",
+                  createdAt: "2026-10-20T10:00:00.000Z",
+                },
+              },
+              {
+                book: {
+                  id: "book-2",
+                  title: "El principito",
+                  authors: ["Saint-Exupéry"],
+                  publisher: "Salamandra",
+                },
+                ejemplar: {
+                  id: "ejemplar-2",
+                  bookId: "book-2",
+                  status: "read",
+                  createdAt: "2026-10-20T10:00:00.000Z",
+                },
+              },
+            ],
+            nextCursor: null,
+          });
+        }),
+        http.post(`${baseUrl}/quotes`, async ({ request }) => {
+          body = await request.json();
+          return HttpResponse.json({ quote: {} }, { status: 201 });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/quotes"]);
+      await user.click(
+        await screen.findByRole("button", { name: "+ Añadir cita" }),
+      );
+      await user.type(
+        await screen.findByLabelText("Buscar un libro"),
+        "orwell",
+      );
+
+      expect(
+        screen.queryByRole("button", { name: /El principito/ }),
+      ).not.toBeInTheDocument();
+      await waitFor(() => expect(searches).toContain("orwell"));
+      await user.click(await screen.findByRole("button", { name: /1984/ }));
+      await user.click(
+        await screen.findByRole("button", { name: "Escribir manualmente" }),
+      );
+      await user.type(screen.getByLabelText("Cita"), "Una cita");
+      expect(
+        screen.queryByLabelText("Fuente (opcional)"),
+      ).not.toBeInTheDocument();
+      await user.click(screen.getByRole("button", { name: "Guardar cita" }));
+
+      await waitFor(() =>
+        expect(body).toEqual({
+          ejemplarId: "ejemplar-1",
+          text: "Una cita",
+          origin: "manual",
+        }),
+      );
+    });
+  });
+
+  describe("When the user adds a quote without a book", () => {
+    it("Then it asks for an optional source and sends no ejemplarId", async () => {
+      let body: unknown;
+      mockFeed();
+      server.use(
+        http.get(`${baseUrl}/books`, () =>
+          HttpResponse.json({ items: [], nextCursor: null }),
+        ),
+        http.post(`${baseUrl}/quotes`, async ({ request }) => {
+          body = await request.json();
+          return HttpResponse.json({ quote: {} }, { status: 201 });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/quotes"]);
+      await user.click(
+        await screen.findByRole("button", { name: "+ Añadir cita" }),
+      );
+      await user.click(
+        await screen.findByRole("button", { name: "Cita sin libro" }),
+      );
+      await user.click(
+        await screen.findByRole("button", { name: "Escribir manualmente" }),
+      );
+      await user.type(screen.getByLabelText("Cita"), "Una cita suelta");
+      await user.type(
+        screen.getByLabelText("Fuente (opcional)"),
+        "Paper de Historia",
+      );
+      await user.click(screen.getByRole("button", { name: "Guardar cita" }));
+
+      await waitFor(() =>
+        expect(body).toEqual({
+          text: "Una cita suelta",
+          source: "Paper de Historia",
+          origin: "manual",
+        }),
+      );
     });
   });
 });
