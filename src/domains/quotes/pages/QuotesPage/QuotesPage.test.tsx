@@ -197,7 +197,7 @@ describe("Given the quotes page", () => {
   });
 
   describe("When the user has few books with quotes", () => {
-    it("Then the filter has no search box", async () => {
+    it("Then the filter still has the search box and lists them all", async () => {
       mockFeed();
 
       const { user } = renderRoutes(routes, ["/quotes"]);
@@ -205,12 +205,18 @@ describe("Given the quotes page", () => {
         await screen.findByRole("button", { name: /Todos los libros/ }),
       );
 
+      const sheet = await screen.findByRole("dialog", {
+        name: "Filtrar por libro",
+      });
       expect(
-        await screen.findByRole("dialog", { name: "Filtrar por libro" }),
+        within(sheet).getByLabelText("Buscar un libro"),
       ).toBeInTheDocument();
       expect(
-        screen.queryByLabelText("Buscar un libro"),
-      ).not.toBeInTheDocument();
+        within(sheet).getByRole("button", { name: /1984/ }),
+      ).toBeInTheDocument();
+      expect(
+        within(sheet).getByRole("button", { name: /El principito/ }),
+      ).toBeInTheDocument();
     });
   });
 });

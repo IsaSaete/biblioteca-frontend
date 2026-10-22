@@ -14,8 +14,8 @@ interface QuoteBookFilterProps {
 }
 
 const ALL_BOOKS = "Todos los libros";
-// Con tantos libros o menos se listan todos; con más, solo los más citados y el
-// resto se encuentra escribiendo, para que la hoja nunca necesite scroll.
+// La hoja nunca necesita scroll: se listan los más citados y el resto se
+// encuentra escribiendo en el buscador, que está siempre.
 const MAX_OPTIONS = 5;
 
 const normalize = (text: string): string =>
@@ -74,7 +74,6 @@ const QuoteBookFilter = ({
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const selected = books.find((book) => book.bookId === selectedBookId);
-  const hasSearch = books.length > MAX_OPTIONS;
   const matches = books
     .filter((book) => normalize(book.title).includes(normalize(query.trim())))
     .sort((a, b) => b.count - a.count || a.title.localeCompare(b.title, "es"));
@@ -103,13 +102,11 @@ const QuoteBookFilter = ({
       />
       <BottomSheet open={isOpen} title="Filtrar por libro" onClose={close}>
         <Box sx={{ display: "grid", gap: 3, mt: 3 }}>
-          {hasSearch && (
-            <FloatingLabelInput
-              label="Buscar un libro"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-            />
-          )}
+          <FloatingLabelInput
+            label="Buscar un libro"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
           <Box sx={{ display: "grid" }}>
             {query.trim() === "" && (
               <Option
