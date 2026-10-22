@@ -11,6 +11,8 @@ import ScanStep from "../ScanStep/ScanStep";
 import SearchStep from "../SearchStep/SearchStep";
 
 interface AddBookModalProps {
+  // Abrir directamente en el escaneo (icono de la barra superior).
+  initialStep?: "scan";
   onClose: () => void;
 }
 
@@ -121,8 +123,10 @@ const KeyboardIcon = () => (
 // Flujo «Añadir libro». Cada paso que avanza guarda a dónde vuelve «Volver».
 // «Escanear código de barras» solo se ofrece si hay cámara (en escritorio sin
 // ella queda «Escribir ISBN», que llega al mismo autocompletado).
-const AddBookModal = ({ onClose }: AddBookModalProps) => {
-  const [step, setStep] = useState<Step>({ name: "choose" });
+const AddBookModal = ({ initialStep, onClose }: AddBookModalProps) => {
+  const [step, setStep] = useState<Step>(
+    initialStep === "scan" ? { name: "scan" } : { name: "choose" },
+  );
   const heading = headings[step.name];
   const hasCamera = useHasCamera();
 

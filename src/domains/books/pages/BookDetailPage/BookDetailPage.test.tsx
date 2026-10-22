@@ -671,4 +671,59 @@ describe("Given the book detail page", () => {
       expect(router.state.location.pathname).toBe("/library");
     });
   });
+
+  describe("When the screen is a desktop one", () => {
+    it("Then deleting the book is still available, once, on the fixed identity column", async () => {
+      window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+        matches: true,
+        media: query,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+      }));
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await screen.findByRole("button", {
+        name: "Eliminar libro de mi biblioteca",
+      });
+      expect(
+        screen.getAllByRole("button", {
+          name: "Eliminar libro de mi biblioteca",
+        }),
+      ).toHaveLength(1);
+      await user.click(
+        screen.getByRole("button", { name: "Eliminar libro de mi biblioteca" }),
+      );
+
+      expect(
+        await screen.findByRole("button", { name: "Sí, eliminar" }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the book loads", () => {
+    it("Then edit and favorite sit together in the header and the data line comes before the status", async () => {
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
+      );
+
+      renderRoutes(routes, ["/library/book-1"]);
+      const edit = await screen.findByRole("button", { name: "Editar datos" });
+      const favorite = screen.getByRole("button", {
+        name: "Añadir a favoritos",
+      });
+      const details = screen.getByText(/Debolsillo/);
+      const status = screen.getByRole("button", { name: "Leyendo" });
+
+      expect(edit.parentElement).toBe(favorite.parentElement);
+      expect(
+        details.compareDocumentPosition(status) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    });
+  });
 });
