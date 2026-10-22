@@ -6,6 +6,7 @@ import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import FullScreenModal from "../../../../components/ui/FullScreenModal/FullScreenModal";
 import Pill from "../../../../components/ui/Pill/Pill";
+import { visuallyHidden } from "../../../../utils/visuallyHidden";
 import { useHasCamera } from "../../../books/hooks/useHasCamera";
 import type { Quote } from "../../dto/Quote";
 import { recognizeText } from "../../ocr/recognizeText";
@@ -195,8 +196,10 @@ const QuoteFormDialog = ({
 
   return (
     <FullScreenModal titleId={TITLE_ID} onClose={onClose} onBack={goBack}>
-      <Box sx={{ display: "grid", gap: 5, pt: 4 }}>
-        <Box sx={{ textAlign: "center" }}>
+      <Box sx={{ display: "grid", gap: 5, pt: step.name === "scan" ? 0 : 4 }}>
+        <Box
+          sx={step.name === "scan" ? visuallyHidden : { textAlign: "center" }}
+        >
           <Typography id={TITLE_ID} variant="h6" component="h2">
             {heading.title}
           </Typography>
