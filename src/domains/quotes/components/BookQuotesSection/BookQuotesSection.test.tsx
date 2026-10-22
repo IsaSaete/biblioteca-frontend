@@ -172,6 +172,9 @@ describe("Given the quotes section of a book", () => {
       await user.click(
         await screen.findByRole("button", { name: "Añadir cita" }),
       );
+      await user.click(
+        await screen.findByRole("button", { name: "Escribir manualmente" }),
+      );
       await user.type(screen.getByLabelText("Cita"), "  Nueva cita ");
       await user.type(screen.getByLabelText("Página (opcional)"), "12");
       await user.click(screen.getByRole("button", { name: "Guardar cita" }));
@@ -208,6 +211,9 @@ describe("Given the quotes section of a book", () => {
       await user.click(
         await screen.findByRole("button", { name: "Añadir cita" }),
       );
+      await user.click(
+        await screen.findByRole("button", { name: "Escribir manualmente" }),
+      );
       await user.click(screen.getByRole("button", { name: "Guardar cita" }));
 
       expect(await screen.findByText("Escribe la cita")).toBeInTheDocument();
@@ -238,6 +244,9 @@ describe("Given the quotes section of a book", () => {
       const { user } = renderRoutes(routes, ["/"]);
       await user.click(
         await screen.findByRole("button", { name: "Añadir cita" }),
+      );
+      await user.click(
+        await screen.findByRole("button", { name: "Escribir manualmente" }),
       );
       await user.type(screen.getByLabelText("Cita"), "Hola");
       await user.click(screen.getByRole("button", { name: "Guardar cita" }));
