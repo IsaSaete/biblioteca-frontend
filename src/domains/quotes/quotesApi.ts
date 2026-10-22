@@ -4,6 +4,7 @@ import type { CreateQuoteRequest } from "./dto/CreateQuoteRequest";
 import type { GetQuotesParams } from "./dto/GetQuotesParams";
 import type { GetQuotesResponse } from "./dto/GetQuotesResponse";
 import type { Quote } from "./dto/Quote";
+import type { UpdateQuoteRequest } from "./dto/UpdateQuoteRequest";
 
 export const quotesApi = createApi({
   reducerPath: "quotesApi",
@@ -15,12 +16,44 @@ export const quotesApi = createApi({
       query: (params) => ({ url: "/quotes", params: params ?? undefined }),
       providesTags: ["Quote"],
     }),
+    getQuote: builder.query<Quote, string>({
+      query: (quoteId) => `/quotes/${encodeURIComponent(quoteId)}`,
+      transformResponse: (response: { quote: Quote }) => response.quote,
+      providesTags: (_result, _error, quoteId) => [
+        { type: "Quote", id: quoteId },
+      ],
+    }),
     createQuote: builder.mutation<Quote, CreateQuoteRequest>({
       query: (body) => ({ url: "/quotes", method: "POST", body }),
       transformResponse: (response: { quote: Quote }) => response.quote,
       invalidatesTags: ["Quote"],
     }),
+    updateQuote: builder.mutation<
+      Quote,
+      { quoteId: string; changes: UpdateQuoteRequest }
+    >({
+      query: ({ quoteId, changes }) => ({
+        url: `/quotes/${encodeURIComponent(quoteId)}`,
+        method: "PATCH",
+        body: changes,
+      }),
+      transformResponse: (response: { quote: Quote }) => response.quote,
+      invalidatesTags: ["Quote"],
+    }),
+    deleteQuote: builder.mutation<void, string>({
+      query: (quoteId) => ({
+        url: `/quotes/${encodeURIComponent(quoteId)}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Quote"],
+    }),
   }),
 });
 
-export const { useGetQuotesQuery, useCreateQuoteMutation } = quotesApi;
+export const {
+  useGetQuotesQuery,
+  useGetQuoteQuery,
+  useCreateQuoteMutation,
+  useUpdateQuoteMutation,
+  useDeleteQuoteMutation,
+} = quotesApi;
