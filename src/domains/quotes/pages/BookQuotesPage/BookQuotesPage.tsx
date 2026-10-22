@@ -1,16 +1,13 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
-import Skeleton from "@mui/material/Skeleton";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
-import InlineError from "../../../../components/ui/InlineError/InlineError";
-import { useOnVisible } from "../../../../hooks/useOnVisible";
 import { parseApiError } from "../../../auth/utils/parseApiError";
 import { useGetBookQuery } from "../../../books/booksApi";
 import NoQuotesCard from "../../components/NoQuotesCard/NoQuotesCard";
-import QuoteCard from "../../components/QuoteCard/QuoteCard";
+import QuotesList from "../../components/QuotesList/QuotesList";
 import QuoteFormDialog from "../../components/QuoteFormDialog/QuoteFormDialog";
 import { useGetQuotesQuery } from "../../quotesApi";
 
@@ -30,92 +27,14 @@ const BackIcon = () => (
   </svg>
 );
 
-const LoadMoreSentinel = ({ onVisible }: { onVisible: () => void }) => {
-  const ref = useOnVisible(onVisible);
-
-  return <Box component="li" ref={ref} aria-hidden="true" sx={{ height: 1 }} />;
-};
-
-const LoadingQuotes = ({ count }: { count: number }) => (
-  <>
-    {Array.from({ length: count }, (_, index) => (
-      <Box component="li" key={index} sx={{ listStyle: "none" }} aria-hidden>
-        <Skeleton variant="rounded" sx={{ height: 96, borderRadius: 1.5 }} />
-      </Box>
-    ))}
-  </>
-);
-
-interface QuotesChunkProps {
-  bookId: string;
-  cursor: string;
-  isLast: boolean;
-  onLoadMore: (cursor: string) => void;
-}
-
-// Una tanda de 24 citas a partir de un cursor. Cada tanda es su propia
-// consulta (mismo patrón que la Biblioteca): la caché y las recargas por
-// invalidación no mezclan páginas.
-const QuotesChunk = ({
-  bookId,
-  cursor,
-  isLast,
-  onLoadMore,
-}: QuotesChunkProps) => {
-  const { data, isFetching, isError, refetch } = useGetQuotesQuery({
-    bookId,
-    cursor,
-  });
-
-  if (isError) {
-    return (
-      <Box component="li" sx={{ listStyle: "none" }}>
-        <InlineError
-          message="No hemos podido cargar más citas."
-          onRetry={() => void refetch()}
-        />
-      </Box>
-    );
-  }
-
-  if (!data) {
-    return <LoadingQuotes count={2} />;
-  }
-
-  const { nextCursor } = data;
-
-  return (
-    <>
-      {data.items.map((quote) => (
-        <Box component="li" key={quote.id} sx={{ listStyle: "none" }}>
-          <QuoteCard quote={quote} showBook={false} />
-        </Box>
-      ))}
-      {isFetching && <LoadingQuotes count={2} />}
-      {isLast && nextCursor && (
-        <LoadMoreSentinel onVisible={() => onLoadMore(nextCursor)} />
-      )}
-    </>
-  );
-};
-
 // Citas del libro: todas las citas de un libro, de la más reciente a la más
 // antigua, con scroll infinito. Se llega desde «Ver todas» en la ficha.
 const BookQuotesPage = () => {
   const navigate = useNavigate();
   const { bookId = "" } = useParams();
   const { data: book, error: bookError } = useGetBookQuery(bookId);
-  const { data, isLoading, isError, refetch } = useGetQuotesQuery({ bookId });
-  const [moreCursors, setMoreCursors] = useState<string[]>([]);
+  const { data } = useGetQuotesQuery({ bookId });
   const [isAdding, setIsAdding] = useState(false);
-
-  const loadMore = useCallback(
-    (cursor: string) =>
-      setMoreCursors((cursors) =>
-        cursors.includes(cursor) ? cursors : [...cursors, cursor],
-      ),
-    [],
-  );
 
   // Volver a la ficha; si se entró directamente por el enlace, también a ella.
   const goBack = () => {
@@ -139,56 +58,8 @@ const BookQuotesPage = () => {
       );
     }
 
-    if (isLoading) {
-      return (
-        <Box
-          component="ul"
-          role="status"
-          aria-label="Cargando las citas"
-          sx={{ m: 0, p: 0, display: "grid", gap: 3 }}
-        >
-          <LoadingQuotes count={3} />
-        </Box>
-      );
-    }
-
-    if (isError || !data) {
-      return (
-        <InlineError
-          message="No hemos podido cargar las citas."
-          onRetry={() => void refetch()}
-        />
-      );
-    }
-
-    if (data.items.length === 0) {
-      return <NoQuotesCard />;
-    }
-
     return (
-      <Box
-        component="ul"
-        aria-label="Citas"
-        sx={{ m: 0, p: 0, display: "grid", gap: 3 }}
-      >
-        {data.items.map((quote) => (
-          <Box component="li" key={quote.id} sx={{ listStyle: "none" }}>
-            <QuoteCard quote={quote} showBook={false} />
-          </Box>
-        ))}
-        {moreCursors.length === 0 && data.nextCursor && (
-          <LoadMoreSentinel onVisible={() => loadMore(data.nextCursor ?? "")} />
-        )}
-        {moreCursors.map((cursor, index) => (
-          <QuotesChunk
-            key={cursor}
-            bookId={bookId}
-            cursor={cursor}
-            isLast={index === moreCursors.length - 1}
-            onLoadMore={loadMore}
-          />
-        ))}
-      </Box>
+      <QuotesList bookId={bookId} showBook={false} empty={<NoQuotesCard />} />
     );
   };
 
