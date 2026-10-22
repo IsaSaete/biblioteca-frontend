@@ -7,6 +7,7 @@ const routes = [
     element: <AppLayout />,
     children: [
       { path: "/library", element: <p>Contenido de biblioteca</p> },
+      { path: "/quotes", element: <p>Contenido de citas</p> },
       { path: "/profile", element: <p>Contenido de perfil</p> },
     ],
   },
@@ -99,7 +100,7 @@ describe("Given the layout of the screens with a session", () => {
         within(screen.getByRole("navigation", { name: "Navegación principal" }))
           .getAllByRole("link")
           .map((link) => link.textContent),
-      ).toEqual(["Biblioteca", "Perfil"]);
+      ).toEqual(["Biblioteca", "Citas", "Perfil"]);
     });
   });
 });
