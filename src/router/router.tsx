@@ -44,6 +44,15 @@ export const routes = [
           ).default,
         }),
       },
+      // Detalle de cita: pantalla de detalle, sin barra de navegación inferior.
+      {
+        path: "/quotes/:quoteId",
+        lazy: async () => ({
+          Component: (
+            await import("../domains/quotes/pages/QuoteDetailPage/QuoteDetailPage")
+          ).default,
+        }),
+      },
       {
         element: <AppLayout />,
         children: [

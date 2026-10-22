@@ -4,7 +4,7 @@ import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import InlineError from "../../../../components/ui/InlineError/InlineError";
 import { useGetQuotesQuery } from "../../quotesApi";
-import AddQuoteDialog from "../AddQuoteDialog/AddQuoteDialog";
+import QuoteFormDialog from "../QuoteFormDialog/QuoteFormDialog";
 import QuoteCard from "../QuoteCard/QuoteCard";
 
 interface BookQuotesSectionProps {
@@ -69,7 +69,7 @@ const BookQuotesSection = ({
         </Button>
       </Box>
       {isAdding && (
-        <AddQuoteDialog
+        <QuoteFormDialog
           ejemplarId={ejemplarId}
           bookTitle={bookTitle}
           onClose={() => setIsAdding(false)}

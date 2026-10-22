@@ -10,30 +10,41 @@ import FullScreenModal from "../../../../components/ui/FullScreenModal/FullScree
 import { useFieldValidation } from "../../../auth/hooks/useFieldValidation";
 import { getFormErrorMessage } from "../../../auth/utils/getFormErrorMessage";
 import { parseApiError } from "../../../auth/utils/parseApiError";
-import { useCreateQuoteMutation } from "../../quotesApi";
+import type { Quote } from "../../dto/Quote";
+import {
+  useCreateQuoteMutation,
+  useUpdateQuoteMutation,
+} from "../../quotesApi";
 import { buildCreateQuoteRequest } from "../../utils/buildCreateQuoteRequest";
+import { buildUpdateQuoteRequest } from "../../utils/buildUpdateQuoteRequest";
 import { quoteSchema } from "../../utils/quoteSchema";
 import type { QuoteFormValues } from "../../utils/quoteSchema";
 
-interface AddQuoteDialogProps {
+interface QuoteFormDialogProps {
   ejemplarId: string;
   bookTitle: string;
+  // Si se informa, el diálogo edita esa cita en vez de crear una nueva.
+  quote?: Quote;
   onClose: () => void;
 }
 
 const TITLE_ID = "add-quote-title";
 
-// Añadir una cita escrita a mano (HU-26) desde la ficha, con el libro ya
-// elegido. El escaneo con cámara se añadirá aquí con HU-24/25: hasta entonces
+// Añadir una cita escrita a mano (HU-26) con el libro ya elegido, o editar una
+// existente (HU-30). El escaneo con cámara se añadirá aquí con HU-24/25: hasta entonces
 // no se ofrece.
-const AddQuoteDialog = ({
+const QuoteFormDialog = ({
   ejemplarId,
   bookTitle,
+  quote,
   onClose,
-}: AddQuoteDialogProps) => {
+}: QuoteFormDialogProps) => {
   const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteSchema),
-    defaultValues: { text: "", page: "" },
+    defaultValues: {
+      text: quote?.text ?? "",
+      page: quote?.page?.toString() ?? "",
+    },
   });
   const {
     register: field,
@@ -43,13 +54,25 @@ const AddQuoteDialog = ({
   } = form;
   const validationHandlers = useFieldValidation(form);
   const [formError, setFormError] = useState<string | null>(null);
-  const [createQuote, { isLoading }] = useCreateQuoteMutation();
+  const [createQuote, { isLoading: isCreating }] = useCreateQuoteMutation();
+  const [updateQuote, { isLoading: isUpdating }] = useUpdateQuoteMutation();
+  const isLoading = isCreating || isUpdating;
 
   const onSubmit = async (values: QuoteFormValues) => {
     setFormError(null);
-    const result = await createQuote(
-      buildCreateQuoteRequest(ejemplarId, values),
-    );
+    let result;
+
+    if (quote) {
+      const changes = buildUpdateQuoteRequest(quote, values);
+
+      if (!changes) {
+        onClose();
+        return;
+      }
+      result = await updateQuote({ quoteId: quote.id, changes });
+    } else {
+      result = await createQuote(buildCreateQuoteRequest(ejemplarId, values));
+    }
 
     if (!result.error) {
       onClose();
@@ -83,7 +106,7 @@ const AddQuoteDialog = ({
       >
         <Box sx={{ textAlign: "center" }}>
           <Typography id={TITLE_ID} variant="h6" component="h2">
-            Añade una cita
+            {quote ? "Edita la cita" : "Añade una cita"}
           </Typography>
           <Typography color="text.secondary" sx={{ mt: 1, fontSize: "1rem" }}>
             {bookTitle}
@@ -107,7 +130,11 @@ const AddQuoteDialog = ({
         />
         <Box sx={{ display: "grid", gap: 2 }}>
           <Button type="submit" fullWidth disabled={isLoading}>
-            {isLoading ? "Guardando…" : "Guardar cita"}
+            {isLoading
+              ? "Guardando…"
+              : quote
+                ? "Guardar cambios"
+                : "Guardar cita"}
           </Button>
           <Button
             variant="text"
@@ -123,4 +150,4 @@ const AddQuoteDialog = ({
   );
 };
 
-export default AddQuoteDialog;
+export default QuoteFormDialog;
