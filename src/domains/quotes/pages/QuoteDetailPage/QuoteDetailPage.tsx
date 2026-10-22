@@ -202,7 +202,8 @@ const QuoteDetailPage = () => {
               </Box>
               <Pill
                 tone="accent"
-                label="Ir al libro ›"
+                label="Ir al libro"
+                endIcon="chevron-right"
                 onClick={() => void navigate(`/library/${quote.book.id}`)}
               />
             </Box>

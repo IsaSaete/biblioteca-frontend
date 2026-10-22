@@ -14,6 +14,9 @@ interface QuoteBookFilterProps {
 }
 
 const ALL_BOOKS = "Todos los libros";
+// Con tantos libros o menos se listan todos; con más, solo los más citados y el
+// resto se encuentra escribiendo, para que la hoja nunca necesite scroll.
+const MAX_OPTIONS = 5;
 
 const normalize = (text: string): string =>
   text
@@ -71,9 +74,12 @@ const QuoteBookFilter = ({
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const selected = books.find((book) => book.bookId === selectedBookId);
-  const visibleBooks = books.filter((book) =>
-    normalize(book.title).includes(normalize(query.trim())),
-  );
+  const hasSearch = books.length > MAX_OPTIONS;
+  const matches = books
+    .filter((book) => normalize(book.title).includes(normalize(query.trim())))
+    .sort((a, b) => b.count - a.count || a.title.localeCompare(b.title, "es"));
+  const visibleBooks = matches.slice(0, MAX_OPTIONS);
+  const hiddenCount = matches.length - visibleBooks.length;
 
   const close = () => {
     setIsOpen(false);
@@ -89,18 +95,22 @@ const QuoteBookFilter = ({
     <>
       <Pill
         tone="neutral"
-        selected={false}
-        label={`${selected?.title ?? ALL_BOOKS} ⌄`}
+        outlined
+        hasPopup
+        endIcon="chevron-down"
+        label={selected?.title ?? ALL_BOOKS}
         onClick={() => setIsOpen(true)}
       />
       <BottomSheet open={isOpen} title="Filtrar por libro" onClose={close}>
         <Box sx={{ display: "grid", gap: 3, mt: 3 }}>
-          <FloatingLabelInput
-            label="Buscar un libro"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-          <Box sx={{ maxHeight: "50vh", overflowY: "auto", display: "grid" }}>
+          {hasSearch && (
+            <FloatingLabelInput
+              label="Buscar un libro"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+          )}
+          <Box sx={{ display: "grid" }}>
             {query.trim() === "" && (
               <Option
                 label={ALL_BOOKS}
@@ -120,6 +130,16 @@ const QuoteBookFilter = ({
             {visibleBooks.length === 0 && (
               <Typography color="text.secondary" sx={{ py: 3 }}>
                 Ningún libro con ese nombre tiene citas.
+              </Typography>
+            )}
+            {hiddenCount > 0 && (
+              <Typography
+                color="text.secondary"
+                sx={{ pt: 2, px: 2, fontSize: "0.875rem" }}
+              >
+                {query.trim() === ""
+                  ? "Escribe para buscar entre el resto de tus libros."
+                  : `Hay ${hiddenCount} más: escribe más para afinar.`}
               </Typography>
             )}
           </Box>

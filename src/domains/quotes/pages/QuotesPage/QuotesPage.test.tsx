@@ -127,7 +127,7 @@ describe("Given the quotes page", () => {
       ).toBeInTheDocument();
       expect(screen.queryByText("La guerra es la paz")).not.toBeInTheDocument();
       expect(
-        await screen.findByRole("button", { name: /El principito ⌄/ }),
+        await screen.findByRole("button", { name: /El principito/ }),
       ).toBeInTheDocument();
     });
   });
@@ -138,7 +138,7 @@ describe("Given the quotes page", () => {
 
       const { user } = renderRoutes(routes, ["/quotes?bookId=book-2"]);
       await user.click(
-        await screen.findByRole("button", { name: /El principito ⌄/ }),
+        await screen.findByRole("button", { name: /El principito/ }),
       );
       await user.click(
         await screen.findByRole("button", { name: "Todos los libros" }),
@@ -150,22 +150,66 @@ describe("Given the quotes page", () => {
     });
   });
 
-  describe("When the user searches for a book in the filter", () => {
-    it("Then only the matching books are listed", async () => {
+  describe("When the user has many books with quotes", () => {
+    it("Then the filter lists only the most quoted ones and finds the rest by searching", async () => {
+      server.use(
+        http.get(`${baseUrl}/quotes/books`, () =>
+          HttpResponse.json({
+            items: [
+              ...Array.from({ length: 7 }, (_, index) => ({
+                bookId: `book-${index}`,
+                title: `Libro ${index}`,
+                count: 7 - index,
+              })),
+              { bookId: "book-x", title: "El principito", count: 1 },
+            ],
+          }),
+        ),
+        http.get(`${baseUrl}/quotes`, () =>
+          HttpResponse.json({ items: [], nextCursor: null, total: 0 }),
+        ),
+      );
+
+      const { user } = renderRoutes(routes, ["/quotes"]);
+      await user.click(
+        await screen.findByRole("button", { name: /Todos los libros/ }),
+      );
+      const sheet = await screen.findByRole("dialog", {
+        name: "Filtrar por libro",
+      });
+
+      expect(within(sheet).getAllByRole("button")).toHaveLength(6);
+      expect(
+        within(sheet).getByText(
+          "Escribe para buscar entre el resto de tus libros.",
+        ),
+      ).toBeInTheDocument();
+      expect(
+        within(sheet).queryByRole("button", { name: /El principito/ }),
+      ).not.toBeInTheDocument();
+
+      await user.type(within(sheet).getByLabelText("Buscar un libro"), "princ");
+
+      expect(
+        within(sheet).getByRole("button", { name: /El principito/ }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the user has few books with quotes", () => {
+    it("Then the filter has no search box", async () => {
       mockFeed();
 
       const { user } = renderRoutes(routes, ["/quotes"]);
       await user.click(
         await screen.findByRole("button", { name: /Todos los libros/ }),
       );
-      await user.type(await screen.findByLabelText("Buscar un libro"), "princ");
 
-      const sheet = screen.getByRole("dialog", { name: "Filtrar por libro" });
       expect(
-        within(sheet).getByRole("button", { name: /El principito/ }),
+        await screen.findByRole("dialog", { name: "Filtrar por libro" }),
       ).toBeInTheDocument();
       expect(
-        within(sheet).queryByRole("button", { name: /^1984/ }),
+        screen.queryByLabelText("Buscar un libro"),
       ).not.toBeInTheDocument();
     });
   });

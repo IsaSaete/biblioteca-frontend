@@ -73,7 +73,7 @@ describe("Given the quote detail page", () => {
 
       const { user } = renderRoutes(routes, ["/quotes/q1"]);
       await user.click(
-        await screen.findByRole("button", { name: "Ir al libro ›" }),
+        await screen.findByRole("button", { name: "Ir al libro" }),
       );
 
       expect(await screen.findByText("Ficha del libro")).toBeInTheDocument();
