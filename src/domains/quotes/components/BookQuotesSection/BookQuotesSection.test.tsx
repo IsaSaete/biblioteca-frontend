@@ -5,7 +5,18 @@ import { server } from "../../../../test/server";
 import BookQuotesSection from "./BookQuotesSection";
 
 const baseUrl = import.meta.env.VITE_API_URL ?? "";
-const routes = [{ path: "/", element: <BookQuotesSection bookId="book-1" /> }];
+const routes = [
+  {
+    path: "/",
+    element: (
+      <BookQuotesSection
+        bookId="book-1"
+        ejemplarId="ejemplar-1"
+        bookTitle="1984"
+      />
+    ),
+  },
+];
 
 const quote = (id: string, text: string, page?: number) => ({
   id,
@@ -41,7 +52,6 @@ describe("Given the quotes section of a book", () => {
       ).toBeInTheDocument();
       expect(screen.getByText("La guerra es la paz.")).toBeInTheDocument();
       expect(screen.getByText("Pág. 9")).toBeInTheDocument();
-      expect(screen.queryByText("1984")).not.toBeInTheDocument();
       expect(
         screen.queryByText("Otra cita más antigua."),
       ).not.toBeInTheDocument();
@@ -94,6 +104,105 @@ describe("Given the quotes section of a book", () => {
 
       expect(
         await screen.findByText("La guerra es la paz."),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the user adds a quote", () => {
+    it("Then it sends it with the page, closes the dialog and refreshes the section", async () => {
+      let body: unknown;
+      let quotes = [] as ReturnType<typeof quote>[];
+      server.use(
+        http.get(`${baseUrl}/quotes`, () =>
+          HttpResponse.json({
+            items: quotes,
+            nextCursor: null,
+            total: quotes.length,
+          }),
+        ),
+        http.post(`${baseUrl}/quotes`, async ({ request }) => {
+          body = await request.json();
+          quotes = [quote("q1", "Nueva cita", 12)];
+          return HttpResponse.json({ quote: quotes[0] }, { status: 201 });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Añadir cita" }),
+      );
+      await user.type(screen.getByLabelText("Cita"), "  Nueva cita ");
+      await user.type(screen.getByLabelText("Página (opcional)"), "12");
+      await user.click(screen.getByRole("button", { name: "Guardar cita" }));
+
+      expect(
+        await screen.findByText("Citas (1)", { exact: false }),
+      ).toBeInTheDocument();
+      expect(body).toEqual({
+        ejemplarId: "ejemplar-1",
+        text: "Nueva cita",
+        page: 12,
+        origin: "manual",
+      });
+      expect(
+        screen.queryByRole("dialog", { name: "Añade una cita" }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("When the user saves an empty quote", () => {
+    it("Then it asks for the text and sends nothing", async () => {
+      let hasPosted = false;
+      server.use(
+        http.get(`${baseUrl}/quotes`, () =>
+          HttpResponse.json({ items: [], nextCursor: null, total: 0 }),
+        ),
+        http.post(`${baseUrl}/quotes`, () => {
+          hasPosted = true;
+          return HttpResponse.json({ quote: quote("q1", "x") });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Añadir cita" }),
+      );
+      await user.click(screen.getByRole("button", { name: "Guardar cita" }));
+
+      expect(await screen.findByText("Escribe la cita")).toBeInTheDocument();
+      expect(hasPosted).toBe(false);
+    });
+  });
+
+  describe("When the server rejects the page", () => {
+    it("Then the message appears next to the page field", async () => {
+      server.use(
+        http.get(`${baseUrl}/quotes`, () =>
+          HttpResponse.json({ items: [], nextCursor: null, total: 0 }),
+        ),
+        http.post(`${baseUrl}/quotes`, () =>
+          HttpResponse.json(
+            {
+              error: {
+                code: "VALIDATION_ERROR",
+                message: "La página no es válida",
+                field: "page",
+              },
+            },
+            { status: 400 },
+          ),
+        ),
+      );
+
+      const { user } = renderRoutes(routes, ["/"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Añadir cita" }),
+      );
+      await user.type(screen.getByLabelText("Cita"), "Hola");
+      await user.click(screen.getByRole("button", { name: "Guardar cita" }));
+
+      expect(
+        await screen.findByText("La página no es válida"),
       ).toBeInTheDocument();
     });
   });

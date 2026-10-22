@@ -238,7 +238,11 @@ const BookDetailPage = () => {
           </Box>
         )}
         <EjemplarDataSection book={book} />
-        <BookQuotesSection bookId={book.id} />
+        <BookQuotesSection
+          bookId={book.id}
+          ejemplarId={book.ejemplarId}
+          bookTitle={book.title}
+        />
         {hasDeleteFailed && (
           <Alert severity="error" sx={{ width: "100%" }}>
             No se pudo eliminar el libro. Inténtalo de nuevo.
