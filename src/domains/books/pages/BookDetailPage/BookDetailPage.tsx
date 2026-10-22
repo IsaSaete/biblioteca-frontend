@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -24,6 +26,32 @@ import BookQuotesSection from "../../../quotes/components/BookQuotesSection/Book
 import StatusSelector from "../../components/StatusSelector/StatusSelector";
 import { capitalizeWords } from "../../utils/capitalizeFirst";
 import { getTagSuggestions } from "../../utils/getTagSuggestions";
+
+// En escritorio la ficha pasa a dos columnas (pantallas-y-flujos.md, «Reglas de
+// adaptación»): portada y datos a la izquierda, citas a la derecha. En móvil y
+// tablet las tres zonas se apilan en este mismo orden.
+const DESKTOP_QUOTES_PREVIEW = 3;
+
+const contentGridSx = {
+  display: "grid",
+  gap: 5,
+  gridTemplateAreas: '"info" "quotes" "danger"',
+  gridTemplateColumns: "minmax(0, 1fr)",
+  "@media (min-width: 1024px)": {
+    gridTemplateAreas: '"info quotes" "danger quotes"',
+    gridTemplateColumns: "minmax(0, 420px) minmax(0, 1fr)",
+    gridTemplateRows: "auto 1fr",
+    columnGap: 8,
+    alignItems: "start",
+  },
+} as const;
+
+const columnSx = {
+  display: "grid",
+  gap: 5,
+  justifyItems: "center",
+  minWidth: 0,
+} as const;
 
 const languageNames = new Intl.DisplayNames(["es"], { type: "language" });
 
@@ -73,6 +101,8 @@ const BackIcon = () => (
 const BookDetailPage = () => {
   const navigate = useNavigate();
   const { bookId = "" } = useParams();
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const { data: book, isLoading, error, refetch } = useGetBookQuery(bookId);
   const [updateEjemplar, { isError: hasUpdateFailed, isLoading: isUpdating }] =
     useUpdateEjemplarMutation();
@@ -143,144 +173,151 @@ const BookDetailPage = () => {
     ].filter((detail): detail is string => Boolean(detail));
 
     return (
-      <Box sx={{ display: "grid", gap: 5, justifyItems: "center" }}>
-        <Box sx={{ width: 160 }}>
-          <BookCover title={book.title} coverUrl={book.coverUrl} />
-        </Box>
-        <Box sx={{ textAlign: "center" }}>
-          <Typography variant="h6" component="h1">
-            {book.title}
-          </Typography>
-          <Typography color="text.secondary" sx={{ fontSize: "1rem" }}>
-            {book.authors.join(", ")}
-          </Typography>
-        </Box>
-        <StatusSelector
-          status={book.status}
-          disabled={isUpdating}
-          onChange={(status) =>
-            void updateEjemplar({ bookId: book.id, changes: { status } })
-          }
-        />
-        <Typography
-          color="text.secondary"
-          sx={{ textAlign: "center", fontSize: "0.875rem" }}
-        >
-          {details.join(" · ")}
-        </Typography>
-        {book.tags && book.tags.length > 0 && (
-          <Box
-            component="ul"
-            aria-label="Etiquetas"
-            sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              gap: 2,
-              m: 0,
-              p: 0,
-              listStyle: "none",
-            }}
-          >
-            {book.tags.map((tag) => (
-              <Typography
-                key={tag}
-                component="li"
-                sx={{
-                  px: 3,
-                  py: 1,
-                  fontSize: "0.875rem",
-                  borderRadius: "999px",
-                  border: 1,
-                  borderColor: "primary.main",
-                  color: "secondary.contrastText",
-                }}
-              >
-                {capitalizeWords(tag)}
-              </Typography>
-            ))}
+      <Box sx={contentGridSx}>
+        <Box sx={{ gridArea: "info", ...columnSx }}>
+          <Box sx={{ width: 160 }}>
+            <BookCover title={book.title} coverUrl={book.coverUrl} />
           </Box>
-        )}
-        <Button variant="text" onClick={() => setIsEditingBook(true)}>
-          Editar datos
-        </Button>
-        {isEditingBook && (
-          <EditBookDialog
-            book={book}
-            tagSuggestions={getTagSuggestions(library?.items ?? [])}
-            onClose={() => setIsEditingBook(false)}
-          />
-        )}
-        {book.synopsis && (
-          <Box
-            component="section"
-            aria-labelledby="synopsis-title"
-            sx={{ width: "100%" }}
-          >
-            <Typography
-              id="synopsis-title"
-              component="h2"
-              color="text.secondary"
-              sx={{ fontSize: "0.875rem" }}
-            >
-              Sinopsis
+          <Box sx={{ textAlign: "center" }}>
+            <Typography variant="h6" component="h1">
+              {book.title}
             </Typography>
+            <Typography color="text.secondary" sx={{ fontSize: "1rem" }}>
+              {book.authors.join(", ")}
+            </Typography>
+          </Box>
+          <StatusSelector
+            status={book.status}
+            disabled={isUpdating}
+            onChange={(status) =>
+              void updateEjemplar({ bookId: book.id, changes: { status } })
+            }
+          />
+          <Typography
+            color="text.secondary"
+            sx={{ textAlign: "center", fontSize: "0.875rem" }}
+          >
+            {details.join(" · ")}
+          </Typography>
+          {book.tags && book.tags.length > 0 && (
             <Box
+              component="ul"
+              aria-label="Etiquetas"
               sx={{
-                mt: 1,
-                bgcolor: "background.paper",
-                borderRadius: 1.5,
-                p: 4,
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                gap: 2,
+                m: 0,
+                p: 0,
+                listStyle: "none",
               }}
             >
-              <ExpandableText text={book.synopsis} />
+              {book.tags.map((tag) => (
+                <Typography
+                  key={tag}
+                  component="li"
+                  sx={{
+                    px: 3,
+                    py: 1,
+                    fontSize: "0.875rem",
+                    borderRadius: "999px",
+                    border: 1,
+                    borderColor: "primary.main",
+                    color: "secondary.contrastText",
+                  }}
+                >
+                  {capitalizeWords(tag)}
+                </Typography>
+              ))}
             </Box>
-          </Box>
-        )}
-        <EjemplarDataSection book={book} />
-        <BookQuotesSection
-          bookId={book.id}
-          ejemplarId={book.ejemplarId}
-          bookTitle={book.title}
-        />
-        {hasDeleteFailed && (
-          <Alert severity="error" sx={{ width: "100%" }}>
-            No se pudo eliminar el libro. Inténtalo de nuevo.
-          </Alert>
-        )}
-        <Pill
-          tone="danger"
-          label="Eliminar libro de mi biblioteca"
-          fullWidth
-          onClick={() => setIsConfirmingDelete(true)}
-        />
-        <BottomSheet
-          open={isConfirmingDelete}
-          title="¿Eliminar este libro?"
-          onClose={() => setIsConfirmingDelete(false)}
-        >
-          <Typography color="text.secondary" sx={{ mt: 1, mb: 4 }}>
-            Se quitará de tu biblioteca junto con sus citas. Esta acción no se
-            puede deshacer.
-          </Typography>
-          <Box sx={{ display: "grid", gap: 2 }}>
-            <Pill
-              tone="danger"
-              label={isDeleting ? "Eliminando…" : "Sí, eliminar"}
-              fullWidth
-              disabled={isDeleting}
-              onClick={() => void handleDelete()}
+          )}
+          <Button variant="text" onClick={() => setIsEditingBook(true)}>
+            Editar datos
+          </Button>
+          {isEditingBook && (
+            <EditBookDialog
+              book={book}
+              tagSuggestions={getTagSuggestions(library?.items ?? [])}
+              onClose={() => setIsEditingBook(false)}
             />
-            <Button
-              variant="text"
-              fullWidth
-              disabled={isDeleting}
-              onClick={() => setIsConfirmingDelete(false)}
+          )}
+          {book.synopsis && (
+            <Box
+              component="section"
+              aria-labelledby="synopsis-title"
+              sx={{ width: "100%" }}
             >
-              Cancelar
-            </Button>
-          </Box>
-        </BottomSheet>
+              <Typography
+                id="synopsis-title"
+                component="h2"
+                color="text.secondary"
+                sx={{ fontSize: "0.875rem" }}
+              >
+                Sinopsis
+              </Typography>
+              <Box
+                sx={{
+                  mt: 1,
+                  bgcolor: "background.paper",
+                  borderRadius: 1.5,
+                  p: 4,
+                }}
+              >
+                <ExpandableText text={book.synopsis} />
+              </Box>
+            </Box>
+          )}
+          <EjemplarDataSection book={book} />
+        </Box>
+        <Box sx={{ gridArea: "quotes", minWidth: 0 }}>
+          <BookQuotesSection
+            bookId={book.id}
+            ejemplarId={book.ejemplarId}
+            bookTitle={book.title}
+            previewCount={isDesktop ? DESKTOP_QUOTES_PREVIEW : 1}
+          />
+        </Box>
+        <Box sx={{ gridArea: "danger", ...columnSx }}>
+          {hasDeleteFailed && (
+            <Alert severity="error" sx={{ width: "100%" }}>
+              No se pudo eliminar el libro. Inténtalo de nuevo.
+            </Alert>
+          )}
+          <Pill
+            tone="danger"
+            label="Eliminar libro de mi biblioteca"
+            fullWidth
+            onClick={() => setIsConfirmingDelete(true)}
+          />
+          <BottomSheet
+            open={isConfirmingDelete}
+            title="¿Eliminar este libro?"
+            onClose={() => setIsConfirmingDelete(false)}
+          >
+            <Typography color="text.secondary" sx={{ mt: 1, mb: 4 }}>
+              Se quitará de tu biblioteca junto con sus citas. Esta acción no se
+              puede deshacer.
+            </Typography>
+            <Box sx={{ display: "grid", gap: 2 }}>
+              <Pill
+                tone="danger"
+                label={isDeleting ? "Eliminando…" : "Sí, eliminar"}
+                fullWidth
+                disabled={isDeleting}
+                onClick={() => void handleDelete()}
+              />
+              <Button
+                variant="text"
+                fullWidth
+                disabled={isDeleting}
+                onClick={() => setIsConfirmingDelete(false)}
+              >
+                Cancelar
+              </Button>
+            </Box>
+          </BottomSheet>
+        </Box>
       </Box>
     );
   };
@@ -288,7 +325,14 @@ const BookDetailPage = () => {
   return (
     <Box
       component="main"
-      sx={{ maxWidth: 480, mx: "auto", px: 4, pb: 8, display: "grid", gap: 4 }}
+      sx={{
+        maxWidth: { xs: 480, md: 960 },
+        mx: "auto",
+        px: 4,
+        pb: 8,
+        display: "grid",
+        gap: 4,
+      }}
     >
       <Box
         sx={{

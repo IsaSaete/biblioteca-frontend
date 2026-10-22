@@ -14,19 +14,23 @@ interface BookQuotesSectionProps {
   bookId: string;
   ejemplarId: string;
   bookTitle: string;
+  // Cuántas citas se adelantan: una en móvil y varias en escritorio, donde hay
+  // sitio de sobra en la columna de las citas.
+  previewCount?: number;
 }
 
-// «Citas (n)» de la ficha: solo un adelanto con la última cita guardada; el
+// «Citas (n)» de la ficha: solo un adelanto con las últimas citas guardadas; el
 // listado completo vive en la pantalla de Citas. La API devuelve la más
 // reciente primero, y `total` cuenta todas las del libro, no solo las traídas.
 const BookQuotesSection = ({
   bookId,
   ejemplarId,
   bookTitle,
+  previewCount = 1,
 }: BookQuotesSectionProps) => {
   const [isAdding, setIsAdding] = useState(false);
   const { data, isLoading, isError, refetch } = useGetQuotesQuery({ bookId });
-  const latest = data?.items[0];
+  const previewed = data?.items.slice(0, previewCount) ?? [];
 
   const renderContent = () => {
     if (isLoading) {
@@ -42,8 +46,12 @@ const BookQuotesSection = ({
       );
     }
 
-    return latest ? (
-      <QuoteCard quote={latest} showBook={false} />
+    return previewed.length > 0 ? (
+      <Box sx={{ display: "grid", gap: 3 }}>
+        {previewed.map((quote) => (
+          <QuoteCard key={quote.id} quote={quote} showBook={false} />
+        ))}
+      </Box>
     ) : (
       <NoQuotesCard />
     );
@@ -71,7 +79,7 @@ const BookQuotesSection = ({
         >
           {data ? `Citas (${data.total})` : "Citas"}
         </Typography>
-        {data && data.total > 1 && (
+        {data && data.total > previewed.length && (
           <Link
             component={RouterLink}
             to={`/library/${bookId}/quotes`}

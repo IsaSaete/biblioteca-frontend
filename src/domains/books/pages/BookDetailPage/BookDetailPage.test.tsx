@@ -671,4 +671,44 @@ describe("Given the book detail page", () => {
       expect(router.state.location.pathname).toBe("/library");
     });
   });
+
+  describe("When the screen is a desktop one", () => {
+    it("Then the quotes are previewed on their own column, several at once", async () => {
+      window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+        matches: true,
+        media: query,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+      }));
+      const quote = (id: string, text: string) => ({
+        id,
+        ejemplarId: "ejemplar-1",
+        text,
+        createdAt: "2026-10-22T10:00:00.000Z",
+        book: { id: "book-1", title: "El mundo amarillo", authors: ["A"] },
+      });
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
+        http.get(`${baseUrl}/quotes`, () =>
+          HttpResponse.json({
+            items: [
+              quote("q3", "Tres"),
+              quote("q2", "Dos"),
+              quote("q1", "Uno"),
+            ],
+            nextCursor: null,
+            total: 3,
+          }),
+        ),
+      );
+
+      renderRoutes(routes, ["/library/book-1"]);
+
+      expect(await screen.findByText("Tres")).toBeInTheDocument();
+      expect(screen.getByText("Dos")).toBeInTheDocument();
+      expect(screen.getByText("Uno")).toBeInTheDocument();
+    });
+  });
 });
