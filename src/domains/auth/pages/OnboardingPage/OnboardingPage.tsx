@@ -22,7 +22,7 @@ const OnboardingPage = () => {
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   if (data?.user.onboardingCompleted === true) {
-    return <Navigate to="/library" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   const lastIndex = onboardingSteps.length - 1;
@@ -34,7 +34,7 @@ const OnboardingPage = () => {
 
   const finish = () => {
     void completeOnboarding();
-    void navigate("/library", { replace: true });
+    void navigate("/home", { replace: true });
   };
 
   const handleTouchEnd = (event: TouchEvent) => {

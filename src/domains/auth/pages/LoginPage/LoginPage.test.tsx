@@ -19,7 +19,7 @@ const renderPage = (
     [
       { path: "/login", element: <LoginPage /> },
       { path: "/register", element: <p>Registro</p> },
-      { path: "/library", element: <p>Biblioteca</p> },
+      { path: "/home", element: <p>Inicio</p> },
       { path: "/profile", element: <p>Perfil</p> },
     ],
     initialEntries,
@@ -92,7 +92,7 @@ describe("Given the login page", () => {
   });
 
   describe("When the credentials are correct", () => {
-    it("Then the data is sent as in the contract and the user goes to the library", async () => {
+    it("Then the data is sent as in the contract and the user goes to the home screen", async () => {
       let body: unknown;
       server.use(
         http.post(loginUrl, async ({ request }) => {
@@ -104,7 +104,7 @@ describe("Given the login page", () => {
 
       await fillAndSubmit(actor);
 
-      expect(await screen.findByText("Biblioteca")).toBeInTheDocument();
+      expect(await screen.findByText("Inicio")).toBeInTheDocument();
       expect(body).toEqual({ email: "isa@example.com", password: "Secreta1!" });
     });
   });
@@ -145,7 +145,7 @@ describe("Given the login page", () => {
       expect(await screen.findByRole("alert")).toHaveTextContent(
         "Email o contraseña incorrectos",
       );
-      expect(screen.queryByText("Biblioteca")).not.toBeInTheDocument();
+      expect(screen.queryByText("Inicio")).not.toBeInTheDocument();
     });
   });
 

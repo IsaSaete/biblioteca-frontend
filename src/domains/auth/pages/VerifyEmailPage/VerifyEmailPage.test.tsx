@@ -10,7 +10,7 @@ const renderPage = (entry = "/verify-email?token=abc123") =>
   renderRoutes(
     [
       { path: "/verify-email", element: <VerifyEmailPage /> },
-      { path: "/library", element: <p>Biblioteca</p> },
+      { path: "/home", element: <p>Inicio</p> },
     ],
     [entry],
   );
@@ -60,7 +60,7 @@ describe("Given the page opened from the verification email link", () => {
         await screen.findByRole("button", { name: "Continuar" }),
       );
 
-      expect(await screen.findByText("Biblioteca")).toBeInTheDocument();
+      expect(await screen.findByText("Inicio")).toBeInTheDocument();
     });
   });
 
