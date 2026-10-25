@@ -60,6 +60,23 @@ const openFilters = async (user: ReturnType<typeof renderRoutes>["user"]) => {
   return screen.findByRole("dialog", { name: "Filtros" });
 };
 
+// La Biblioteca lee la vista elegida (cuadrícula o lista) de la sesión.
+beforeEach(() => {
+  server.use(
+    http.get(`${baseUrl}/auth/me`, () =>
+      HttpResponse.json({
+        user: {
+          id: "user-1",
+          name: "Isa",
+          email: "isa@example.com",
+          onboardingCompleted: true,
+          preferences: { libraryView: "grid" },
+        },
+      }),
+    ),
+  );
+});
+
 describe("Given the library page with order and filters", () => {
   describe("When the user has no books", () => {
     it("Then there is nothing to order or filter", async () => {

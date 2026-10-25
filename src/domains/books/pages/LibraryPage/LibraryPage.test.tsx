@@ -43,6 +43,23 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllGlobals());
 
+// La Biblioteca lee la vista elegida (cuadrícula o lista) de la sesión.
+beforeEach(() => {
+  server.use(
+    http.get(`${baseUrl}/auth/me`, () =>
+      HttpResponse.json({
+        user: {
+          id: "user-1",
+          name: "Isa",
+          email: "isa@example.com",
+          onboardingCompleted: true,
+          preferences: { libraryView: "grid" },
+        },
+      }),
+    ),
+  );
+});
+
 describe("Given the library page", () => {
   describe("When the user has no books", () => {
     it("Then it explains the shelf is empty and offers to add the first book", async () => {
