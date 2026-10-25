@@ -31,7 +31,7 @@ const SheetOption = ({ label, count, selected, onClick }: SheetOptionProps) => (
         overflowWrap: "anywhere",
       }}
     >
-      {selected ? "✓ " : ""}
+      {selected && <span aria-hidden="true">✓ </span>}
       {label}
     </Typography>
     {count !== undefined && (
