@@ -12,9 +12,9 @@ import BookCard from "../../../books/components/BookCard/BookCard";
 import SectionHeader from "../SectionHeader/SectionHeader";
 
 const TITLE = "Añadidos recientemente";
-const MAX_BOOKS = 8;
+const MAX_BOOKS = 10;
 const SKELETON_COUNT = 4;
-const BOOK_WIDTH = 140;
+const BOOK_WIDTH = { xs: 160, sm: 180 };
 
 // Los libros más recientes de la biblioteca (HU-32). `GET /books` ya viene
 // ordenado por fecha de alta, la más reciente primero.

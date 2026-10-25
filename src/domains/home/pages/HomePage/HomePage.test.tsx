@@ -72,7 +72,7 @@ const failWith500 = (path: string) =>
 describe("Given the home page", () => {
   describe("When the user has books, quotes and stats", () => {
     it("Then it shows the recent books, the latest quotes and the three figures", async () => {
-      mockBooks(10);
+      mockBooks(12);
       mockQuotes(7);
       mockStats();
 
@@ -85,7 +85,7 @@ describe("Given the home page", () => {
       const books = await screen.findByRole("region", {
         name: "Añadidos recientemente",
       });
-      expect(await within(books).findAllByRole("link")).toHaveLength(8);
+      expect(await within(books).findAllByRole("link")).toHaveLength(10);
 
       const quotes = await screen.findByRole("region", {
         name: "Últimas citas",

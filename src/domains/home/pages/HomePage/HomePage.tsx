@@ -13,6 +13,7 @@ const HomePage = () => (
       maxWidth: 960,
       mx: "auto",
       p: 4,
+      pt: 8,
       display: "flex",
       flexDirection: "column",
       gap: 8,
