@@ -60,6 +60,8 @@ const OptionsPanel = ({
       anchorOrigin={{ vertical: "bottom", horizontal }}
       transformOrigin={{ vertical: "top", horizontal }}
       slotProps={{
+        // Un `Popover` no lleva velo por defecto; aquí sí, como las hojas.
+        backdrop: { invisible: false },
         paper: {
           role: "dialog",
           "aria-label": title,
