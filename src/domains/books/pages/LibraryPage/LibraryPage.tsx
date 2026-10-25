@@ -15,11 +15,12 @@ import BooksGrid from "../../components/BooksGrid/BooksGrid";
 import ActiveFilters from "../../components/ActiveFilters/ActiveFilters";
 import FiltersButton from "../../components/FiltersButton/FiltersButton";
 import FiltersSheet from "../../components/FiltersSheet/FiltersSheet";
-import SortSelector from "../../components/SortSelector/SortSelector";
+import SortSelector from "../../../../components/ui/SortSelector/SortSelector";
 import {
   hasActiveFilters,
   NO_FILTERS,
   parseLibraryFilters,
+  sortOptions,
   toBooksParams,
   toSearchParams,
 } from "../../utils/libraryFilters";
@@ -236,6 +237,7 @@ const LibraryPage = () => {
           }}
         >
           <SortSelector
+            options={sortOptions}
             value={filters.sort}
             onChange={(sort) => update({ sort })}
           />

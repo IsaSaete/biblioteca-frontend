@@ -1,4 +1,5 @@
-export type BooksSort = "recent" | "alpha";
+// `recent` y `oldest`: por fecha de alta; `alpha` y `alpha_desc`: por título.
+export type BooksSort = "recent" | "oldest" | "alpha" | "alpha_desc";
 
 // Los filtros se combinan entre sí, con `search` y con `sort` (api-contract.md).
 // `status` no existe (D-026) y `untagged` no se combina con `tag`.

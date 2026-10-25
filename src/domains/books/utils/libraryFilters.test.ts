@@ -45,6 +45,19 @@ describe("Given the library filters in the URL", () => {
     });
   });
 
+  describe("When the URL asks for any of the four orders", () => {
+    it.each(["recent", "oldest", "alpha", "alpha_desc"])(
+      "Then %s is kept",
+      (sort) => {
+        const filters = parseLibraryFilters(
+          new URLSearchParams(`sort=${sort}`),
+        );
+
+        expect(filters.sort).toBe(sort);
+      },
+    );
+  });
+
   describe("When the URL asks for an unknown order", () => {
     it("Then it falls back to the default order", () => {
       const filters = parseLibraryFilters(new URLSearchParams("sort=random"));

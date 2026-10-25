@@ -1,3 +1,4 @@
+import type { SortOption } from "../../../components/ui/SortSelector/SortSelector";
 import type { BooksSort, GetBooksParams } from "../dto/GetBooksParams";
 
 // Orden y filtros de Biblioteca. Viven en la URL
@@ -12,10 +13,21 @@ export interface LibraryFilters {
 
 export const DEFAULT_SORT: BooksSort = "recent";
 
-export const sortLabels: Record<BooksSort, string> = {
-  recent: "Añadidos",
-  alpha: "Alfabético",
-};
+// Mismas opciones y nombres que el orden de Citas (donde A-Z es por libro).
+export const sortOptions: SortOption<BooksSort>[] = [
+  {
+    value: "recent",
+    label: "Fecha: más recientes primero",
+    shortLabel: "Fecha ↓",
+  },
+  {
+    value: "oldest",
+    label: "Fecha: más antiguas primero",
+    shortLabel: "Fecha ↑",
+  },
+  { value: "alpha", label: "Título: de la A a la Z", shortLabel: "A-Z" },
+  { value: "alpha_desc", label: "Título: de la Z a la A", shortLabel: "Z-A" },
+];
 
 // Lo que se puede cambiar desde la pantalla Filtros (el orden va aparte).
 export type LibraryFilterSelection = Pick<
@@ -38,7 +50,9 @@ export const parseLibraryFilters = (
   const tag = params.get("tag")?.trim();
 
   return {
-    sort: params.get("sort") === "alpha" ? "alpha" : DEFAULT_SORT,
+    sort:
+      sortOptions.find((option) => option.value === params.get("sort"))
+        ?.value ?? DEFAULT_SORT,
     favorite: params.get("favorite") === "true",
     untagged,
     // El contrato no combina «Sin catalogar» con una etiqueta.
