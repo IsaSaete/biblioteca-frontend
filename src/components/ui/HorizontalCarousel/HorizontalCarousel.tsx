@@ -114,7 +114,10 @@ const HorizontalCarousel = ({
         sx={{
           overflowX: "auto",
           scrollSnapType: "x mandatory",
-          scrollPaddingInline: 4,
+          // Igual que el `px` de la fila: MUI no convierte este valor al
+          // espaciado del tema, así que se pide explícitamente. Con menos, el
+          // snap deja la primera tarjeta desplazada y aparece la flecha izquierda.
+          scrollPaddingInline: (theme) => theme.spacing(4),
           scrollbarWidth: "none",
           "&::-webkit-scrollbar": { display: "none" },
           px: 4,
