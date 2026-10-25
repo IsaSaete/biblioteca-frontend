@@ -13,8 +13,13 @@ import InlineError from "../../../../components/ui/InlineError/InlineError";
 import { formatCount } from "../../../../utils/formatCount";
 import { useGetBooksQuery } from "../../booksApi";
 import type { GetBooksParams } from "../../dto/GetBooksParams";
+import type { LibraryView } from "../../dto/LibraryView";
+import { useLibraryView } from "../../hooks/useLibraryView";
 import BookCard from "../../components/BookCard/BookCard";
+import BookRow from "../../components/BookRow/BookRow";
 import BooksGrid from "../../components/BooksGrid/BooksGrid";
+import BooksList from "../../components/BooksList/BooksList";
+import ViewToggle from "../../components/ViewToggle/ViewToggle";
 import ActiveFilters from "../../components/ActiveFilters/ActiveFilters";
 import FiltersButton from "../../components/FiltersButton/FiltersButton";
 import FiltersSheet from "../../components/FiltersSheet/FiltersSheet";
@@ -30,6 +35,7 @@ import type { LibraryFilters } from "../../utils/libraryFilters";
 import { useOnVisible } from "../../../../hooks/useOnVisible";
 
 const SKELETON_COUNT = 9;
+const SKELETON_ROWS = 6;
 
 const LoadMoreSentinel = ({ onVisible }: { onVisible: () => void }) => {
   const ref = useOnVisible(onVisible);
@@ -45,6 +51,7 @@ const LoadMoreSentinel = ({ onVisible }: { onVisible: () => void }) => {
 
 interface BooksChunkProps {
   params?: GetBooksParams;
+  view: LibraryView;
   cursor: string;
   isLast: boolean;
   onLoadMore: (cursor: string) => void;
@@ -55,6 +62,7 @@ interface BooksChunkProps {
 // páginas (RTK Query no calcula páginas: se encadenan con `nextCursor`).
 const BooksChunk = ({
   params,
+  view,
   cursor,
   isLast,
   onLoadMore,
@@ -76,17 +84,21 @@ const BooksChunk = ({
   }
 
   if (!data) {
-    return <LoadingCovers count={3} />;
+    return <LoadingBooks view={view} count={3} />;
   }
 
   const { nextCursor } = data;
 
   return (
     <>
-      {data.items.map((book) => (
-        <BookCard key={book.ejemplarId} book={book} />
-      ))}
-      {isFetching && <LoadingCovers count={3} />}
+      {data.items.map((book) =>
+        view === "list" ? (
+          <BookRow key={book.ejemplarId} book={book} />
+        ) : (
+          <BookCard key={book.ejemplarId} book={book} />
+        ),
+      )}
+      {isFetching && <LoadingBooks view={view} count={3} />}
       {isLast && nextCursor && (
         <LoadMoreSentinel onVisible={() => onLoadMore(nextCursor)} />
       )}
@@ -112,8 +124,31 @@ const LoadingCovers = ({ count }: { count: number }) => (
   </>
 );
 
+const LoadingRows = ({ count }: { count: number }) => (
+  <>
+    {Array.from({ length: count }, (_, index) => (
+      <Box
+        component="li"
+        key={index}
+        sx={{ listStyle: "none", py: 3 }}
+        aria-hidden="true"
+      >
+        <Skeleton variant="rounded" sx={{ height: 84, borderRadius: 1.5 }} />
+      </Box>
+    ))}
+  </>
+);
+
+const LoadingBooks = ({ view, count }: { view: LibraryView; count: number }) =>
+  view === "list" ? (
+    <LoadingRows count={count} />
+  ) : (
+    <LoadingCovers count={count} />
+  );
+
 interface LibraryGridProps {
   params?: GetBooksParams;
+  view: LibraryView;
   isFiltered: boolean;
   onClearFilters: () => void;
 }
@@ -123,6 +158,7 @@ interface LibraryGridProps {
 // mezclan con las nuevas.
 const LibraryGrid = ({
   params,
+  view,
   isFiltered,
   onClearFilters,
 }: LibraryGridProps) => {
@@ -138,13 +174,18 @@ const LibraryGrid = ({
     [],
   );
 
+  const Container = view === "list" ? BooksList : BooksGrid;
+
   const renderContent = () => {
     if (isLoading) {
       return (
         <Box role="status" aria-label="Cargando tu biblioteca">
-          <BooksGrid isPlaceholder>
-            <LoadingCovers count={SKELETON_COUNT} />
-          </BooksGrid>
+          <Container isPlaceholder>
+            <LoadingBooks
+              view={view}
+              count={view === "list" ? SKELETON_ROWS : SKELETON_COUNT}
+            />
+          </Container>
         </Box>
       );
     }
@@ -179,10 +220,14 @@ const LibraryGrid = ({
     }
 
     return (
-      <BooksGrid>
-        {data.items.map((book) => (
-          <BookCard key={book.ejemplarId} book={book} />
-        ))}
+      <Container>
+        {data.items.map((book) =>
+          view === "list" ? (
+            <BookRow key={book.ejemplarId} book={book} />
+          ) : (
+            <BookCard key={book.ejemplarId} book={book} />
+          ),
+        )}
         {moreCursors.length === 0 && data.nextCursor && (
           <LoadMoreSentinel onVisible={() => loadMore(data.nextCursor ?? "")} />
         )}
@@ -190,12 +235,13 @@ const LibraryGrid = ({
           <BooksChunk
             key={cursor}
             params={params}
+            view={view}
             cursor={cursor}
             isLast={index === moreCursors.length - 1}
             onLoadMore={loadMore}
           />
         ))}
-      </BooksGrid>
+      </Container>
     );
   };
 
@@ -212,6 +258,7 @@ const LibraryPage = () => {
   const filters = parseLibraryFilters(searchParams);
   const params = toBooksParams(filters);
   const isFiltered = hasActiveFilters(filters);
+  const { view, setView } = useLibraryView();
   const { data, currentData } = useGetBooksQuery(params);
   // Con la biblioteca vacía no hay nada que ordenar ni filtrar.
   const hasToolbar =
@@ -242,11 +289,14 @@ const LibraryPage = () => {
             />
           }
           end={
-            <SortSelector
-              options={sortOptions}
-              value={filters.sort}
-              onChange={(sort) => update({ sort })}
-            />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <SortSelector
+                options={sortOptions}
+                value={filters.sort}
+                onChange={(sort) => update({ sort })}
+              />
+              <ViewToggle view={view} onChange={setView} />
+            </Box>
           }
         />
       )}
@@ -254,6 +304,7 @@ const LibraryPage = () => {
       <LibraryGrid
         key={toSearchParams(filters).toString()}
         params={params}
+        view={view}
         isFiltered={isFiltered}
         onClearFilters={() => update(NO_FILTERS)}
       />
