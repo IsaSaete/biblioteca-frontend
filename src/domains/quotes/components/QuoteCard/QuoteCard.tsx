@@ -32,7 +32,11 @@ const QuoteCard = ({
       color="inherit"
       aria-label={`Abrir la cita: ${quote.text}`}
       sx={{
-        display: "block",
+        display: "flex",
+        flexDirection: "column",
+        // Llena la celda de la cuadrícula: así las tarjetas de una fila miden
+        // lo mismo y su pie queda alineado abajo.
+        height: "100%",
         p: 4,
         ...(!embedded && { bgcolor: "background.paper", borderRadius: 1.5 }),
       }}
@@ -45,6 +49,7 @@ const QuoteCard = ({
           WebkitLineClamp: 3,
           overflow: "hidden",
           overflowWrap: "anywhere",
+          mb: hasReference ? 3 : 0,
         }}
       >
         {quote.text}
@@ -56,7 +61,7 @@ const QuoteCard = ({
             alignItems: "center",
             justifyContent: "space-between",
             gap: 3,
-            mt: 3,
+            mt: "auto",
             pt: 3,
             borderTop: 1,
             borderColor: "secondary.main",
