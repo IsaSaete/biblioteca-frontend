@@ -11,6 +11,7 @@ import BookCover from "../../../domains/books/components/BookCover/BookCover";
 import type { LibraryBook } from "../../../domains/books/dto/LibraryBook";
 import { useDebouncedValue } from "../../../domains/books/hooks/useDebouncedValue";
 import { useHasCamera } from "../../../domains/books/hooks/useHasCamera";
+import { normalizeText } from "../../../utils/normalizeText";
 import { useOpenAddBookModal } from "../useOpenAddBookModal";
 
 const SEARCH_DEBOUNCE_MS = 250;
@@ -54,15 +55,9 @@ const ScanIcon = () => (
   </svg>
 );
 
-const normalize = (text: string): string =>
-  text
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .toLocaleLowerCase("es");
-
 const matches = (book: LibraryBook, query: string): boolean =>
-  normalize(`${book.title} ${book.authors.join(" ")}`).includes(
-    normalize(query),
+  normalizeText(`${book.title} ${book.authors.join(" ")}`).includes(
+    normalizeText(query),
   );
 
 // Barra superior de contenido: buscador de tu propia biblioteca (nunca un
