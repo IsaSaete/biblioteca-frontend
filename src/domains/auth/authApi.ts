@@ -6,6 +6,8 @@ import type { RegisterRequest } from "./dto/RegisterRequest";
 import type { RegisterResponse } from "./dto/RegisterResponse";
 import type { ResetPasswordRequest } from "./dto/ResetPasswordRequest";
 import type { SessionResponse } from "./dto/SessionResponse";
+import type { UpdatePreferencesRequest } from "./dto/UpdatePreferencesRequest";
+import type { UserPreferences } from "./dto/UserPreferences";
 
 export const authApi = createApi({
   reducerPath: "authApi",
@@ -50,6 +52,36 @@ export const authApi = createApi({
         );
       },
     }),
+    // Guarda las preferencias de la cuenta (D-029). Se aplican a la sesión en
+    // caché al momento, para que el cambio se vea sin esperar, y se revierten si
+    // el servidor falla.
+    updatePreferences: builder.mutation<
+      { preferences: UserPreferences },
+      UpdatePreferencesRequest
+    >({
+      query: (body) => ({
+        url: "/auth/me/preferences",
+        method: "PATCH",
+        body,
+      }),
+      async onQueryStarted(changes, { dispatch, queryFulfilled }) {
+        const patch = dispatch(
+          authApi.util.updateQueryData("me", undefined, (session) => {
+            session.user.preferences = {
+              libraryView: "grid",
+              ...session.user.preferences,
+              ...changes,
+            };
+          }),
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
+    }),
     // La caché se vacía al entrar en el login (ver LoginPage): vaciarla con la
     // página anterior montada hace que `useMeQuery` vuelva a pedir /auth/me al
     // instante, sin sesión.
@@ -66,6 +98,7 @@ export const {
   useLogoutMutation,
   useVerifyEmailQuery,
   useCompleteOnboardingMutation,
+  useUpdatePreferencesMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
 } = authApi;
