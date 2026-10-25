@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import HorizontalCarousel from "./HorizontalCarousel";
 
 // jsdom no calcula el layout: se simulan las medidas de la fila. Las flechas
-// solo se ven con ratón (CSS), por eso las consultas incluyen las ocultas.
+// solo se ven con ratón (CSS), por eso se buscan por su etiqueta.
 const measureRow = (
   { scrollWidth, clientWidth }: { scrollWidth: number; clientWidth: number },
   scrollBy = vi.fn(),
@@ -17,7 +17,12 @@ const measureRow = (
 
 const renderCarousel = () =>
   render(
-    <HorizontalCarousel label="Añadidos recientemente" itemWidth={140}>
+    <HorizontalCarousel
+      label="Añadidos recientemente"
+      itemWidth={140}
+      itemsPerPage={{ sm: 4, md: 5 }}
+      mediaRatio={1.5}
+    >
       <li>Uno</li>
       <li>Dos</li>
     </HorizontalCarousel>,
@@ -47,17 +52,34 @@ describe("Given a horizontal carousel", () => {
       );
       fireEvent.scroll(region);
 
-      const next = await screen.findByRole("button", {
-        name: "Ver siguientes",
-        hidden: true,
-      });
-      await userEvent.click(next);
+      await userEvent.click(await screen.findByLabelText("Ver siguientes"));
 
-      expect(
-        screen.queryByRole("button", { name: "Ver anteriores", hidden: true }),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByLabelText("Ver anteriores")).not.toBeInTheDocument();
       expect(scrollBy).toHaveBeenCalledWith(
         expect.objectContaining({ left: 360 }),
+      );
+    });
+  });
+
+  describe("When the cards can be measured", () => {
+    it("Then the arrow moves a whole number of cards, so a page starts on a full card", async () => {
+      const scrollBy = vi.fn();
+      renderCarousel();
+      const region = measureRow(
+        { scrollWidth: 2000, clientWidth: 928 },
+        scrollBy,
+      );
+      const [first, second] = screen.getAllByRole("listitem");
+      // Cinco tarjetas de 176px con huecos de 12px caben justas en 928px.
+      Object.defineProperty(first, "offsetLeft", { value: 0 });
+      Object.defineProperty(first, "offsetWidth", { value: 176 });
+      Object.defineProperty(second, "offsetLeft", { value: 188 });
+      fireEvent.scroll(region);
+
+      await userEvent.click(await screen.findByLabelText("Ver siguientes"));
+
+      expect(scrollBy).toHaveBeenCalledWith(
+        expect.objectContaining({ left: 940 }),
       );
     });
   });
@@ -70,14 +92,9 @@ describe("Given a horizontal carousel", () => {
       fireEvent.scroll(region);
 
       expect(
-        await screen.findByRole("button", {
-          name: "Ver anteriores",
-          hidden: true,
-        }),
+        await screen.findByLabelText("Ver anteriores"),
       ).toBeInTheDocument();
-      expect(
-        screen.queryByRole("button", { name: "Ver siguientes", hidden: true }),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByLabelText("Ver siguientes")).not.toBeInTheDocument();
     });
   });
 
@@ -88,7 +105,7 @@ describe("Given a horizontal carousel", () => {
       fireEvent.scroll(region);
 
       expect(
-        screen.queryByRole("button", { hidden: true }),
+        screen.queryByLabelText(/^Ver (anteriores|siguientes)$/),
       ).not.toBeInTheDocument();
     });
   });

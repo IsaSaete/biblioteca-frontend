@@ -14,6 +14,8 @@ const SKELETON_COUNT = 2;
 // Tarjeta ancha para que una cita siga siendo legible: ≈ 85 % en móvil y
 // 340px (entre 320 y 360) desde tablet, con la siguiente asomando.
 const QUOTE_WIDTH = { xs: "85%", sm: 340 };
+// Con ratón: citas completos por página (tablet y escritorio).
+const QUOTES_PER_PAGE = { sm: 2, md: 3 };
 
 // Las citas más recientes (HU-34), de cualquier libro o sin libro.
 const LatestQuotesSection = () => {
@@ -23,7 +25,7 @@ const LatestQuotesSection = () => {
     if (isLoading) {
       return (
         <Box role="status" aria-label="Cargando tus últimas citas">
-          <LoadingRow itemWidth={QUOTE_WIDTH}>
+          <LoadingRow itemWidth={QUOTE_WIDTH} itemsPerPage={QUOTES_PER_PAGE}>
             {Array.from({ length: SKELETON_COUNT }, (_, index) => (
               <Box component="li" key={index} aria-hidden="true">
                 <Skeleton
@@ -51,7 +53,11 @@ const LatestQuotesSection = () => {
     }
 
     return (
-      <HorizontalCarousel label={TITLE} itemWidth={QUOTE_WIDTH}>
+      <HorizontalCarousel
+        label={TITLE}
+        itemWidth={QUOTE_WIDTH}
+        itemsPerPage={QUOTES_PER_PAGE}
+      >
         {data.items.slice(0, MAX_QUOTES).map((quote) => (
           <Box component="li" key={quote.id} sx={{ display: "flex" }}>
             <Box sx={{ flex: 1, minWidth: 0 }}>
