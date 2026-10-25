@@ -3,7 +3,8 @@ import Box from "@mui/material/Box";
 import ButtonBase from "@mui/material/ButtonBase";
 
 interface ToolbarButtonProps {
-  children: ReactNode;
+  // Sin texto, el botón es solo icono y necesita `ariaLabel`.
+  children?: ReactNode;
   icon?: ReactNode;
   // Flecha tras el texto: el botón abre una hoja con opciones.
   hasChevron?: boolean;
@@ -63,17 +64,19 @@ const ToolbarButton = ({
     }}
   >
     {icon}
-    <Box
-      component="span"
-      sx={{
-        minWidth: 0,
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap",
-      }}
-    >
-      {children}
-    </Box>
+    {children && (
+      <Box
+        component="span"
+        sx={{
+          minWidth: 0,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {children}
+      </Box>
+    )}
     {badge > 0 && (
       <Box
         component="span"
