@@ -15,6 +15,10 @@ const TITLE = "Añadidos recientemente";
 const MAX_BOOKS = 10;
 const SKELETON_COUNT = 4;
 const BOOK_WIDTH = { xs: 160, sm: 180 };
+// Las portadas son 2:3 (alto / ancho), para centrar las flechas en ellas.
+const COVER_RATIO = 1.5;
+// Con ratón: libros completos por página (tablet y escritorio).
+const BOOKS_PER_PAGE = { sm: 4, md: 5 };
 
 // Los libros más recientes de la biblioteca (HU-32). `GET /books` ya viene
 // ordenado por fecha de alta, la más reciente primero.
@@ -26,7 +30,7 @@ const RecentBooksSection = () => {
     if (isLoading) {
       return (
         <Box role="status" aria-label="Cargando tus últimos libros">
-          <LoadingRow itemWidth={BOOK_WIDTH}>
+          <LoadingRow itemWidth={BOOK_WIDTH} itemsPerPage={BOOKS_PER_PAGE}>
             {Array.from({ length: SKELETON_COUNT }, (_, index) => (
               <Box component="li" key={index} aria-hidden="true">
                 <Skeleton
@@ -64,7 +68,12 @@ const RecentBooksSection = () => {
     }
 
     return (
-      <HorizontalCarousel label={TITLE} itemWidth={BOOK_WIDTH}>
+      <HorizontalCarousel
+        label={TITLE}
+        itemWidth={BOOK_WIDTH}
+        itemsPerPage={BOOKS_PER_PAGE}
+        mediaRatio={COVER_RATIO}
+      >
         {data.items.slice(0, MAX_BOOKS).map((book) => (
           <BookCard key={book.ejemplarId} book={book} />
         ))}
