@@ -1,5 +1,4 @@
-import Box from "@mui/material/Box";
-import ButtonBase from "@mui/material/ButtonBase";
+import ToolbarButton from "../../../../components/ui/ToolbarButton/ToolbarButton";
 
 interface FiltersButtonProps {
   // Cuántos filtros hay activos; 0 no muestra insignia.
@@ -25,52 +24,17 @@ const SlidersIcon = () => (
   </svg>
 );
 
-// Botón «Filtros» de la barra de Biblioteca: relleno suave del color
-// secundario, sin borde (como el botón de escanear), con la cuenta de filtros
-// activos en una insignia.
+// Botón «Filtros» de la barra de Biblioteca, con la cuenta de filtros activos
+// en una insignia.
 const FiltersButton = ({ activeCount, onClick }: FiltersButtonProps) => (
-  <ButtonBase
+  <ToolbarButton
+    icon={<SlidersIcon />}
+    badge={activeCount}
+    ariaLabel={activeCount > 0 ? `Filtros, ${activeCount} activos` : "Filtros"}
     onClick={onClick}
-    aria-haspopup="dialog"
-    aria-label={activeCount > 0 ? `Filtros, ${activeCount} activos` : "Filtros"}
-    sx={{
-      minHeight: 40,
-      px: 4,
-      gap: 2,
-      borderRadius: "999px",
-      bgcolor: "secondary.main",
-      color: "secondary.contrastText",
-      fontSize: "0.875rem",
-      fontWeight: 500,
-      "&.Mui-focusVisible": {
-        outline: "2px solid",
-        outlineColor: "primary.main",
-        outlineOffset: 2,
-      },
-    }}
   >
-    <SlidersIcon />
     Filtros
-    {activeCount > 0 && (
-      <Box
-        component="span"
-        aria-hidden="true"
-        sx={{
-          minWidth: 20,
-          height: 20,
-          px: 1,
-          borderRadius: "999px",
-          display: "grid",
-          placeItems: "center",
-          bgcolor: "primary.main",
-          color: "primary.contrastText",
-          fontSize: "0.75rem",
-        }}
-      >
-        {activeCount}
-      </Box>
-    )}
-  </ButtonBase>
+  </ToolbarButton>
 );
 
 export default FiltersButton;
