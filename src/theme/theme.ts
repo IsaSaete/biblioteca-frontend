@@ -17,6 +17,9 @@ declare module "@mui/material/Typography" {
   }
 }
 
+// Velo oscuro al 40 % (sistema-diseno-visual.md, «Velo»).
+const SCRIM = "rgba(0, 0, 0, 0.4)";
+
 const theme = createTheme({
   cssVariables: { colorSchemeSelector: "data" },
   colorSchemes: {
@@ -71,6 +74,15 @@ const theme = createTheme({
     button: { fontSize: "0.875rem", fontWeight: 500, textTransform: "none" },
   },
   components: {
+    // Velo detrás de hojas, paneles anclados y diálogos: el mismo para todos, para
+    // que lo abierto gane protagonismo sin ocultar el contenido de detrás. Los
+    // fondos invisibles (menús, selects) siguen sin velo.
+    MuiBackdrop: {
+      styleOverrides: {
+        root: ({ ownerState }) =>
+          ownerState.invisible ? {} : { backgroundColor: SCRIM },
+      },
+    },
     // Safari en iPhone amplía la página al enfocar un campo con menos de 16px y
     // no la devuelve a su tamaño: en móvil, los campos y su etiqueta usan
     // `text-lg` (16px) en lugar de `text-md` (14px).
