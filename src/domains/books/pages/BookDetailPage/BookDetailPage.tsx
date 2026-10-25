@@ -7,10 +7,9 @@ import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Skeleton from "@mui/material/Skeleton";
 import Typography from "@mui/material/Typography";
-import Button from "../../../../components/ui/Button/Button";
 import ExpandableText from "../../../../components/ui/ExpandableText/ExpandableText";
 import Pill from "../../../../components/ui/Pill/Pill";
-import BottomSheet from "../../../../components/ui/BottomSheet/BottomSheet";
+import ConfirmDialog from "../../../../components/ui/ConfirmDialog/ConfirmDialog";
 import InlineError from "../../../../components/ui/InlineError/InlineError";
 import { parseApiError } from "../../../auth/utils/parseApiError";
 import {
@@ -220,33 +219,16 @@ const BookDetailPage = () => {
           fullWidth
           onClick={() => setIsConfirmingDelete(true)}
         />
-        <BottomSheet
+        <ConfirmDialog
           open={isConfirmingDelete}
           title="¿Eliminar este libro?"
-          onClose={() => setIsConfirmingDelete(false)}
-        >
-          <Typography color="text.secondary" sx={{ mt: 1, mb: 4 }}>
-            Se quitará de tu biblioteca junto con sus citas. Esta acción no se
-            puede deshacer.
-          </Typography>
-          <Box sx={{ display: "grid", gap: 2 }}>
-            <Pill
-              tone="danger"
-              label={isDeleting ? "Eliminando…" : "Sí, eliminar"}
-              fullWidth
-              disabled={isDeleting}
-              onClick={() => void handleDelete()}
-            />
-            <Button
-              variant="text"
-              fullWidth
-              disabled={isDeleting}
-              onClick={() => setIsConfirmingDelete(false)}
-            >
-              Cancelar
-            </Button>
-          </Box>
-        </BottomSheet>
+          description="Se quitará de tu biblioteca junto con sus citas. Esta acción no se puede deshacer."
+          confirmLabel="Sí, eliminar"
+          pendingLabel="Eliminando…"
+          isPending={isDeleting}
+          onConfirm={() => void handleDelete()}
+          onCancel={() => setIsConfirmingDelete(false)}
+        />
       </>
     );
 
