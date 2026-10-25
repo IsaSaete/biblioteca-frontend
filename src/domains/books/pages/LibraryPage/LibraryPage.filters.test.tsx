@@ -81,6 +81,16 @@ describe("Given the library page with order and filters", () => {
     });
   });
 
+  describe("When the library has books", () => {
+    it("Then the header counts them", async () => {
+      mockLibrary();
+
+      renderRoutes(routes, ["/library"]);
+
+      expect(await screen.findByText("3 libros")).toBeInTheDocument();
+    });
+  });
+
   describe("When the user picks the alphabetical order", () => {
     it("Then the order goes to the URL and to the request", async () => {
       const requests = mockLibrary();
