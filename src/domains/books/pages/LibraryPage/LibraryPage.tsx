@@ -32,6 +32,7 @@ import {
   toSearchParams,
 } from "../../utils/libraryFilters";
 import type { LibraryFilters } from "../../utils/libraryFilters";
+import { useAnchoredPanel } from "../../../../hooks/useAnchoredPanel";
 import { useOnVisible } from "../../../../hooks/useOnVisible";
 
 const SKELETON_COUNT = 10;
@@ -254,7 +255,7 @@ const LibraryGrid = ({
 // desde «Favoritos» de Inicio, los conserve.
 const LibraryPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const filtersPanel = useAnchoredPanel();
   const filters = parseLibraryFilters(searchParams);
   const params = toBooksParams(filters);
   const isFiltered = hasActiveFilters(filters);
@@ -285,7 +286,8 @@ const LibraryPage = () => {
           start={
             <FiltersButton
               activeCount={activeCount}
-              onClick={() => setIsFiltersOpen(true)}
+              isExpanded={filtersPanel.isOpen}
+              onClick={filtersPanel.open}
             />
           }
           end={
@@ -309,11 +311,12 @@ const LibraryPage = () => {
         onClearFilters={() => update(NO_FILTERS)}
       />
       <FiltersSheet
-        open={isFiltersOpen}
+        open={filtersPanel.isOpen}
+        anchorEl={filtersPanel.anchorEl}
         selection={filters}
         total={total}
         onChange={update}
-        onClose={() => setIsFiltersOpen(false)}
+        onClose={filtersPanel.close}
       />
     </Box>
   );
