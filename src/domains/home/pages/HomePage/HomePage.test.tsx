@@ -192,4 +192,38 @@ describe("Given the home page", () => {
       expect(router.state.location.pathname).toBe("/quotes");
     });
   });
+
+  describe("When the user has favorites", () => {
+    it("Then the figure leads to the library filtered by favorites", async () => {
+      mockBooks(1);
+      mockQuotes(1);
+      mockStats({ books: 12, quotes: 34, favorites: 3 });
+      const routesWithFilter = [
+        ...routes,
+        { path: "/library", element: <p>Pantalla de Biblioteca</p> },
+      ];
+
+      const { user, router } = renderRoutes(routesWithFilter, ["/home"]);
+
+      await user.click(await screen.findByRole("link", { name: "Favoritos" }));
+
+      expect(router.state.location.pathname).toBe("/library");
+      expect(router.state.location.search).toBe("?favorite=true");
+    });
+  });
+
+  describe("When the user has no favorites", () => {
+    it("Then the figure is not a link", async () => {
+      mockBooks(1);
+      mockQuotes(1);
+      mockStats({ books: 12, quotes: 34, favorites: 0 });
+
+      renderRoutes(routes, ["/home"]);
+
+      expect(await screen.findByText("Favoritos")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("link", { name: "Favoritos" }),
+      ).not.toBeInTheDocument();
+    });
+  });
 });

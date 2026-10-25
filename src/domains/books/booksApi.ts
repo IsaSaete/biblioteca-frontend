@@ -3,6 +3,7 @@ import { baseQueryWithReauth } from "../../api/baseQueryWithReauth";
 import type { BookEntry } from "./dto/BookEntry";
 import type { CreateBookRequest } from "./dto/CreateBookRequest";
 import type { ExternalBook } from "./dto/ExternalBook";
+import type { GetBookTagsResponse } from "./dto/GetBookTagsResponse";
 import type { GetBooksParams } from "./dto/GetBooksParams";
 import type { GetBooksResponse } from "./dto/GetBooksResponse";
 import type { LibraryBook } from "./dto/LibraryBook";
@@ -15,6 +16,7 @@ import { mapBookEntryToLibraryBook } from "./utils/mapBookEntryToLibraryBook";
 export interface BooksPage {
   items: LibraryBook[];
   nextCursor: string | null;
+  total: number;
 }
 
 export const booksApi = createApi({
@@ -28,7 +30,13 @@ export const booksApi = createApi({
       transformResponse: (response: GetBooksResponse): BooksPage => ({
         items: response.items.map(mapBookEntryToLibraryBook),
         nextCursor: response.nextCursor,
+        total: response.total,
       }),
+      providesTags: ["Book"],
+    }),
+    // Alimenta el selector de etiquetas del filtro: solo las que están en uso.
+    getBookTags: builder.query<GetBookTagsResponse, void>({
+      query: () => "/books/tags",
       providesTags: ["Book"],
     }),
     getBook: builder.query<LibraryBook, string>({
@@ -101,6 +109,7 @@ export const booksApi = createApi({
 
 export const {
   useGetBooksQuery,
+  useGetBookTagsQuery,
   useGetBookQuery,
   useLazyLookupIsbnQuery,
   useSearchExternalQuery,
