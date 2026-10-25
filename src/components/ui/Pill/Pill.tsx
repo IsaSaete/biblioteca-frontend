@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from "react";
+import type { MouseEvent, ReactElement, ReactNode } from "react";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import type { Theme } from "@mui/material/styles";
@@ -8,7 +8,7 @@ export type PillTone = "neutral" | "accent" | "success" | "danger";
 
 interface PillProps {
   label: ReactNode;
-  onClick: () => void;
+  onClick: (event: MouseEvent<HTMLElement>) => void;
   disabled?: boolean;
   icon?: ReactElement;
   // Si se informa, la cápsula es un interruptor: `true` la rellena con el tono

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import Box from "@mui/material/Box";
 import ButtonBase from "@mui/material/ButtonBase";
 
@@ -11,7 +11,10 @@ interface ToolbarButtonProps {
   // Cuenta de elementos activos (por ejemplo, filtros) en una insignia.
   badge?: number;
   ariaLabel?: string;
-  onClick: () => void;
+  // El panel que abre está desplegado (para lectores de pantalla).
+  isExpanded?: boolean;
+  // Recibe el evento: el botón pulsado es el ancla del panel en pantallas anchas.
+  onClick: (event: MouseEvent<HTMLElement>) => void;
 }
 
 const ChevronDownIcon = () => (
@@ -40,11 +43,13 @@ const ToolbarButton = ({
   hasChevron = false,
   badge = 0,
   ariaLabel,
+  isExpanded = false,
   onClick,
 }: ToolbarButtonProps) => (
   <ButtonBase
     onClick={onClick}
     aria-haspopup="dialog"
+    aria-expanded={isExpanded}
     aria-label={ariaLabel}
     sx={{
       minHeight: 44,

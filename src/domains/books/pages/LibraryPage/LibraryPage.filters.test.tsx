@@ -1,6 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { renderRoutes } from "../../../../test/renderRoutes";
+import { setDesktopViewport } from "../../../../test/setDesktopViewport";
 import { server } from "../../../../test/server";
 import LibraryPage from "./LibraryPage";
 
@@ -76,6 +77,9 @@ beforeEach(() => {
     ),
   );
 });
+
+// Los tests de escritorio fijan el ancho de ventana: se vuelve al de móvil.
+afterEach(() => setDesktopViewport(false));
 
 describe("Given the library page with order and filters", () => {
   describe("When the user has no books", () => {
@@ -321,6 +325,25 @@ describe("Given the library page with order and filters", () => {
           screen.queryByRole("dialog", { name: "Filtros" }),
         ).not.toBeInTheDocument(),
       );
+      expect(router.state.location.search).toBe("?favorite=true");
+    });
+  });
+
+  describe("When the user opens the filters on a desktop", () => {
+    it("Then they open as a panel under the button and still filter", async () => {
+      setDesktopViewport(true);
+      mockLibrary();
+
+      const { user, router } = renderRoutes(routes, ["/library"]);
+      const panel = await openFilters(user);
+
+      expect(
+        within(panel).queryByRole("button", { name: "Cerrar" }),
+      ).not.toBeInTheDocument();
+      await user.click(
+        within(panel).getByRole("switch", { name: "Favoritos" }),
+      );
+
       expect(router.state.location.search).toBe("?favorite=true");
     });
   });

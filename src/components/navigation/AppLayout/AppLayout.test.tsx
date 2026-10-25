@@ -1,6 +1,7 @@
 import { screen, within } from "@testing-library/react";
 import { renderRoutes } from "../../../test/renderRoutes";
 import AppLayout from "./AppLayout";
+import { setDesktopViewport } from "../../../test/setDesktopViewport";
 
 const routes = [
   {
@@ -16,17 +17,6 @@ const routes = [
     ],
   },
 ];
-
-const setDesktopViewport = (isDesktop: boolean) => {
-  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-    matches: isDesktop,
-    media: query,
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-  }));
-};
 
 describe("Given the layout of the screens with a session", () => {
   describe("When the viewport is smaller than 1024px", () => {

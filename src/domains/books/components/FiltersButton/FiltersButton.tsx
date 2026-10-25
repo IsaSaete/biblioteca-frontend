@@ -1,9 +1,11 @@
+import type { MouseEvent } from "react";
 import ToolbarButton from "../../../../components/ui/ToolbarButton/ToolbarButton";
 
 interface FiltersButtonProps {
   // Cuántos filtros hay activos; 0 no muestra insignia.
   activeCount: number;
-  onClick: () => void;
+  isExpanded: boolean;
+  onClick: (event: MouseEvent<HTMLElement>) => void;
 }
 
 const SlidersIcon = () => (
@@ -26,11 +28,16 @@ const SlidersIcon = () => (
 
 // Botón «Filtros» de la barra de Biblioteca, con la cuenta de filtros activos
 // en una insignia.
-const FiltersButton = ({ activeCount, onClick }: FiltersButtonProps) => (
+const FiltersButton = ({
+  activeCount,
+  isExpanded,
+  onClick,
+}: FiltersButtonProps) => (
   <ToolbarButton
     icon={<SlidersIcon />}
     badge={activeCount}
     ariaLabel={activeCount > 0 ? `Filtros, ${activeCount} activos` : "Filtros"}
+    isExpanded={isExpanded}
     onClick={onClick}
   >
     Filtros

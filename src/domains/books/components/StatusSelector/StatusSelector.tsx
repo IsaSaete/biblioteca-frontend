@@ -1,10 +1,10 @@
-import { useState } from "react";
 import type { ChangeEvent } from "react";
 import Box from "@mui/material/Box";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
-import BottomSheet from "../../../../components/ui/BottomSheet/BottomSheet";
+import OptionsPanel from "../../../../components/ui/OptionsPanel/OptionsPanel";
+import { useAnchoredPanel } from "../../../../hooks/useAnchoredPanel";
 import Pill from "../../../../components/ui/Pill/Pill";
 import type { BookStatus } from "../../dto/BookStatus";
 import {
@@ -38,19 +38,20 @@ const ChevronIcon = () => (
 );
 
 // Solo se ve el estado actual, como pastilla; al tocarla se abre una hoja
-// inferior con las opciones (mismo patrón que el selector de tema).
+// inferior (o un panel bajo la pastilla en pantallas anchas) con las opciones,
+// mismo patrón que el selector de tema.
 const StatusSelector = ({
   status,
   onChange,
   disabled = false,
 }: StatusSelectorProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const panel = useAnchoredPanel();
   const { label, tone } = getStatusPresentation(status);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (isBookStatus(event.target.value)) {
       onChange(event.target.value);
-      setIsOpen(false);
+      panel.close();
     }
   };
 
@@ -87,13 +88,14 @@ const StatusSelector = ({
           }
           tone={tone}
           disabled={disabled}
-          onClick={() => setIsOpen(true)}
+          onClick={panel.open}
         />
       </Box>
-      <BottomSheet
-        open={isOpen}
+      <OptionsPanel
+        open={panel.isOpen}
         title="Estado de lectura"
-        onClose={() => setIsOpen(false)}
+        anchorEl={panel.anchorEl}
+        onClose={panel.close}
       >
         <RadioGroup
           aria-label="Estado de lectura"
@@ -110,7 +112,7 @@ const StatusSelector = ({
             />
           ))}
         </RadioGroup>
-      </BottomSheet>
+      </OptionsPanel>
     </>
   );
 };

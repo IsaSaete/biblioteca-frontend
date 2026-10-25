@@ -1,9 +1,9 @@
-import { useState } from "react";
 import type { ChangeEvent } from "react";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
-import BottomSheet from "../BottomSheet/BottomSheet";
+import { useAnchoredPanel } from "../../../hooks/useAnchoredPanel";
+import OptionsPanel from "../OptionsPanel/OptionsPanel";
 import ToolbarButton from "../ToolbarButton/ToolbarButton";
 
 export interface SortOption<T extends string> {
@@ -44,7 +44,7 @@ const SortSelector = <T extends string>({
   value,
   onChange,
 }: SortSelectorProps<T>) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const panel = useAnchoredPanel();
   const current = options.find((option) => option.value === value);
   const currentLabel = current?.label ?? "";
 
@@ -55,7 +55,7 @@ const SortSelector = <T extends string>({
 
     if (chosen) {
       onChange(chosen.value);
-      setIsOpen(false);
+      panel.close();
     }
   };
 
@@ -65,14 +65,17 @@ const SortSelector = <T extends string>({
         icon={<SortIcon />}
         hasChevron
         ariaLabel={`Ordenar por: ${currentLabel}`}
-        onClick={() => setIsOpen(true)}
+        isExpanded={panel.isOpen}
+        onClick={panel.open}
       >
         {current?.shortLabel ?? currentLabel}
       </ToolbarButton>
-      <BottomSheet
-        open={isOpen}
+      <OptionsPanel
+        open={panel.isOpen}
         title="Ordenar por"
-        onClose={() => setIsOpen(false)}
+        anchorEl={panel.anchorEl}
+        align="end"
+        onClose={panel.close}
       >
         <RadioGroup
           aria-label="Ordenar por"
@@ -89,7 +92,7 @@ const SortSelector = <T extends string>({
             />
           ))}
         </RadioGroup>
-      </BottomSheet>
+      </OptionsPanel>
     </>
   );
 };

@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import Typography from "@mui/material/Typography";
-import BottomSheet from "../../../../components/ui/BottomSheet/BottomSheet";
+import OptionsPanel from "../../../../components/ui/OptionsPanel/OptionsPanel";
 import Button from "../../../../components/ui/Button/Button";
 import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
 import InlineError from "../../../../components/ui/InlineError/InlineError";
@@ -19,6 +19,8 @@ const SEARCH_THRESHOLD = 12;
 
 interface FiltersSheetProps {
   open: boolean;
+  // El botón «Filtros»: en pantallas anchas el panel sale debajo de él.
+  anchorEl: HTMLElement | null;
   selection: LibraryFilterSelection;
   // Libros que cumplen lo elegido ahora (`undefined` mientras se calcula).
   total: number | undefined;
@@ -45,6 +47,7 @@ const SectionTitle = ({ children }: { children: string }) => (
 // combina con ellas. Favoritos se combina con cualquiera.
 const FiltersSheet = ({
   open,
+  anchorEl,
   selection,
   total,
   onChange,
@@ -147,7 +150,13 @@ const FiltersSheet = ({
   };
 
   return (
-    <BottomSheet open={open} title="Filtros" onClose={close} showCloseButton>
+    <OptionsPanel
+      open={open}
+      title="Filtros"
+      anchorEl={anchorEl}
+      onClose={close}
+      showCloseButton
+    >
       <Box
         sx={{
           mt: 4,
@@ -189,7 +198,7 @@ const FiltersSheet = ({
           Limpiar
         </Button>
       </Box>
-    </BottomSheet>
+    </OptionsPanel>
   );
 };
 
