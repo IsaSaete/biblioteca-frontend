@@ -1,13 +1,15 @@
 import type { ReactNode } from "react";
 import Box from "@mui/material/Box";
-import type { BoxProps } from "@mui/material/Box";
+
+export type CarouselItemWidth =
+  string | number | Partial<Record<"xs" | "sm" | "md", string | number>>;
 
 interface HorizontalCarouselProps {
   // Nombre de la región para lectores de pantalla («Añadidos recientemente»).
   label: string;
   // Ancho de cada elemento; puede ser responsive. Con la siguiente tarjeta
   // asomando se intuye que hay más a la derecha.
-  itemWidth: BoxProps["width"];
+  itemWidth: CarouselItemWidth;
   // Elementos de lista (`<li>`).
   children: ReactNode;
 }
