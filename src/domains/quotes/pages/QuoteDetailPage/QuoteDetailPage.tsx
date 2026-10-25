@@ -6,8 +6,7 @@ import IconButton from "@mui/material/IconButton";
 import Skeleton from "@mui/material/Skeleton";
 import Snackbar from "@mui/material/Snackbar";
 import Typography from "@mui/material/Typography";
-import BottomSheet from "../../../../components/ui/BottomSheet/BottomSheet";
-import Button from "../../../../components/ui/Button/Button";
+import ConfirmDialog from "../../../../components/ui/ConfirmDialog/ConfirmDialog";
 import InlineError from "../../../../components/ui/InlineError/InlineError";
 import Pill from "../../../../components/ui/Pill/Pill";
 import { parseApiError } from "../../../auth/utils/parseApiError";
@@ -266,32 +265,16 @@ const QuoteDetailPage = () => {
             onClose={() => setIsEditing(false)}
           />
         )}
-        <BottomSheet
+        <ConfirmDialog
           open={isConfirmingDelete}
           title="¿Eliminar esta cita?"
-          onClose={() => setIsConfirmingDelete(false)}
-        >
-          <Typography color="text.secondary" sx={{ mt: 1, mb: 4 }}>
-            Esta acción no se puede deshacer.
-          </Typography>
-          <Box sx={{ display: "grid", gap: 2 }}>
-            <Pill
-              tone="danger"
-              label={isDeleting ? "Eliminando…" : "Sí, eliminar"}
-              fullWidth
-              disabled={isDeleting}
-              onClick={() => void handleDelete()}
-            />
-            <Button
-              variant="text"
-              fullWidth
-              disabled={isDeleting}
-              onClick={() => setIsConfirmingDelete(false)}
-            >
-              Cancelar
-            </Button>
-          </Box>
-        </BottomSheet>
+          description="Esta acción no se puede deshacer."
+          confirmLabel="Sí, eliminar"
+          pendingLabel="Eliminando…"
+          isPending={isDeleting}
+          onConfirm={() => void handleDelete()}
+          onCancel={() => setIsConfirmingDelete(false)}
+        />
       </Box>
     );
   };
