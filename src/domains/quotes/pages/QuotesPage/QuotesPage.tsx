@@ -3,17 +3,27 @@ import { useSearchParams } from "react-router";
 import Box from "@mui/material/Box";
 import { QuotesIcon } from "../../../../components/navigation/NavIcons";
 import EmptyState from "../../../../components/ui/EmptyState/EmptyState";
-import Pill from "../../../../components/ui/Pill/Pill";
+import Button from "../../../../components/ui/Button/Button";
+import ListToolbar from "../../../../components/ui/ListToolbar/ListToolbar";
+import PageHeader from "../../../../components/ui/PageHeader/PageHeader";
+import SortSelector from "../../../../components/ui/SortSelector/SortSelector";
 import QuoteBookFilter from "../../components/QuoteBookFilter/QuoteBookFilter";
 import type { QuoteFilterSelection } from "../../components/QuoteBookFilter/QuoteBookFilter";
 import QuoteFormDialog from "../../components/QuoteFormDialog/QuoteFormDialog";
 import SelectBookDialog from "../../components/SelectBookDialog/SelectBookDialog";
 import QuotesList from "../../components/QuotesList/QuotesList";
-import { useGetQuoteBooksQuery } from "../../quotesApi";
+import { useGetQuoteBooksQuery, useGetQuotesQuery } from "../../quotesApi";
+import { formatQuotesMeta } from "../../utils/formatQuotesMeta";
+import {
+  DEFAULT_QUOTES_SORT,
+  getQuotesSortOptions,
+  parseQuotesSort,
+} from "../../utils/quotesSort";
 
 // Citas (HU-27, HU-28): el diario de citas, de la más reciente a la más
-// antigua, filtrable por libro. El filtro vive en la URL (`?bookId=`) para que
-// volver desde un detalle lo conserve.
+// antigua por defecto, filtrable por libro y ordenable (recientes, antiguas o
+// por libro). Filtro y orden viven en la URL (`?bookId=`, `?sort=`) para que
+// volver desde un detalle los conserve.
 type AddQuote =
   | { step: "select" }
   | { step: "form"; ejemplarId?: string; bookTitle?: string };
@@ -27,51 +37,97 @@ const QuotesPage = () => {
   const books = data?.items ?? [];
   const unlinkedCount = data?.unlinkedCount ?? 0;
 
+  const isFilteredByBook = Boolean(bookId) || unlinked;
+  const sort = parseQuotesSort(searchParams.get("sort"), isFilteredByBook);
+  // Misma consulta que la lista (comparten caché): de ahí sale el recuento.
+  const { currentData: page } = useGetQuotesQuery({
+    bookId,
+    unlinked,
+    sort: sort === DEFAULT_QUOTES_SORT ? undefined : sort,
+  });
+
   const select = ({
     bookId: selectedId,
     unlinked: isUnlinked,
-  }: QuoteFilterSelection) =>
+  }: QuoteFilterSelection) => {
+    const next: Record<string, string> = selectedId
+      ? { bookId: selectedId }
+      : isUnlinked
+        ? { unlinked: "true" }
+        : {};
+    // «Por libro» no vale con un libro elegido: si estaba puesto, se quita.
+    const nextSort = parseQuotesSort(
+      searchParams.get("sort"),
+      Boolean(selectedId) || Boolean(isUnlinked),
+    );
+
+    if (nextSort !== DEFAULT_QUOTES_SORT) {
+      next.sort = nextSort;
+    }
+
+    setSearchParams(next, { replace: true });
+  };
+
+  const changeSort = (nextSort: typeof sort) =>
     setSearchParams(
-      selectedId
-        ? { bookId: selectedId }
-        : isUnlinked
-          ? { unlinked: "true" }
-          : {},
+      (params) => {
+        const next = new URLSearchParams(params);
+
+        if (nextSort === DEFAULT_QUOTES_SORT) {
+          next.delete("sort");
+        } else {
+          next.set("sort", nextSort);
+        }
+
+        return next;
+      },
       { replace: true },
     );
 
+  // Sin citas guardadas no hay nada que ordenar.
+  const hasQuotes = books.length > 0 || unlinkedCount > 0;
+
   return (
-    <Box component="main" sx={{ maxWidth: 480, mx: "auto", p: 4 }}>
-      <Box component="h1" sx={{ fontSize: "1.1875rem", fontWeight: 500, m: 0 }}>
-        Citas
-      </Box>
-      <Box
-        sx={{
-          my: 3,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 3,
-        }}
-      >
-        {books.length > 0 || unlinkedCount > 0 ? (
-          <QuoteBookFilter
-            books={books}
-            unlinkedCount={unlinkedCount}
-            selection={{ bookId, unlinked }}
-            onSelect={select}
-          />
-        ) : (
-          <span />
-        )}
-        <Pill
-          label="+ Añadir cita"
-          onClick={() => setAdding({ step: "select" })}
+    <Box component="main" sx={{ maxWidth: 960, mx: "auto", p: 4, pt: 8 }}>
+      <PageHeader
+        title="Citas"
+        meta={formatQuotesMeta({
+          total: page?.total,
+          bookCount: isFilteredByBook ? undefined : books.length,
+        })}
+        action={
+          <Button
+            onClick={() => setAdding({ step: "select" })}
+            sx={{ minHeight: 40, px: 4, borderRadius: "999px" }}
+          >
+            Añadir cita
+          </Button>
+        }
+      />
+      {hasQuotes && (
+        <ListToolbar
+          start={
+            <QuoteBookFilter
+              books={books}
+              unlinkedCount={unlinkedCount}
+              selection={{ bookId, unlinked }}
+              onSelect={select}
+            />
+          }
+          end={
+            <SortSelector
+              options={getQuotesSortOptions(isFilteredByBook)}
+              value={sort}
+              onChange={changeSort}
+            />
+          }
         />
-      </Box>
+      )}
       <QuotesList
+        key={`${bookId ?? ""}|${unlinked}|${sort}`}
         bookId={bookId}
         unlinked={unlinked}
+        sort={sort === DEFAULT_QUOTES_SORT ? undefined : sort}
         showBook
         empty={
           <EmptyState
