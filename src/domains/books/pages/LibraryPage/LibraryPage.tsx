@@ -34,7 +34,7 @@ import {
 import type { LibraryFilters } from "../../utils/libraryFilters";
 import { useOnVisible } from "../../../../hooks/useOnVisible";
 
-const SKELETON_COUNT = 9;
+const SKELETON_COUNT = 10;
 const SKELETON_ROWS = 6;
 
 const LoadMoreSentinel = ({ onVisible }: { onVisible: () => void }) => {

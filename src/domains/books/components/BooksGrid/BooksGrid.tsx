@@ -7,7 +7,8 @@ interface BooksGridProps {
   isPlaceholder?: boolean;
 }
 
-// 3 columnas en móvil; desde tablet, las que quepan con ≥140px por portada
+// 3 columnas en móvil, 4 en tablet y 5 en escritorio (como las páginas del
+// carrusel de Inicio): portadas de unos 173px en escritorio
 // (pantallas-y-flujos.md, «Biblioteca — doble vista»).
 const BooksGrid = ({ children, isPlaceholder = false }: BooksGridProps) => (
   <Box
@@ -18,7 +19,8 @@ const BooksGrid = ({ children, isPlaceholder = false }: BooksGridProps) => (
       display: "grid",
       gridTemplateColumns: {
         xs: "repeat(3, minmax(0, 1fr))",
-        sm: "repeat(auto-fill, minmax(140px, 1fr))",
+        sm: "repeat(4, minmax(0, 1fr))",
+        md: "repeat(5, minmax(0, 1fr))",
       },
       gap: 4,
       m: 0,
