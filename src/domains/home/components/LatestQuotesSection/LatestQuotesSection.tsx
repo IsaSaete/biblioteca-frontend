@@ -9,7 +9,7 @@ import { useGetQuotesQuery } from "../../../quotes/quotesApi";
 import SectionHeader from "../SectionHeader/SectionHeader";
 
 const TITLE = "Últimas citas";
-const MAX_QUOTES = 5;
+const MAX_QUOTES = 8;
 const SKELETON_COUNT = 2;
 // Tarjeta ancha para que una cita siga siendo legible: ≈ 85 % en móvil y
 // 340px (entre 320 y 360) desde tablet, con la siguiente asomando.

@@ -73,7 +73,7 @@ describe("Given the home page", () => {
   describe("When the user has books, quotes and stats", () => {
     it("Then it shows the recent books, the latest quotes and the three figures", async () => {
       mockBooks(12);
-      mockQuotes(7);
+      mockQuotes(9);
       mockStats();
 
       renderRoutes(routes, ["/home"]);
@@ -90,7 +90,7 @@ describe("Given the home page", () => {
       const quotes = await screen.findByRole("region", {
         name: "Últimas citas",
       });
-      expect(await within(quotes).findAllByRole("link")).toHaveLength(5);
+      expect(await within(quotes).findAllByRole("link")).toHaveLength(8);
 
       expect(await screen.findByText("Libros")).toBeInTheDocument();
       expect(await screen.findByText("12")).toBeInTheDocument();
