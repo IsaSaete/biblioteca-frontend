@@ -23,8 +23,11 @@ export type LibraryFilterSelection = Pick<
   "favorite" | "tag" | "untagged"
 >;
 
+// `tag` va explícito para que, al mezclarlo con los filtros actuales, también
+// quite la etiqueta.
 export const NO_FILTERS: LibraryFilterSelection = {
   favorite: false,
+  tag: undefined,
   untagged: false,
 };
 

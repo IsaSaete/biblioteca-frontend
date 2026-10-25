@@ -5,7 +5,6 @@ import Skeleton from "@mui/material/Skeleton";
 import { LibraryIcon } from "../../../../components/navigation/NavIcons";
 import { useOpenAddBookModal } from "../../../../components/navigation/useOpenAddBookModal";
 import Button from "../../../../components/ui/Button/Button";
-import Pill from "../../../../components/ui/Pill/Pill";
 import EmptyState from "../../../../components/ui/EmptyState/EmptyState";
 import InlineError from "../../../../components/ui/InlineError/InlineError";
 import { visuallyHidden } from "../../../../utils/visuallyHidden";
@@ -13,7 +12,9 @@ import { useGetBooksQuery } from "../../booksApi";
 import type { GetBooksParams } from "../../dto/GetBooksParams";
 import BookCard from "../../components/BookCard/BookCard";
 import BooksGrid from "../../components/BooksGrid/BooksGrid";
-import FiltersDialog from "../../components/FiltersDialog/FiltersDialog";
+import ActiveFilters from "../../components/ActiveFilters/ActiveFilters";
+import FiltersButton from "../../components/FiltersButton/FiltersButton";
+import FiltersSheet from "../../components/FiltersSheet/FiltersSheet";
 import SortSelector from "../../components/SortSelector/SortSelector";
 import {
   hasActiveFilters,
@@ -198,21 +199,6 @@ const LibraryGrid = ({
   return renderContent();
 };
 
-const FiltersDot = () => (
-  <Box
-    component="span"
-    aria-hidden="true"
-    sx={{
-      display: "inline-block",
-      width: 8,
-      height: 8,
-      ml: 2,
-      borderRadius: "50%",
-      bgcolor: "primary.main",
-    }}
-  />
-);
-
 // Biblioteca en grid de portadas (HU-09) con scroll infinito, estado vacío
 // (HU-14), y orden y filtros (HU-12, HU-13). Orden y filtros viven en la URL
 // (`?sort=&favorite=&tag=&untagged=`) para que volver desde una ficha, o llegar
@@ -223,10 +209,13 @@ const LibraryPage = () => {
   const filters = parseLibraryFilters(searchParams);
   const params = toBooksParams(filters);
   const isFiltered = hasActiveFilters(filters);
-  const { data } = useGetBooksQuery(params);
+  const { data, currentData } = useGetBooksQuery(params);
   // Con la biblioteca vacía no hay nada que ordenar ni filtrar.
   const hasToolbar =
     isFiltered || (data !== undefined && data.items.length > 0);
+  const total = currentData?.total;
+  const activeCount =
+    Number(filters.favorite) + Number(filters.untagged || Boolean(filters.tag));
 
   const update = (next: Partial<LibraryFilters>) =>
     setSearchParams(toSearchParams({ ...filters, ...next }), { replace: true });
@@ -237,30 +226,27 @@ const LibraryPage = () => {
         Biblioteca
       </Box>
       {hasToolbar && (
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 4 }}>
-          <Pill
-            tone="neutral"
-            outlined
-            hasPopup
-            label={
-              <>
-                Filtros
-                {isFiltered && <FiltersDot />}
-                {isFiltered && (
-                  <Box component="span" sx={visuallyHidden}>
-                    {" "}
-                    activos
-                  </Box>
-                )}
-              </>
-            }
-            onClick={() => setIsFiltersOpen(true)}
-          />
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 3,
+            mb: isFiltered ? 2 : 4,
+          }}
+        >
           <SortSelector
             value={filters.sort}
             onChange={(sort) => update({ sort })}
           />
+          <FiltersButton
+            activeCount={activeCount}
+            onClick={() => setIsFiltersOpen(true)}
+          />
         </Box>
+      )}
+      {isFiltered && (
+        <ActiveFilters selection={filters} total={total} onChange={update} />
       )}
       <LibraryGrid
         key={toSearchParams(filters).toString()}
@@ -268,16 +254,13 @@ const LibraryPage = () => {
         isFiltered={isFiltered}
         onClearFilters={() => update(NO_FILTERS)}
       />
-      {isFiltersOpen && (
-        <FiltersDialog
-          applied={filters}
-          onApply={(selection) => {
-            update(selection);
-            setIsFiltersOpen(false);
-          }}
-          onClose={() => setIsFiltersOpen(false)}
-        />
-      )}
+      <FiltersSheet
+        open={isFiltersOpen}
+        selection={filters}
+        total={total}
+        onChange={update}
+        onClose={() => setIsFiltersOpen(false)}
+      />
     </Box>
   );
 };
