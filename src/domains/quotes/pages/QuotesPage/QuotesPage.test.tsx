@@ -320,7 +320,7 @@ describe("Given the quotes page", () => {
 
       const { user } = renderRoutes(routes, ["/quotes"]);
       await user.click(
-        await screen.findByRole("button", { name: "+ Añadir cita" }),
+        await screen.findByRole("button", { name: "Añadir cita" }),
       );
       await user.type(
         await screen.findByLabelText("Buscar un libro"),
@@ -367,7 +367,7 @@ describe("Given the quotes page", () => {
 
       const { user } = renderRoutes(routes, ["/quotes"]);
       await user.click(
-        await screen.findByRole("button", { name: "+ Añadir cita" }),
+        await screen.findByRole("button", { name: "Añadir cita" }),
       );
       await user.click(
         await screen.findByRole("button", { name: "Cita sin libro" }),
@@ -389,6 +389,235 @@ describe("Given the quotes page", () => {
           origin: "manual",
         }),
       );
+    });
+  });
+
+  describe("When the user orders the quotes", () => {
+    const mockOrderedFeed = () => {
+      const sorts: (string | null)[] = [];
+      server.use(
+        http.get(`${baseUrl}/quotes/books`, () =>
+          HttpResponse.json({ items: quoteBooks, unlinkedCount: 0 }),
+        ),
+        http.get(`${baseUrl}/quotes`, ({ request }) => {
+          sorts.push(new URL(request.url).searchParams.get("sort"));
+          return HttpResponse.json({
+            items: [quote("q1", "La guerra es la paz")],
+            nextCursor: null,
+            total: 1,
+          });
+        }),
+      );
+      return sorts;
+    };
+
+    it("Then the chosen order goes to the URL and to the request", async () => {
+      const sorts = mockOrderedFeed();
+
+      const { user, router } = renderRoutes(routes, ["/quotes"]);
+
+      await user.click(
+        await screen.findByRole("button", {
+          name: "Ordenar por: Fecha: más recientes primero",
+        }),
+      );
+      await user.click(
+        await screen.findByRole("radio", {
+          name: "Fecha: más antiguas primero",
+        }),
+      );
+
+      expect(router.state.location.search).toBe("?sort=oldest");
+      await waitFor(() => expect(sorts).toContain("oldest"));
+      expect(
+        await screen.findByRole("button", {
+          name: "Ordenar por: Fecha: más antiguas primero",
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it("Then it can group them by book from Z to A", async () => {
+      const sorts = mockOrderedFeed();
+
+      const { user, router } = renderRoutes(routes, ["/quotes"]);
+
+      await user.click(
+        await screen.findByRole("button", {
+          name: "Ordenar por: Fecha: más recientes primero",
+        }),
+      );
+      await user.click(
+        await screen.findByRole("radio", { name: "Libro: de la Z a la A" }),
+      );
+
+      expect(router.state.location.search).toBe("?sort=book_desc");
+      await waitFor(() => expect(sorts).toContain("book_desc"));
+    });
+
+    it("Then it can group them by book", async () => {
+      const sorts = mockOrderedFeed();
+
+      const { user, router } = renderRoutes(routes, ["/quotes"]);
+
+      await user.click(
+        await screen.findByRole("button", {
+          name: "Ordenar por: Fecha: más recientes primero",
+        }),
+      );
+      await user.click(
+        await screen.findByRole("radio", { name: "Libro: de la A a la Z" }),
+      );
+
+      expect(router.state.location.search).toBe("?sort=book");
+      await waitFor(() => expect(sorts).toContain("book"));
+    });
+
+    it("Then the book order is not offered once a book is chosen", async () => {
+      mockOrderedFeed();
+
+      const { user } = renderRoutes(routes, ["/quotes?bookId=book-1"]);
+
+      await user.click(
+        await screen.findByRole("button", {
+          name: "Ordenar por: Fecha: más recientes primero",
+        }),
+      );
+
+      expect(
+        await screen.findByRole("radio", {
+          name: "Fecha: más antiguas primero",
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("radio", { name: "Libro: de la A a la Z" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("Then ordering by book puts a heading before each book and keeps the source of loose quotes", async () => {
+      server.use(
+        http.get(`${baseUrl}/quotes/books`, () =>
+          HttpResponse.json({ items: quoteBooks, unlinkedCount: 1 }),
+        ),
+        http.get(`${baseUrl}/quotes`, () =>
+          HttpResponse.json({
+            items: [
+              quote("q1", "La guerra es la paz"),
+              quote("q2", "Siempre hemos estado en guerra"),
+              quote(
+                "q3",
+                "Lo esencial es invisible",
+                "book-2",
+                "El principito",
+              ),
+              {
+                id: "q4",
+                text: "Cita suelta",
+                source: "Paper de Historia",
+                createdAt: "2026-10-22T10:00:00.000Z",
+              },
+            ],
+            nextCursor: null,
+            total: 4,
+          }),
+        ),
+      );
+
+      renderRoutes(routes, ["/quotes?sort=book"]);
+
+      const headings = await screen.findAllByRole("heading", { level: 3 });
+      expect(headings.map((heading) => heading.textContent)).toEqual([
+        "1984",
+        "El principito",
+        "Sin libro",
+      ]);
+      expect(screen.getByText("Paper de Historia")).toBeInTheDocument();
+    });
+
+    it("Then the order is kept when a book is chosen, except grouping by book", async () => {
+      mockOrderedFeed();
+
+      const { user, router } = renderRoutes(routes, ["/quotes?sort=oldest"]);
+      await user.click(
+        await screen.findByRole("button", { name: /Todos los libros/ }),
+      );
+      const sheet = await screen.findByRole("dialog", {
+        name: "Filtrar por libro",
+      });
+      await user.click(within(sheet).getByRole("button", { name: /1984/ }));
+
+      const params = new URLSearchParams(router.state.location.search);
+      expect(params.get("bookId")).toBe("book-1");
+      expect(params.get("sort")).toBe("oldest");
+    });
+
+    it("Then grouping by book is dropped when a book is chosen", async () => {
+      mockOrderedFeed();
+
+      const { user, router } = renderRoutes(routes, ["/quotes?sort=book"]);
+      await user.click(
+        await screen.findByRole("button", { name: /Todos los libros/ }),
+      );
+      const sheet = await screen.findByRole("dialog", {
+        name: "Filtrar por libro",
+      });
+      await user.click(within(sheet).getByRole("button", { name: /1984/ }));
+
+      expect(router.state.location.search).toBe("?bookId=book-1");
+    });
+  });
+
+  describe("When the user has no quotes", () => {
+    it("Then there is nothing to order", async () => {
+      server.use(
+        http.get(`${baseUrl}/quotes/books`, () =>
+          HttpResponse.json({ items: [], unlinkedCount: 0 }),
+        ),
+        http.get(`${baseUrl}/quotes`, () =>
+          HttpResponse.json({ items: [], nextCursor: null, total: 0 }),
+        ),
+      );
+
+      renderRoutes(routes, ["/quotes"]);
+
+      await screen.findByText("Todavía no tienes citas");
+      expect(
+        screen.queryByRole("button", { name: /^Ordenar por/ }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("When the user has quotes", () => {
+    const mockCounts = () =>
+      server.use(
+        http.get(`${baseUrl}/quotes/books`, () =>
+          HttpResponse.json({ items: quoteBooks, unlinkedCount: 0 }),
+        ),
+        http.get(`${baseUrl}/quotes`, ({ request }) => {
+          const filtered = new URL(request.url).searchParams.has("bookId");
+          return HttpResponse.json({
+            items: [quote("q1", "La guerra es la paz")],
+            nextCursor: null,
+            total: filtered ? 3 : 34,
+          });
+        }),
+      );
+
+    it("Then the header counts the quotes and the books", async () => {
+      mockCounts();
+
+      renderRoutes(routes, ["/quotes"]);
+
+      expect(
+        await screen.findByText("34 citas · 2 libros"),
+      ).toBeInTheDocument();
+    });
+
+    it("Then, with a book chosen, it only counts that book's quotes", async () => {
+      mockCounts();
+
+      renderRoutes(routes, ["/quotes?bookId=book-1"]);
+
+      expect(await screen.findByText("3 citas")).toBeInTheDocument();
     });
   });
 });

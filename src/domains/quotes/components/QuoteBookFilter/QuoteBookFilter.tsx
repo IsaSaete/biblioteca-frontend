@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import BottomSheet from "../../../../components/ui/BottomSheet/BottomSheet";
 import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
-import Pill from "../../../../components/ui/Pill/Pill";
+import ToolbarButton from "../../../../components/ui/ToolbarButton/ToolbarButton";
 import SheetOption from "../../../../components/ui/SheetOption/SheetOption";
 import { normalizeText } from "../../../../utils/normalizeText";
 import type { QuoteBook } from "../../dto/QuoteBook";
@@ -61,14 +61,9 @@ const QuoteBookFilter = ({
 
   return (
     <>
-      <Pill
-        tone="neutral"
-        outlined
-        hasPopup
-        endIcon="chevron-down"
-        label={isUnlinkedSelected ? NO_BOOK : (selected?.title ?? ALL_BOOKS)}
-        onClick={() => setIsOpen(true)}
-      />
+      <ToolbarButton hasChevron onClick={() => setIsOpen(true)}>
+        {isUnlinkedSelected ? NO_BOOK : (selected?.title ?? ALL_BOOKS)}
+      </ToolbarButton>
       <BottomSheet open={isOpen} title="Filtrar por libro" onClose={close}>
         <Box sx={{ display: "grid", gap: 3, mt: 3 }}>
           <FloatingLabelInput

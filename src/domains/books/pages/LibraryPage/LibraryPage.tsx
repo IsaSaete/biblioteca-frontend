@@ -5,9 +5,12 @@ import Skeleton from "@mui/material/Skeleton";
 import { LibraryIcon } from "../../../../components/navigation/NavIcons";
 import { useOpenAddBookModal } from "../../../../components/navigation/useOpenAddBookModal";
 import Button from "../../../../components/ui/Button/Button";
+import ListToolbar from "../../../../components/ui/ListToolbar/ListToolbar";
+import PageHeader from "../../../../components/ui/PageHeader/PageHeader";
+import SortSelector from "../../../../components/ui/SortSelector/SortSelector";
 import EmptyState from "../../../../components/ui/EmptyState/EmptyState";
 import InlineError from "../../../../components/ui/InlineError/InlineError";
-import { visuallyHidden } from "../../../../utils/visuallyHidden";
+import { formatCount } from "../../../../utils/formatCount";
 import { useGetBooksQuery } from "../../booksApi";
 import type { GetBooksParams } from "../../dto/GetBooksParams";
 import BookCard from "../../components/BookCard/BookCard";
@@ -15,11 +18,11 @@ import BooksGrid from "../../components/BooksGrid/BooksGrid";
 import ActiveFilters from "../../components/ActiveFilters/ActiveFilters";
 import FiltersButton from "../../components/FiltersButton/FiltersButton";
 import FiltersSheet from "../../components/FiltersSheet/FiltersSheet";
-import SortSelector from "../../components/SortSelector/SortSelector";
 import {
   hasActiveFilters,
   NO_FILTERS,
   parseLibraryFilters,
+  sortOptions,
   toBooksParams,
   toSearchParams,
 } from "../../utils/libraryFilters";
@@ -221,33 +224,33 @@ const LibraryPage = () => {
     setSearchParams(toSearchParams({ ...filters, ...next }), { replace: true });
 
   return (
-    <Box component="main" sx={{ maxWidth: 960, mx: "auto", p: 4 }}>
-      <Box component="h1" sx={visuallyHidden}>
-        Biblioteca
-      </Box>
+    <Box component="main" sx={{ maxWidth: 960, mx: "auto", p: 4, pt: 8 }}>
+      <PageHeader
+        title="Biblioteca"
+        meta={
+          total === undefined
+            ? undefined
+            : formatCount(total, "libro", "libros")
+        }
+      />
       {hasToolbar && (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 3,
-            mb: isFiltered ? 2 : 4,
-          }}
-        >
-          <SortSelector
-            value={filters.sort}
-            onChange={(sort) => update({ sort })}
-          />
-          <FiltersButton
-            activeCount={activeCount}
-            onClick={() => setIsFiltersOpen(true)}
-          />
-        </Box>
+        <ListToolbar
+          start={
+            <FiltersButton
+              activeCount={activeCount}
+              onClick={() => setIsFiltersOpen(true)}
+            />
+          }
+          end={
+            <SortSelector
+              options={sortOptions}
+              value={filters.sort}
+              onChange={(sort) => update({ sort })}
+            />
+          }
+        />
       )}
-      {isFiltered && (
-        <ActiveFilters selection={filters} total={total} onChange={update} />
-      )}
+      {isFiltered && <ActiveFilters selection={filters} onChange={update} />}
       <LibraryGrid
         key={toSearchParams(filters).toString()}
         params={params}

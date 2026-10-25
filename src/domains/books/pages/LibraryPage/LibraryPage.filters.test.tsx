@@ -81,6 +81,16 @@ describe("Given the library page with order and filters", () => {
     });
   });
 
+  describe("When the library has books", () => {
+    it("Then the header counts them", async () => {
+      mockLibrary();
+
+      renderRoutes(routes, ["/library"]);
+
+      expect(await screen.findByText("3 libros")).toBeInTheDocument();
+    });
+  });
+
   describe("When the user picks the alphabetical order", () => {
     it("Then the order goes to the URL and to the request", async () => {
       const requests = mockLibrary();
@@ -88,10 +98,12 @@ describe("Given the library page with order and filters", () => {
       const { user, router } = renderRoutes(routes, ["/library"]);
 
       await user.click(
-        await screen.findByRole("button", { name: "Ordenar por: Añadidos" }),
+        await screen.findByRole("button", {
+          name: "Ordenar por: Fecha: más recientes primero",
+        }),
       );
       await user.click(
-        await screen.findByRole("radio", { name: "Alfabético" }),
+        await screen.findByRole("radio", { name: "Título: de la A a la Z" }),
       );
 
       expect(router.state.location.search).toBe("?sort=alpha");
@@ -99,8 +111,33 @@ describe("Given the library page with order and filters", () => {
         expect(requests.some((p) => p.get("sort") === "alpha")).toBe(true),
       );
       expect(
-        await screen.findByRole("button", { name: "Ordenar por: Alfabético" }),
+        await screen.findByRole("button", {
+          name: "Ordenar por: Título: de la A a la Z",
+        }),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the user picks the other orders", () => {
+    it.each([
+      ["Fecha: más antiguas primero", "oldest"],
+      ["Título: de la Z a la A", "alpha_desc"],
+    ])("Then «%s» sends sort=%s", async (label, sort) => {
+      const requests = mockLibrary();
+
+      const { user, router } = renderRoutes(routes, ["/library"]);
+
+      await user.click(
+        await screen.findByRole("button", {
+          name: "Ordenar por: Fecha: más recientes primero",
+        }),
+      );
+      await user.click(await screen.findByRole("radio", { name: label }));
+
+      expect(router.state.location.search).toBe(`?sort=${sort}`);
+      await waitFor(() =>
+        expect(requests.some((p) => p.get("sort") === sort)).toBe(true),
+      );
     });
   });
 

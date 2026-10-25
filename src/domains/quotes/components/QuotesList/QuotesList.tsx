@@ -1,11 +1,95 @@
-import { useCallback, useState } from "react";
+import { Fragment, useCallback, useState } from "react";
 import type { ReactNode } from "react";
 import Box from "@mui/material/Box";
 import Skeleton from "@mui/material/Skeleton";
+import Typography from "@mui/material/Typography";
 import InlineError from "../../../../components/ui/InlineError/InlineError";
 import { useOnVisible } from "../../../../hooks/useOnVisible";
 import { useGetQuotesQuery } from "../../quotesApi";
+import type { QuotesSort } from "../../dto/GetQuotesParams";
+import type { Quote } from "../../dto/Quote";
+import { isGroupedByBook } from "../../utils/quotesSort";
 import QuoteCard from "../QuoteCard/QuoteCard";
+
+// Una columna en móvil, dos en tablet y tres en escritorio, sin saltos de
+// breakpoint: caben tantas columnas de 280px como permita el ancho.
+const gridSx = {
+  m: 0,
+  p: 0,
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+  gap: 3,
+} as const;
+
+const getGroupKey = (quote: Quote): string => quote.book?.id ?? "none";
+
+// Cabecera de un grupo al ordenar por libro: título y autores, o «Sin libro».
+const QuoteGroupHeading = ({
+  quote,
+  isFirst,
+}: {
+  quote: Quote;
+  isFirst: boolean;
+}) => (
+  <Box
+    component="li"
+    sx={{ listStyle: "none", gridColumn: "1 / -1", mt: isFirst ? 0 : 3 }}
+  >
+    <Typography component="h3" sx={{ fontWeight: 500 }}>
+      {quote.book?.title ?? "Sin libro"}
+    </Typography>
+    {quote.book && (
+      <Typography color="text.secondary" sx={{ fontSize: "0.875rem" }}>
+        {quote.book.authors.join(", ")}
+      </Typography>
+    )}
+  </Box>
+);
+
+interface QuoteItemsProps {
+  items: Quote[];
+  showBook: boolean;
+  // Con orden por libro, una cabecera por libro; el pie de cada tarjeta ya no
+  // repite el título (salvo en las citas sin libro, que muestran su fuente).
+  grouped: boolean;
+  isFirstChunk: boolean;
+}
+
+const QuoteItems = ({
+  items,
+  showBook,
+  grouped,
+  isFirstChunk,
+}: QuoteItemsProps) => (
+  <>
+    {items.map((quote, index) => {
+      const previous = items[index - 1];
+      // Cada tanda empieza con su cabecera: así, si un libro continúa en la
+      // siguiente, se sabe de cuál es.
+      const startsGroup =
+        grouped && (!previous || getGroupKey(previous) !== getGroupKey(quote));
+
+      return (
+        <Fragment key={quote.id}>
+          {startsGroup && (
+            <QuoteGroupHeading
+              quote={quote}
+              isFirst={isFirstChunk && index === 0}
+            />
+          )}
+          <Box component="li" sx={{ listStyle: "none", display: "flex" }}>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <QuoteCard
+                quote={quote}
+                showBook={grouped ? !quote.book : showBook}
+              />
+            </Box>
+          </Box>
+        </Fragment>
+      );
+    })}
+  </>
+);
 
 const LoadMoreSentinel = ({ onVisible }: { onVisible: () => void }) => {
   const ref = useOnVisible(onVisible);
@@ -28,6 +112,7 @@ interface QuotesListProps {
   bookId?: string;
   // Solo las citas sin libro (no se combina con `bookId`).
   unlinked?: boolean;
+  sort?: QuotesSort;
   showBook: boolean;
   // Qué mostrar si no hay ninguna cita.
   empty: ReactNode;
@@ -36,6 +121,7 @@ interface QuotesListProps {
 interface QuotesChunkProps {
   bookId?: string;
   unlinked?: boolean;
+  sort?: QuotesSort;
   showBook: boolean;
   cursor: string;
   isLast: boolean;
@@ -48,6 +134,7 @@ interface QuotesChunkProps {
 const QuotesChunk = ({
   bookId,
   unlinked,
+  sort,
   showBook,
   cursor,
   isLast,
@@ -56,6 +143,7 @@ const QuotesChunk = ({
   const { data, isFetching, isError, refetch } = useGetQuotesQuery({
     bookId,
     unlinked,
+    sort,
     cursor,
   });
 
@@ -78,11 +166,12 @@ const QuotesChunk = ({
 
   return (
     <>
-      {data.items.map((quote) => (
-        <Box component="li" key={quote.id} sx={{ listStyle: "none" }}>
-          <QuoteCard quote={quote} showBook={showBook} />
-        </Box>
-      ))}
+      <QuoteItems
+        items={data.items}
+        showBook={showBook}
+        grouped={sort !== undefined && isGroupedByBook(sort)}
+        isFirstChunk={false}
+      />
       {isFetching && <LoadingQuotes count={2} />}
       {isLast && nextCursor && (
         <LoadMoreSentinel onVisible={() => onLoadMore(nextCursor)} />
@@ -91,12 +180,21 @@ const QuotesChunk = ({
   );
 };
 
-// Citas de la más reciente a la más antigua con scroll infinito, para el feed
-// y para las citas de un libro.
-const QuotesList = ({ bookId, unlinked, showBook, empty }: QuotesListProps) => {
+// Citas con scroll infinito (por defecto, de la más reciente a la más antigua),
+// para el feed y para las citas de un libro. Hay que volver a montarla cuando
+// cambian el filtro o el orden (`key`): un cursor solo vale para el orden con el
+// que se pidió.
+const QuotesList = ({
+  bookId,
+  unlinked,
+  sort,
+  showBook,
+  empty,
+}: QuotesListProps) => {
   const { data, isLoading, isError, refetch } = useGetQuotesQuery({
     bookId,
     unlinked,
+    sort,
   });
   const [moreCursors, setMoreCursors] = useState<string[]>([]);
 
@@ -114,7 +212,7 @@ const QuotesList = ({ bookId, unlinked, showBook, empty }: QuotesListProps) => {
         component="ul"
         role="status"
         aria-label="Cargando las citas"
-        sx={{ m: 0, p: 0, display: "grid", gap: 3 }}
+        sx={gridSx}
       >
         <LoadingQuotes count={3} />
       </Box>
@@ -135,16 +233,13 @@ const QuotesList = ({ bookId, unlinked, showBook, empty }: QuotesListProps) => {
   }
 
   return (
-    <Box
-      component="ul"
-      aria-label="Citas"
-      sx={{ m: 0, p: 0, display: "grid", gap: 3 }}
-    >
-      {data.items.map((quote) => (
-        <Box component="li" key={quote.id} sx={{ listStyle: "none" }}>
-          <QuoteCard quote={quote} showBook={showBook} />
-        </Box>
-      ))}
+    <Box component="ul" aria-label="Citas" sx={gridSx}>
+      <QuoteItems
+        items={data.items}
+        showBook={showBook}
+        grouped={sort !== undefined && isGroupedByBook(sort)}
+        isFirstChunk
+      />
       {moreCursors.length === 0 && data.nextCursor && (
         <LoadMoreSentinel onVisible={() => loadMore(data.nextCursor ?? "")} />
       )}
@@ -153,6 +248,7 @@ const QuotesList = ({ bookId, unlinked, showBook, empty }: QuotesListProps) => {
           key={cursor}
           bookId={bookId}
           unlinked={unlinked}
+          sort={sort}
           showBook={showBook}
           cursor={cursor}
           isLast={index === moreCursors.length - 1}
