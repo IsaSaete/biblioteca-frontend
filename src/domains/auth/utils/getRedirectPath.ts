@@ -1,4 +1,4 @@
-const DEFAULT_PATH = "/library";
+const DEFAULT_PATH = "/home";
 
 // Destino tras iniciar sesión: la ruta que el usuario intentó abrir, solo si
 // es una ruta interna (nunca una URL externa).

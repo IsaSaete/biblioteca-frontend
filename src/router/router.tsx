@@ -4,6 +4,7 @@ import LoginPage from "../domains/auth/pages/LoginPage/LoginPage";
 import ForgotPasswordPage from "../domains/auth/pages/ForgotPasswordPage/ForgotPasswordPage";
 import RegisterPage from "../domains/auth/pages/RegisterPage/RegisterPage";
 import ResetPasswordPage from "../domains/auth/pages/ResetPasswordPage/ResetPasswordPage";
+import HomePage from "../domains/home/pages/HomePage/HomePage";
 import LibraryPage from "../domains/books/pages/LibraryPage/LibraryPage";
 import QuotesPage from "../domains/quotes/pages/QuotesPage/QuotesPage";
 import ProfilePage from "../domains/profile/pages/ProfilePage/ProfilePage";
@@ -12,7 +13,7 @@ import RequireAuth from "./RequireAuth/RequireAuth";
 // Login y registro son las páginas de entrada y van en el bundle principal; el
 // resto de rutas públicas se descarga solo cuando se visita.
 export const routes = [
-  { path: "/", element: <Navigate to="/library" replace /> },
+  { path: "/", element: <Navigate to="/home" replace /> },
   { path: "/login", element: <LoginPage /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/forgot-password", element: <ForgotPasswordPage /> },
@@ -66,6 +67,7 @@ export const routes = [
       {
         element: <AppLayout />,
         children: [
+          { path: "/home", element: <HomePage /> },
           { path: "/library", element: <LibraryPage /> },
           { path: "/quotes", element: <QuotesPage /> },
           {

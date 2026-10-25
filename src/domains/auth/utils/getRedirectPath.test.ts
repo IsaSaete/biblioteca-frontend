@@ -12,24 +12,24 @@ describe("Given the navigation state after a redirect to login", () => {
   });
 
   describe("When there is no state", () => {
-    it("Then the library is returned", () => {
+    it("Then the home screen is returned", () => {
       const state = null;
 
       const result = getRedirectPath(state);
 
-      expect(result).toBe("/library");
+      expect(result).toBe("/home");
     });
   });
 
   describe("When the path points to another site", () => {
     it.each(["https://evil.example", "//evil.example"])(
-      "Then the library is returned for %s",
+      "Then the home screen is returned for %s",
       (from) => {
         const state = { from };
 
         const result = getRedirectPath(state);
 
-        expect(result).toBe("/library");
+        expect(result).toBe("/home");
       },
     );
   });

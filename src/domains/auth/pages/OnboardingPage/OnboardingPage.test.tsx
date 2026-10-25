@@ -39,7 +39,7 @@ const renderPage = () =>
   renderRoutes(
     [
       { path: "/onboarding", element: <OnboardingPage /> },
-      { path: "/library", element: <p>Biblioteca</p> },
+      { path: "/home", element: <p>Inicio</p> },
     ],
     ["/onboarding"],
   );
@@ -136,14 +136,14 @@ describe("Given the onboarding page", () => {
   });
 
   describe("When the user skips from the first step", () => {
-    it("Then the onboarding is marked as seen and the user goes to the library", async () => {
+    it("Then the onboarding is marked as seen and the user goes to the home screen", async () => {
       useSession(false);
       const calls = trackCompletion();
       const { user } = renderPage();
 
       await user.click(screen.getByRole("button", { name: "Saltar" }));
 
-      expect(await screen.findByText("Biblioteca")).toBeInTheDocument();
+      expect(await screen.findByText("Inicio")).toBeInTheDocument();
       expect(calls.count).toBe(1);
       expect(calls.csrfHeader).toBe("csrf-123");
     });
@@ -159,7 +159,7 @@ describe("Given the onboarding page", () => {
 
       await user.click(screen.getByRole("button", { name: "Empezar" }));
 
-      expect(await screen.findByText("Biblioteca")).toBeInTheDocument();
+      expect(await screen.findByText("Inicio")).toBeInTheDocument();
       expect(calls.count).toBe(1);
     });
   });
@@ -172,17 +172,17 @@ describe("Given the onboarding page", () => {
 
       await user.click(screen.getByRole("button", { name: "Saltar" }));
 
-      expect(await screen.findByText("Biblioteca")).toBeInTheDocument();
+      expect(await screen.findByText("Inicio")).toBeInTheDocument();
     });
   });
 
   describe("When the account has already seen the onboarding", () => {
-    it("Then the user is sent to the library", async () => {
+    it("Then the user is sent to the home screen", async () => {
       useSession(true);
 
       renderPage();
 
-      expect(await screen.findByText("Biblioteca")).toBeInTheDocument();
+      expect(await screen.findByText("Inicio")).toBeInTheDocument();
     });
   });
 });

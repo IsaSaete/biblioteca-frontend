@@ -50,7 +50,7 @@ const ScanIcon = () => (
     aria-hidden="true"
   >
     <path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" />
-    <path d="M7 12h10" />
+    <path d="M8 9v6M11 9v6M13.5 9v6M16 9v6" />
   </svg>
 );
 
@@ -187,9 +187,9 @@ const TopBar = () => {
             width: BAR_HEIGHT,
             height: BAR_HEIGHT,
             flexShrink: 0,
-            color: "primary.main",
-            border: 1,
-            borderColor: "primary.main",
+            bgcolor: "secondary.main",
+            color: "secondary.contrastText",
+            "&:hover": { bgcolor: "secondary.main", opacity: 0.85 },
           }}
         >
           <ScanIcon />

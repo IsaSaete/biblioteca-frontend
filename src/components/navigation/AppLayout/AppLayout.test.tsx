@@ -104,7 +104,7 @@ describe("Given the layout of the screens with a session", () => {
         within(screen.getByRole("navigation", { name: "Navegación principal" }))
           .getAllByRole("link")
           .map((link) => link.textContent),
-      ).toEqual(["Biblioteca", "Citas", "Perfil"]);
+      ).toEqual(["Inicio", "Biblioteca", "Citas", "Perfil"]);
     });
   });
 

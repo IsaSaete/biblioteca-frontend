@@ -20,6 +20,14 @@ const NavIcon = ({ children }: NavIconProps) => (
   </svg>
 );
 
+export const HomeIcon = () => (
+  <NavIcon>
+    <path d="M3 11l9-8 9 8" />
+    <path d="M5 10v10h14V10" />
+    <path d="M10 20v-6h4v6" />
+  </NavIcon>
+);
+
 export const LibraryIcon = () => (
   <NavIcon>
     <path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z" />

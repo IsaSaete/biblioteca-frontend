@@ -19,7 +19,7 @@ const VerifyEmailPage = () => {
     { skip: !token },
   );
 
-  const goToApp = () => void navigate("/library");
+  const goToApp = () => void navigate("/home");
 
   if (isLoading) {
     return (
