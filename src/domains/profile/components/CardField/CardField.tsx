@@ -1,6 +1,7 @@
-import { useId } from "react";
+import { useId, useState } from "react";
 import type { ComponentProps } from "react";
 import Box from "@mui/material/Box";
+import ButtonBase from "@mui/material/ButtonBase";
 import InputBase from "@mui/material/InputBase";
 import Typography from "@mui/material/Typography";
 
@@ -9,7 +10,7 @@ type CardFieldProps = Omit<ComponentProps<typeof InputBase>, "error"> & {
   // Mensaje de error del campo; si lo hay, se asocia al campo para los lectores
   // de pantalla.
   error?: string;
-  type?: "text" | "email";
+  type?: "text" | "email" | "password";
   // Lápiz al final del campo: avisa de que el valor se edita aquí mismo, sin
   // abrir otra pantalla (las filas con chevron sí la abren).
   showEditIcon?: boolean;
@@ -43,6 +44,8 @@ const CardField = ({
 }: CardFieldProps) => {
   const id = useId();
   const errorId = `${id}-error`;
+  const [isRevealed, setIsRevealed] = useState(false);
+  const isPassword = type === "password";
 
   return (
     <Box sx={{ px: 4, py: 3 }}>
@@ -57,7 +60,7 @@ const CardField = ({
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
         <InputBase
           id={id}
-          type={type}
+          type={isPassword && isRevealed ? "text" : type}
           fullWidth
           error={!!error}
           inputProps={{
@@ -77,6 +80,26 @@ const CardField = ({
           >
             <PencilIcon />
           </Box>
+        )}
+        {isPassword && (
+          <ButtonBase
+            aria-label={
+              isRevealed ? "Ocultar contraseña" : "Mostrar contraseña"
+            }
+            aria-pressed={isRevealed}
+            onClick={() => setIsRevealed((revealed) => !revealed)}
+            sx={{
+              minWidth: 44,
+              minHeight: 44,
+              mr: -2,
+              borderRadius: 2,
+              fontSize: "0.875rem",
+              fontWeight: 500,
+              color: "text.secondary",
+            }}
+          >
+            {isRevealed ? "Ocultar" : "Mostrar"}
+          </ButtonBase>
         )}
       </Box>
       {error && (

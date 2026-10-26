@@ -2,6 +2,7 @@ import { screen } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { renderRoutes } from "../../../../test/renderRoutes";
 import { server } from "../../../../test/server";
+import ChangePasswordPage from "../ChangePasswordPage/ChangePasswordPage";
 import ProfilePage from "../ProfilePage/ProfilePage";
 import EditProfilePage from "./EditProfilePage";
 
@@ -9,6 +10,7 @@ const baseUrl = import.meta.env.VITE_API_URL ?? "";
 const routes = [
   { path: "/profile", element: <ProfilePage /> },
   { path: "/profile/edit", element: <EditProfilePage /> },
+  { path: "/profile/edit/password", element: <ChangePasswordPage /> },
 ];
 
 const user = {
@@ -148,6 +150,20 @@ describe("Given the edit profile screen", () => {
       await typist.click(screen.getByRole("button", { name: "Guardar" }));
 
       expect(await screen.findByRole("alert")).toHaveTextContent("Algo falló");
+    });
+  });
+
+  describe("When the user opens the password row", () => {
+    it("Then it has its own screen and going back returns to the edit screen", async () => {
+      const typist = await renderEditPage();
+      await typist.click(screen.getByRole("button", { name: "Contraseña" }));
+      await screen.findByRole("heading", { name: "Cambiar contraseña" });
+
+      await typist.click(screen.getByRole("button", { name: "Volver" }));
+
+      expect(
+        await screen.findByRole("heading", { name: "Editar perfil" }),
+      ).toBeInTheDocument();
     });
   });
 });

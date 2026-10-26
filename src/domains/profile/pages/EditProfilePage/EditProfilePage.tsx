@@ -11,6 +11,7 @@ import { parseApiError } from "../../../auth/utils/parseApiError";
 import CardField from "../../components/CardField/CardField";
 import EditScreen from "../../components/EditScreen/EditScreen";
 import SettingsGroup from "../../components/SettingsGroup/SettingsGroup";
+import SettingsRow from "../../components/SettingsRow/SettingsRow";
 import { editNameSchema } from "./editNameSchema";
 import type { EditNameFormValues } from "./editNameSchema";
 
@@ -83,6 +84,12 @@ const EditProfileForm = ({ currentName }: EditProfileFormProps) => {
           {...field("name")}
         />
       </SettingsGroup>
+      <SettingsGroup title="Acceso">
+        <SettingsRow
+          label="Contraseña"
+          onClick={() => void navigate("/profile/edit/password")}
+        />
+      </SettingsGroup>
       <Button type="submit" fullWidth disabled={isLoading || !hasChanged}>
         {isLoading ? "Guardando…" : "Guardar"}
       </Button>
@@ -90,8 +97,8 @@ const EditProfileForm = ({ currentName }: EditProfileFormProps) => {
   );
 };
 
-// Editar el perfil (HU-36): por ahora el nombre. El email y la contraseña, que
-// piden la contraseña actual, tendrán su propia pantalla.
+// Editar el perfil (HU-36): el nombre se cambia aquí; la contraseña, que pide la
+// actual, tiene su propia pantalla.
 const EditProfilePage = () => {
   const { data } = useMeQuery();
 

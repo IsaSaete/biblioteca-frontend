@@ -64,12 +64,20 @@ export const routes = [
           ).default,
         }),
       },
-      // Editar perfil: pantalla de detalle, sin barra inferior.
+      // Editar perfil y sus pasos: pantallas de detalle, sin barra inferior.
       {
         path: "/profile/edit",
         lazy: async () => ({
           Component: (
             await import("../domains/profile/pages/EditProfilePage/EditProfilePage")
+          ).default,
+        }),
+      },
+      {
+        path: "/profile/edit/password",
+        lazy: async () => ({
+          Component: (
+            await import("../domains/profile/pages/ChangePasswordPage/ChangePasswordPage")
           ).default,
         }),
       },
