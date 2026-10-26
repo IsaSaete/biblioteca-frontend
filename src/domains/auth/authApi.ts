@@ -6,6 +6,7 @@ import type { RegisterRequest } from "./dto/RegisterRequest";
 import type { RegisterResponse } from "./dto/RegisterResponse";
 import type { ResetPasswordRequest } from "./dto/ResetPasswordRequest";
 import type { SessionResponse } from "./dto/SessionResponse";
+import type { UpdateProfileRequest } from "./dto/UpdateProfileRequest";
 import type { UpdatePreferencesRequest } from "./dto/UpdatePreferencesRequest";
 import type { UserPreferences } from "./dto/UserPreferences";
 
@@ -82,6 +83,23 @@ export const authApi = createApi({
         }
       },
     }),
+    // Cambia el nombre de la cuenta. La sesión en caché toma el usuario que
+    // devuelve el servidor, sin pedir `/auth/me` otra vez.
+    updateProfile: builder.mutation<SessionResponse, UpdateProfileRequest>({
+      query: (body) => ({ url: "/auth/me", method: "PATCH", body }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(
+            authApi.util.updateQueryData("me", undefined, (session) => {
+              session.user = { ...session.user, ...data.user };
+            }),
+          );
+        } catch {
+          // El formulario enseña el error; la sesión sigue como estaba.
+        }
+      },
+    }),
     // La caché se vacía al entrar en el login (ver LoginPage): vaciarla con la
     // página anterior montada hace que `useMeQuery` vuelva a pedir /auth/me al
     // instante, sin sesión.
@@ -99,6 +117,7 @@ export const {
   useVerifyEmailQuery,
   useCompleteOnboardingMutation,
   useUpdatePreferencesMutation,
+  useUpdateProfileMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
 } = authApi;

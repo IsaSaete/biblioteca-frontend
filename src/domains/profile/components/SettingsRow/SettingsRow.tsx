@@ -55,13 +55,15 @@ const SettingsRow = ({
       ...(Array.isArray(sx) ? sx : [sx]),
     ]}
   >
-    <Typography>{label}</Typography>
+    <Typography sx={{ flexShrink: 0 }}>{label}</Typography>
     <Typography
       component="span"
       color="text.secondary"
-      sx={{ display: "flex", alignItems: "center", gap: 1 }}
+      sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}
     >
-      {value}
+      <Typography component="span" noWrap color="inherit">
+        {value}
+      </Typography>
       {endIcon ?? <Chevron />}
     </Typography>
   </ButtonBase>
