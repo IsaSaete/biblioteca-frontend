@@ -58,6 +58,16 @@ describe("Given the login page", () => {
     });
   });
 
+  describe("When the user comes from deleting the account", () => {
+    it("Then a confirmation message is shown", () => {
+      renderPage({ pathname: "/login", state: { accountDeleted: true } });
+
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Tu cuenta y tus datos se han eliminado",
+      );
+    });
+  });
+
   describe("When the user submits an empty form", () => {
     it("Then both fields show an error and no request is sent", async () => {
       let requestSent = false;
