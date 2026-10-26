@@ -16,6 +16,8 @@ interface SettingsRowProps extends Omit<ButtonBaseProps, "children" | "href"> {
   // Una acción (Cerrar sesión) va centrada y sin chevron: sin destino a la
   // derecha, una etiqueta a la izquierda parecería una fila sin terminar.
   isAction?: boolean;
+  // Una acción destructiva (Eliminar cuenta) va en el color de peligro.
+  isDanger?: boolean;
 }
 
 const Chevron = () => (
@@ -42,6 +44,7 @@ const SettingsRow = ({
   to,
   endIcon,
   isAction = false,
+  isDanger = false,
   sx,
   ...props
 }: SettingsRowProps) => (
@@ -63,7 +66,7 @@ const SettingsRow = ({
     <Typography
       sx={{
         flexShrink: 0,
-        ...(isAction && { color: "primary.main" }),
+        ...(isAction && { color: isDanger ? "error.main" : "primary.main" }),
       }}
     >
       {label}

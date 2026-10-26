@@ -98,6 +98,14 @@ export const routes = [
         }),
       },
       {
+        path: "/profile/delete-account",
+        lazy: async () => ({
+          Component: (
+            await import("../domains/profile/pages/DeleteAccountPage/DeleteAccountPage")
+          ).default,
+        }),
+      },
+      {
         element: <AppLayout />,
         children: [
           { path: "/home", element: <HomePage /> },
