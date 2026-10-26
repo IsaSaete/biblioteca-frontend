@@ -6,6 +6,7 @@ import type { RegisterRequest } from "./dto/RegisterRequest";
 import type { RegisterResponse } from "./dto/RegisterResponse";
 import type { ResetPasswordRequest } from "./dto/ResetPasswordRequest";
 import type { SessionResponse } from "./dto/SessionResponse";
+import type { ChangePasswordRequest } from "./dto/ChangePasswordRequest";
 import type { UpdateProfileRequest } from "./dto/UpdateProfileRequest";
 import type { UpdatePreferencesRequest } from "./dto/UpdatePreferencesRequest";
 import type { UserPreferences } from "./dto/UserPreferences";
@@ -100,6 +101,9 @@ export const authApi = createApi({
         }
       },
     }),
+    changePassword: builder.mutation<void, ChangePasswordRequest>({
+      query: (body) => ({ url: "/auth/me/password", method: "POST", body }),
+    }),
     // La caché se vacía al entrar en el login (ver LoginPage): vaciarla con la
     // página anterior montada hace que `useMeQuery` vuelva a pedir /auth/me al
     // instante, sin sesión.
@@ -118,6 +122,7 @@ export const {
   useCompleteOnboardingMutation,
   useUpdatePreferencesMutation,
   useUpdateProfileMutation,
+  useChangePasswordMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
 } = authApi;
