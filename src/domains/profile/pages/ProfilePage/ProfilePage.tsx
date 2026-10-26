@@ -5,6 +5,7 @@ import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { useLogoutMutation, useMeQuery } from "../../../auth/authApi";
+import ExportDataRow from "../../components/ExportDataRow/ExportDataRow";
 import ProfileAvatar from "../../components/ProfileAvatar/ProfileAvatar";
 import SettingsGroup from "../../components/SettingsGroup/SettingsGroup";
 import SettingsRow from "../../components/SettingsRow/SettingsRow";
@@ -117,6 +118,7 @@ const ProfilePage = () => {
       <SettingsGroup title="Privacidad y datos">
         <SettingsRow label="Política de privacidad" to="/privacy" />
         <SettingsRow label="Términos de uso" to="/terms" />
+        <ExportDataRow />
       </SettingsGroup>
 
       <SettingsGroup title="Cuenta">

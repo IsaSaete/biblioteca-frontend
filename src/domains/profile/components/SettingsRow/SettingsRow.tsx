@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router";
 import ButtonBase from "@mui/material/ButtonBase";
 import type { ButtonBaseProps } from "@mui/material/ButtonBase";
@@ -9,6 +10,9 @@ interface SettingsRowProps extends Omit<ButtonBaseProps, "children" | "href"> {
   value?: string;
   // Si se indica, la fila es un enlace a otra pantalla; si no, un botón.
   to?: string;
+  // Sustituye al chevron cuando la fila hace algo en vez de llevar a otra
+  // pantalla (Descargar mis datos).
+  endIcon?: ReactNode;
   // Una acción (Cerrar sesión) va centrada y sin chevron: sin destino a la
   // derecha, una etiqueta a la izquierda parecería una fila sin terminar.
   isAction?: boolean;
@@ -36,6 +40,7 @@ const SettingsRow = ({
   label,
   value,
   to,
+  endIcon,
   isAction = false,
   sx,
   ...props
@@ -72,7 +77,7 @@ const SettingsRow = ({
         <Typography component="span" noWrap color="inherit">
           {value}
         </Typography>
-        <Chevron />
+        {endIcon ?? <Chevron />}
       </Typography>
     )}
   </ButtonBase>
