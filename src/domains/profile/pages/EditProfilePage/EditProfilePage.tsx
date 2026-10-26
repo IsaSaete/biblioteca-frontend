@@ -17,9 +17,13 @@ import type { EditNameFormValues } from "./editNameSchema";
 
 interface EditProfileFormProps {
   currentName: string;
+  currentEmail: string;
 }
 
-const EditProfileForm = ({ currentName }: EditProfileFormProps) => {
+const EditProfileForm = ({
+  currentName,
+  currentEmail,
+}: EditProfileFormProps) => {
   const navigate = useNavigate();
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
   const [formError, setFormError] = useState<string | null>(null);
@@ -86,6 +90,11 @@ const EditProfileForm = ({ currentName }: EditProfileFormProps) => {
       </SettingsGroup>
       <SettingsGroup title="Acceso">
         <SettingsRow
+          label="Email"
+          value={currentEmail}
+          onClick={() => void navigate("/profile/edit/email")}
+        />
+        <SettingsRow
           label="Contraseña"
           onClick={() => void navigate("/profile/edit/password")}
         />
@@ -97,14 +106,19 @@ const EditProfileForm = ({ currentName }: EditProfileFormProps) => {
   );
 };
 
-// Editar el perfil (HU-36): el nombre se cambia aquí; la contraseña, que pide la
-// actual, tiene su propia pantalla.
+// Editar el perfil (HU-36): el nombre se cambia aquí; el email y la contraseña,
+// que piden la contraseña actual, tienen su propia pantalla.
 const EditProfilePage = () => {
   const { data } = useMeQuery();
 
   return (
     <EditScreen title="Editar perfil" backTo="/profile">
-      {data && <EditProfileForm currentName={data.user.name} />}
+      {data && (
+        <EditProfileForm
+          currentName={data.user.name}
+          currentEmail={data.user.email}
+        />
+      )}
     </EditScreen>
   );
 };
