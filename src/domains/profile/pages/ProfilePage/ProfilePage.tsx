@@ -2,19 +2,19 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { useLogoutMutation, useMeQuery } from "../../../auth/authApi";
-import Button from "../../../../components/ui/Button/Button";
 import ProfileAvatar from "../../components/ProfileAvatar/ProfileAvatar";
 import SettingsGroup from "../../components/SettingsGroup/SettingsGroup";
 import SettingsRow from "../../components/SettingsRow/SettingsRow";
 import LibraryViewSelector from "../../components/LibraryViewSelector/LibraryViewSelector";
 import ThemeSelector from "../../components/ThemeSelector/ThemeSelector";
 
-const LogoutIcon = () => (
+const PencilIcon = () => (
   <svg
-    width="16"
-    height="16"
+    width="20"
+    height="20"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -23,7 +23,7 @@ const LogoutIcon = () => (
     strokeLinejoin="round"
     aria-hidden="true"
   >
-    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+    <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
   </svg>
 );
 
@@ -50,6 +50,7 @@ const ProfilePage = () => {
     <Box
       component="main"
       sx={{
+        position: "relative",
         maxWidth: 480,
         mx: "auto",
         px: 4,
@@ -59,6 +60,23 @@ const ProfilePage = () => {
         gap: 6,
       }}
     >
+      {data && (
+        <IconButton
+          aria-label="Editar perfil"
+          title="Editar perfil"
+          onClick={() => void navigate("/profile/edit")}
+          sx={{
+            position: "absolute",
+            top: "calc(env(safe-area-inset-top) + 8px)",
+            right: 8,
+            width: 44,
+            height: 44,
+            color: "text.secondary",
+          }}
+        >
+          <PencilIcon />
+        </IconButton>
+      )}
       <Box sx={{ display: "grid", justifyItems: "center", gap: 3 }}>
         <ProfileAvatar
           name={data?.user.name ?? ""}
@@ -77,15 +95,6 @@ const ProfilePage = () => {
             {data?.user.email}
           </Typography>
         </Box>
-        {data && (
-          <Button
-            variant="neutral"
-            onClick={() => void navigate("/profile/edit")}
-            sx={{ px: 6 }}
-          >
-            Editar perfil
-          </Button>
-        )}
       </Box>
 
       <SettingsGroup title="Preferencias">
@@ -101,7 +110,7 @@ const ProfilePage = () => {
       <SettingsGroup title="Cuenta">
         <SettingsRow
           label="Cerrar sesión"
-          endIcon={<LogoutIcon />}
+          isAction
           onClick={handleLogout}
           disabled={isLoading}
         />
