@@ -1,5 +1,6 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import BackButton from "../../../../components/ui/BackButton/BackButton";
 import type { LegalContent } from "../../dto/LegalContent";
 
 interface LegalDocumentProps {
@@ -11,6 +12,7 @@ const LegalDocument = ({ content }: LegalDocumentProps) => (
     component="main"
     sx={{ maxWidth: 720, mx: "auto", px: 4, py: 8, minHeight: "100vh" }}
   >
+    <BackButton fallbackTo="/" />
     <Typography variant="h6" component="h1">
       {content.title}
     </Typography>
