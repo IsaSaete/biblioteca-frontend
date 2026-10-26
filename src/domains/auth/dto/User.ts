@@ -10,4 +10,7 @@ export interface User {
   // Opcional mientras el backend no devuelva el campo (D-029): ausente se
   // trata como la vista de cuadrícula.
   preferences?: UserPreferences;
+  // `null` o ausente: sin foto; si no, la ruta de la foto con su marca de
+  // tiempo (`/api/auth/me/avatar?v=…`).
+  avatarUrl?: string | null;
 }

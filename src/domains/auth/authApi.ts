@@ -102,6 +102,43 @@ export const authApi = createApi({
         }
       },
     }),
+    // Sube la foto de perfil, ya reducida a JPEG (D-032). La sesión en caché
+    // toma el usuario que devuelve el servidor, con su `avatarUrl` nuevo.
+    uploadAvatar: builder.mutation<SessionResponse, Blob>({
+      query: (photo) => ({
+        url: "/auth/me/avatar",
+        method: "PUT",
+        body: photo,
+        headers: { "Content-Type": "image/jpeg" },
+      }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(
+            authApi.util.updateQueryData("me", undefined, (session) => {
+              session.user = { ...session.user, ...data.user };
+            }),
+          );
+        } catch {
+          // La pantalla enseña el error; la sesión sigue como estaba.
+        }
+      },
+    }),
+    removeAvatar: builder.mutation<void, void>({
+      query: () => ({ url: "/auth/me/avatar", method: "DELETE" }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            authApi.util.updateQueryData("me", undefined, (session) => {
+              session.user.avatarUrl = null;
+            }),
+          );
+        } catch {
+          // La pantalla enseña el error; la sesión sigue como estaba.
+        }
+      },
+    }),
     changePassword: builder.mutation<void, ChangePasswordRequest>({
       query: (body) => ({ url: "/auth/me/password", method: "POST", body }),
     }),
@@ -137,6 +174,8 @@ export const {
   useCompleteOnboardingMutation,
   useUpdatePreferencesMutation,
   useUpdateProfileMutation,
+  useUploadAvatarMutation,
+  useRemoveAvatarMutation,
   useChangePasswordMutation,
   useRequestEmailChangeMutation,
   useConfirmEmailChangeQuery,
