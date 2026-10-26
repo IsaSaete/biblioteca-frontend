@@ -8,6 +8,7 @@ import Button from "../../../../components/ui/Button/Button";
 import { useMeQuery, useUpdateProfileMutation } from "../../../auth/authApi";
 import { getFormErrorMessage } from "../../../auth/utils/getFormErrorMessage";
 import { parseApiError } from "../../../auth/utils/parseApiError";
+import ProfilePhoto from "../../components/ProfilePhoto/ProfilePhoto";
 import CardField from "../../components/CardField/CardField";
 import EditScreen from "../../components/EditScreen/EditScreen";
 import SettingsGroup from "../../components/SettingsGroup/SettingsGroup";
@@ -106,7 +107,7 @@ const EditProfileForm = ({
   );
 };
 
-// Editar el perfil (HU-36): el nombre se cambia aquí; el email y la contraseña,
+// Editar el perfil (HU-36): la foto y el nombre se cambian aquí; el email y la contraseña,
 // que piden la contraseña actual, tienen su propia pantalla.
 const EditProfilePage = () => {
   const { data } = useMeQuery();
@@ -114,10 +115,13 @@ const EditProfilePage = () => {
   return (
     <EditScreen title="Editar perfil" backTo="/profile">
       {data && (
-        <EditProfileForm
-          currentName={data.user.name}
-          currentEmail={data.user.email}
-        />
+        <>
+          <ProfilePhoto name={data.user.name} avatarUrl={data.user.avatarUrl} />
+          <EditProfileForm
+            currentName={data.user.name}
+            currentEmail={data.user.email}
+          />
+        </>
       )}
     </EditScreen>
   );
