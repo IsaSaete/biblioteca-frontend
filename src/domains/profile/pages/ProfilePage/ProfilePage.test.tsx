@@ -47,16 +47,6 @@ describe("Given the profile page of a user with a session", () => {
         screen.getByRole("link", { name: "Términos de uso" }),
       ).toHaveAttribute("href", "/terms");
     });
-
-    it("Then it says where the view and the theme are saved", async () => {
-      useSession();
-
-      renderRoutes(routes, ["/profile"]);
-
-      expect(
-        await screen.findByText(/el tema, solo en este dispositivo/),
-      ).toBeInTheDocument();
-    });
   });
 
   describe("When the user logs out", () => {

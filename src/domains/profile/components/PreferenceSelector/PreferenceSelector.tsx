@@ -1,11 +1,10 @@
 import type { ChangeEvent } from "react";
-import ButtonBase from "@mui/material/ButtonBase";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
-import Typography from "@mui/material/Typography";
 import OptionsPanel from "../../../../components/ui/OptionsPanel/OptionsPanel";
 import { useAnchoredPanel } from "../../../../hooks/useAnchoredPanel";
+import SettingsRow from "../SettingsRow/SettingsRow";
 
 interface PreferenceSelectorProps<Value extends string> {
   label: string;
@@ -39,21 +38,13 @@ const PreferenceSelector = <Value extends string>({
 
   return (
     <>
-      <ButtonBase
+      <SettingsRow
+        label={label}
+        value={currentLabel}
         aria-haspopup="dialog"
         aria-expanded={panel.isOpen}
         onClick={panel.open}
-        sx={{
-          width: "100%",
-          minHeight: 56,
-          px: 2,
-          justifyContent: "space-between",
-          borderRadius: 2,
-        }}
-      >
-        <Typography>{label}</Typography>
-        <Typography color="text.secondary">{currentLabel}</Typography>
-      </ButtonBase>
+      />
 
       <OptionsPanel
         open={panel.isOpen}
