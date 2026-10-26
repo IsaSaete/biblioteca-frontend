@@ -6,6 +6,7 @@ import type { RegisterRequest } from "./dto/RegisterRequest";
 import type { RegisterResponse } from "./dto/RegisterResponse";
 import type { ResetPasswordRequest } from "./dto/ResetPasswordRequest";
 import type { SessionResponse } from "./dto/SessionResponse";
+import type { ChangeEmailRequest } from "./dto/ChangeEmailRequest";
 import type { ChangePasswordRequest } from "./dto/ChangePasswordRequest";
 import type { UpdateProfileRequest } from "./dto/UpdateProfileRequest";
 import type { UpdatePreferencesRequest } from "./dto/UpdatePreferencesRequest";
@@ -104,6 +105,20 @@ export const authApi = createApi({
     changePassword: builder.mutation<void, ChangePasswordRequest>({
       query: (body) => ({ url: "/auth/me/password", method: "POST", body }),
     }),
+    // Pide cambiar el email: el servidor manda un enlace al email nuevo y no
+    // cambia nada hasta que se confirma.
+    requestEmailChange: builder.mutation<void, ChangeEmailRequest>({
+      query: (body) => ({ url: "/auth/me/email", method: "POST", body }),
+    }),
+    // Destino del enlace del correo (`/confirm-email-change?token=`). Como el
+    // de verificación, el token es de un solo uso y el resultado se queda en
+    // caché.
+    confirmEmailChange: builder.query<void, string>({
+      query: (token) => ({
+        url: "/auth/confirm-email-change",
+        params: { token },
+      }),
+    }),
     // La caché se vacía al entrar en el login (ver LoginPage): vaciarla con la
     // página anterior montada hace que `useMeQuery` vuelva a pedir /auth/me al
     // instante, sin sesión.
@@ -123,6 +138,8 @@ export const {
   useUpdatePreferencesMutation,
   useUpdateProfileMutation,
   useChangePasswordMutation,
+  useRequestEmailChangeMutation,
+  useConfirmEmailChangeQuery,
   useForgotPasswordMutation,
   useResetPasswordMutation,
 } = authApi;
