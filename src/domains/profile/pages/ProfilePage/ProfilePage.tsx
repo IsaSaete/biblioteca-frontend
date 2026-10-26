@@ -6,11 +6,13 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import { useLogoutMutation, useMeQuery } from "../../../auth/authApi";
+import LibraryViewSelector from "../../components/LibraryViewSelector/LibraryViewSelector";
 import ThemeSelector from "../../components/ThemeSelector/ThemeSelector";
 import { getInitials } from "../../utils/getInitials";
 
-// Solo lo que ya está implementado: tema, cuenta y cerrar sesión (HU-40). La vista
-// de biblioteca, privacidad y eliminar cuenta se añaden cuando existan.
+// Solo lo que ya está implementado: vista de biblioteca, tema y cerrar sesión
+// (HU-37, HU-40). Editar perfil, privacidad y eliminar cuenta se añaden cuando
+// existan.
 const ProfilePage = () => {
   const navigate = useNavigate();
   const { data } = useMeQuery();
@@ -66,6 +68,7 @@ const ProfilePage = () => {
         >
           Preferencias
         </Typography>
+        <LibraryViewSelector />
         <ThemeSelector />
       </Box>
 
