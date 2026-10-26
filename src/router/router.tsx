@@ -25,6 +25,14 @@ export const routes = [
       ).default,
     }),
   },
+  {
+    path: "/confirm-email-change",
+    lazy: async () => ({
+      Component: (
+        await import("../domains/auth/pages/ConfirmEmailChangePage/ConfirmEmailChangePage")
+      ).default,
+    }),
+  },
   { path: "/reset-password", element: <ResetPasswordPage /> },
   {
     element: <RequireAuth />,
@@ -70,6 +78,14 @@ export const routes = [
         lazy: async () => ({
           Component: (
             await import("../domains/profile/pages/EditProfilePage/EditProfilePage")
+          ).default,
+        }),
+      },
+      {
+        path: "/profile/edit/email",
+        lazy: async () => ({
+          Component: (
+            await import("../domains/profile/pages/ChangeEmailPage/ChangeEmailPage")
           ).default,
         }),
       },

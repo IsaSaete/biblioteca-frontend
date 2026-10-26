@@ -2,6 +2,7 @@ import { screen } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { renderRoutes } from "../../../../test/renderRoutes";
 import { server } from "../../../../test/server";
+import ChangeEmailPage from "../ChangeEmailPage/ChangeEmailPage";
 import ChangePasswordPage from "../ChangePasswordPage/ChangePasswordPage";
 import ProfilePage from "../ProfilePage/ProfilePage";
 import EditProfilePage from "./EditProfilePage";
@@ -10,6 +11,7 @@ const baseUrl = import.meta.env.VITE_API_URL ?? "";
 const routes = [
   { path: "/profile", element: <ProfilePage /> },
   { path: "/profile/edit", element: <EditProfilePage /> },
+  { path: "/profile/edit/email", element: <ChangeEmailPage /> },
   { path: "/profile/edit/password", element: <ChangePasswordPage /> },
 ];
 
@@ -153,8 +155,19 @@ describe("Given the edit profile screen", () => {
     });
   });
 
-  describe("When the user opens the password row", () => {
-    it("Then it has its own screen and going back returns to the edit screen", async () => {
+  describe("When the user opens the email and password rows", () => {
+    it("Then each has its own screen", async () => {
+      const typist = await renderEditPage();
+
+      await typist.click(
+        screen.getByRole("button", { name: /Email isa@example.com/ }),
+      );
+      expect(
+        await screen.findByRole("heading", { name: "Cambiar email" }),
+      ).toBeInTheDocument();
+    });
+
+    it("Then going back from the password screen returns to the edit screen", async () => {
       const typist = await renderEditPage();
       await typist.click(screen.getByRole("button", { name: "Contraseña" }));
       await screen.findByRole("heading", { name: "Cambiar contraseña" });
