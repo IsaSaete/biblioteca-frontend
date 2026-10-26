@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import Alert from "@mui/material/Alert";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useLogoutMutation, useMeQuery } from "../../../auth/authApi";
+import EditNameDialog from "../../components/EditNameDialog/EditNameDialog";
 import SettingsGroup from "../../components/SettingsGroup/SettingsGroup";
 import SettingsRow from "../../components/SettingsRow/SettingsRow";
 import LibraryViewSelector from "../../components/LibraryViewSelector/LibraryViewSelector";
@@ -27,6 +28,8 @@ const LogoutIcon = () => (
   </svg>
 );
 
+const EDIT_NAME_MODAL = "edit-name";
+
 // Índice de cuenta y ajustes (D-032). Solo lo que ya está implementado: las
 // demás filas (Cuenta, descargar datos, eliminar cuenta) se añaden con su
 // función.
@@ -35,6 +38,25 @@ const ProfilePage = () => {
   const { data } = useMeQuery();
   const [logout, { isLoading }] = useLogoutMutation();
   const [hasFailed, setHasFailed] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isEditingName = searchParams.get("modal") === EDIT_NAME_MODAL;
+
+  const openEditName = () =>
+    setSearchParams((params) => {
+      const next = new URLSearchParams(params);
+      next.set("modal", EDIT_NAME_MODAL);
+      return next;
+    });
+
+  const closeModal = () =>
+    setSearchParams(
+      (params) => {
+        const next = new URLSearchParams(params);
+        next.delete("modal");
+        return next;
+      },
+      { replace: true },
+    );
 
   const handleLogout = async () => {
     setHasFailed(false);
@@ -100,6 +122,11 @@ const ProfilePage = () => {
 
       <SettingsGroup title="Cuenta">
         <SettingsRow
+          label="Nombre"
+          value={data?.user.name}
+          onClick={openEditName}
+        />
+        <SettingsRow
           label="Cerrar sesión"
           endIcon={<LogoutIcon />}
           onClick={handleLogout}
@@ -111,6 +138,9 @@ const ProfilePage = () => {
         <Alert severity="error">
           No se pudo cerrar la sesión. Inténtalo de nuevo.
         </Alert>
+      )}
+      {isEditingName && data && (
+        <EditNameDialog currentName={data.user.name} onClose={closeModal} />
       )}
     </Box>
   );
