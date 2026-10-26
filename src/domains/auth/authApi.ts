@@ -139,6 +139,18 @@ export const authApi = createApi({
         }
       },
     }),
+    // Descarga todos los datos de la cuenta (HU-38). Es una mutación para que se
+    // pida cada vez que se pulsa y no quede nada en la caché. El archivo llega
+    // como `Blob`; un fallo trae el JSON de error del servidor.
+    exportData: builder.mutation<Blob, void>({
+      query: () => ({
+        url: "/auth/me/export",
+        responseHandler: async (response) =>
+          response.ok
+            ? response.blob()
+            : response.json().catch(() => undefined),
+      }),
+    }),
     changePassword: builder.mutation<void, ChangePasswordRequest>({
       query: (body) => ({ url: "/auth/me/password", method: "POST", body }),
     }),
@@ -176,6 +188,7 @@ export const {
   useUpdateProfileMutation,
   useUploadAvatarMutation,
   useRemoveAvatarMutation,
+  useExportDataMutation,
   useChangePasswordMutation,
   useRequestEmailChangeMutation,
   useConfirmEmailChangeQuery,
