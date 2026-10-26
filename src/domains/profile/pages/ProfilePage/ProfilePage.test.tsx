@@ -34,6 +34,31 @@ describe("Given the profile page of a user with a session", () => {
     });
   });
 
+  describe("When it is shown", () => {
+    it("Then it links to the privacy policy and the terms of use", async () => {
+      useSession();
+
+      renderRoutes(routes, ["/profile"]);
+
+      expect(
+        await screen.findByRole("link", { name: "Política de privacidad" }),
+      ).toHaveAttribute("href", "/privacy");
+      expect(
+        screen.getByRole("link", { name: "Términos de uso" }),
+      ).toHaveAttribute("href", "/terms");
+    });
+
+    it("Then it says where the view and the theme are saved", async () => {
+      useSession();
+
+      renderRoutes(routes, ["/profile"]);
+
+      expect(
+        await screen.findByText(/el tema, solo en este dispositivo/),
+      ).toBeInTheDocument();
+    });
+  });
+
   describe("When the user logs out", () => {
     it("Then the logout request carries the CSRF token and the user goes to login", async () => {
       document.cookie = "csrfToken=csrf-123";
