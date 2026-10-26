@@ -129,7 +129,11 @@ const TopBar = () => {
             sx={{ display: "flex", gap: 3, minHeight: 56 }}
           >
             <Box sx={{ width: 32, flexShrink: 0 }}>
-              <BookCover title={book.title} coverUrl={book.coverUrl} />
+              <BookCover
+                title={book.title}
+                coverUrl={book.coverUrl}
+                size="small"
+              />
             </Box>
             <Box sx={{ minWidth: 0 }}>
               <Typography sx={{ fontWeight: 700, overflowWrap: "anywhere" }}>

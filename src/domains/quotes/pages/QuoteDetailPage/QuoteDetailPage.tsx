@@ -192,6 +192,7 @@ const QuoteDetailPage = () => {
                   <BookCover
                     title={quote.book.title}
                     coverUrl={book?.coverUrl}
+                    size="small"
                   />
                 </Box>
                 <Box sx={{ flex: 1, minWidth: 0 }}>
