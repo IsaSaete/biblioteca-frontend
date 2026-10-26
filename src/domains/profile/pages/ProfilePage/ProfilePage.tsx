@@ -6,13 +6,15 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import { useLogoutMutation, useMeQuery } from "../../../auth/authApi";
+import SettingsGroup from "../../components/SettingsGroup/SettingsGroup";
+import SettingsRow from "../../components/SettingsRow/SettingsRow";
 import LibraryViewSelector from "../../components/LibraryViewSelector/LibraryViewSelector";
 import ThemeSelector from "../../components/ThemeSelector/ThemeSelector";
 import { getInitials } from "../../utils/getInitials";
 
-// Solo lo que ya está implementado: vista de biblioteca, tema y cerrar sesión
-// (HU-37, HU-40). Editar perfil, privacidad y eliminar cuenta se añaden cuando
-// existan.
+// Índice de cuenta y ajustes (D-032). Solo lo que ya está implementado: las
+// demás filas (Cuenta, descargar datos, eliminar cuenta) se añaden con su
+// función.
 const ProfilePage = () => {
   const navigate = useNavigate();
   const { data } = useMeQuery();
@@ -58,19 +60,18 @@ const ProfilePage = () => {
         </Box>
       </Box>
 
-      <Box component="section" aria-labelledby="preferences-title">
-        <Typography
-          id="preferences-title"
-          component="h2"
-          variant="caption"
-          color="text.secondary"
-          sx={{ px: 2, display: "block" }}
-        >
-          Preferencias
-        </Typography>
+      <SettingsGroup title="Preferencias">
         <LibraryViewSelector />
         <ThemeSelector />
-      </Box>
+        <Typography variant="caption" color="text.secondary" sx={{ px: 2 }}>
+          La vista se guarda en tu cuenta; el tema, solo en este dispositivo.
+        </Typography>
+      </SettingsGroup>
+
+      <SettingsGroup title="Privacidad y datos">
+        <SettingsRow label="Política de privacidad" to="/privacy" />
+        <SettingsRow label="Términos de uso" to="/terms" />
+      </SettingsGroup>
 
       {hasFailed && (
         <Alert severity="error">
