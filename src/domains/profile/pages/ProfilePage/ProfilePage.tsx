@@ -1,16 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import Alert from "@mui/material/Alert";
-import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useLogoutMutation, useMeQuery } from "../../../auth/authApi";
 import Button from "../../../../components/ui/Button/Button";
+import ProfileAvatar from "../../components/ProfileAvatar/ProfileAvatar";
 import SettingsGroup from "../../components/SettingsGroup/SettingsGroup";
 import SettingsRow from "../../components/SettingsRow/SettingsRow";
 import LibraryViewSelector from "../../components/LibraryViewSelector/LibraryViewSelector";
 import ThemeSelector from "../../components/ThemeSelector/ThemeSelector";
-import { getInitials } from "../../utils/getInitials";
 
 const LogoutIcon = () => (
   <svg
@@ -61,19 +60,11 @@ const ProfilePage = () => {
       }}
     >
       <Box sx={{ display: "grid", justifyItems: "center", gap: 3 }}>
-        <Avatar
-          aria-hidden="true"
-          sx={{
-            width: 80,
-            height: 80,
-            fontSize: "1.1875rem",
-            bgcolor: "secondary.main",
-            color: "secondary.contrastText",
-            fontWeight: 500,
-          }}
-        >
-          {data ? getInitials(data.user.name) : ""}
-        </Avatar>
+        <ProfileAvatar
+          name={data?.user.name ?? ""}
+          avatarUrl={data?.user.avatarUrl}
+          size={80}
+        />
         <Box sx={{ minWidth: 0, maxWidth: "100%", textAlign: "center" }}>
           <Typography variant="h6" component="h1" noWrap>
             {data?.user.name}
