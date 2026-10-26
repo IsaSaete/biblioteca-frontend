@@ -50,6 +50,12 @@ const LoginPage = () => {
     "passwordReset" in location.state &&
     location.state.passwordReset === true;
 
+  const wasAccountDeleted =
+    typeof location.state === "object" &&
+    location.state !== null &&
+    "accountDeleted" in location.state &&
+    location.state.accountDeleted === true;
+
   const onSubmit = async (values: LoginFormValues) => {
     setFormError(null);
     const result = await login(values);
@@ -91,6 +97,11 @@ const LoginPage = () => {
         {wasPasswordReset && (
           <Alert severity="success">
             Contraseña actualizada. Inicia sesión con la nueva.
+          </Alert>
+        )}
+        {wasAccountDeleted && (
+          <Alert severity="success">
+            Tu cuenta y tus datos se han eliminado.
           </Alert>
         )}
         {formError && <Alert severity="error">{formError}</Alert>}

@@ -7,6 +7,7 @@ import type { RegisterResponse } from "./dto/RegisterResponse";
 import type { ResetPasswordRequest } from "./dto/ResetPasswordRequest";
 import type { SessionResponse } from "./dto/SessionResponse";
 import type { ChangeEmailRequest } from "./dto/ChangeEmailRequest";
+import type { DeleteAccountRequest } from "./dto/DeleteAccountRequest";
 import type { ChangePasswordRequest } from "./dto/ChangePasswordRequest";
 import type { UpdateProfileRequest } from "./dto/UpdateProfileRequest";
 import type { UpdatePreferencesRequest } from "./dto/UpdatePreferencesRequest";
@@ -151,6 +152,11 @@ export const authApi = createApi({
             : response.json().catch(() => undefined),
       }),
     }),
+    // Elimina la cuenta y todos sus datos (HU-39). El servidor limpia las
+    // cookies; la caché de la sesión se descarta al llegar al login.
+    deleteAccount: builder.mutation<void, DeleteAccountRequest>({
+      query: (body) => ({ url: "/auth/me", method: "DELETE", body }),
+    }),
     changePassword: builder.mutation<void, ChangePasswordRequest>({
       query: (body) => ({ url: "/auth/me/password", method: "POST", body }),
     }),
@@ -189,6 +195,7 @@ export const {
   useUploadAvatarMutation,
   useRemoveAvatarMutation,
   useExportDataMutation,
+  useDeleteAccountMutation,
   useChangePasswordMutation,
   useRequestEmailChangeMutation,
   useConfirmEmailChangeQuery,

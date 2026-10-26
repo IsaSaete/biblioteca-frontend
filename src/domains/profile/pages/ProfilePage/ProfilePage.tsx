@@ -128,6 +128,12 @@ const ProfilePage = () => {
           onClick={handleLogout}
           disabled={isLoading}
         />
+        <SettingsRow
+          label="Eliminar cuenta"
+          isAction
+          isDanger
+          onClick={() => void navigate("/profile/delete-account")}
+        />
       </SettingsGroup>
 
       {hasFailed && (
