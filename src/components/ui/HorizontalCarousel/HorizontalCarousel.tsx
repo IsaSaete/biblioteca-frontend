@@ -130,7 +130,13 @@ const HorizontalCarousel = ({
           scrollbarWidth: "none",
           "&::-webkit-scrollbar": { display: "none" },
           px: 4,
-          pb: 2,
+          // Aire arriba y abajo para que la sombra de las portadas no se corte
+          // (un contenedor con scroll recorta también en vertical); los márgenes
+          // negativos devuelven el contenido a su sitio.
+          pt: 2,
+          pb: 3,
+          mt: -2,
+          mb: -1,
           [mouseQuery(theme, "sm")]: { px: 0, scrollPaddingInline: 0 },
         })}
       >

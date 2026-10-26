@@ -101,7 +101,11 @@ const SearchStep = ({
               }}
             >
               <Box sx={{ width: 48, flexShrink: 0 }}>
-                <BookCover title={book.title} coverUrl={book.coverUrl} />
+                <BookCover
+                  title={book.title}
+                  coverUrl={book.coverUrl}
+                  size="small"
+                />
               </Box>
               <Box sx={{ minWidth: 0 }}>
                 <Typography sx={{ fontWeight: 500 }}>{book.title}</Typography>

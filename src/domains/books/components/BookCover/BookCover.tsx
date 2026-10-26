@@ -1,21 +1,24 @@
 import { useState } from "react";
 import Box from "@mui/material/Box";
+import { COVER_SHADOW } from "../../../../theme/coverShadow";
 
 interface BookCoverProps {
   title: string;
   coverUrl?: string;
+  // Las miniaturas (listas, buscadores) llevan una sombra más corta.
+  size?: "regular" | "small";
 }
 
 // Portada 2:3 desde la URL del proveedor (nunca se descarga ni se guarda). Sin
 // `coverUrl`, o si la imagen falla (p. ej. la CSP o un enlace roto), se muestra
 // un marcador en su lugar.
-const BookCover = ({ title, coverUrl }: BookCoverProps) => {
+const BookCover = ({ title, coverUrl, size = "regular" }: BookCoverProps) => {
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
   const hasImage = coverUrl !== undefined && coverUrl !== failedUrl;
 
   return (
     <Box
-      sx={{
+      sx={(theme) => ({
         width: "100%",
         aspectRatio: "2 / 3",
         borderRadius: 1.5,
@@ -24,7 +27,9 @@ const BookCover = ({ title, coverUrl }: BookCoverProps) => {
         color: "secondary.contrastText",
         display: "grid",
         placeItems: "center",
-      }}
+        boxShadow: COVER_SHADOW.light[size],
+        ...theme.applyStyles("dark", { boxShadow: COVER_SHADOW.dark }),
+      })}
     >
       {hasImage ? (
         <Box
