@@ -50,7 +50,6 @@ const ProfilePage = () => {
     <Box
       component="main"
       sx={{
-        position: "relative",
         maxWidth: 480,
         mx: "auto",
         px: 4,
@@ -60,29 +59,42 @@ const ProfilePage = () => {
         gap: 6,
       }}
     >
-      {data && (
-        <IconButton
-          aria-label="Editar perfil"
-          title="Editar perfil"
-          onClick={() => void navigate("/profile/edit")}
+      <Box sx={{ display: "grid", justifyItems: "center", gap: 3 }}>
+        {/* El lápiz comparte fila con la foto: su trazo queda a la altura del
+            borde superior de la foto y alineado con el borde derecho de las
+            tarjetas (la caja táctil de 44 px sobresale 14 px por arriba y 12
+            por la derecha, donde el trazo de 20 px deja ese margen vacío). */}
+        <Box
           sx={{
-            position: "absolute",
-            top: "calc(env(safe-area-inset-top) + 8px)",
-            right: 8,
-            width: 44,
-            height: 44,
-            color: "text.secondary",
+            position: "relative",
+            display: "flex",
+            justifyContent: "center",
+            width: "100%",
           }}
         >
-          <PencilIcon />
-        </IconButton>
-      )}
-      <Box sx={{ display: "grid", justifyItems: "center", gap: 3 }}>
-        <ProfileAvatar
-          name={data?.user.name ?? ""}
-          avatarUrl={data?.user.avatarUrl}
-          size={80}
-        />
+          <ProfileAvatar
+            name={data?.user.name ?? ""}
+            avatarUrl={data?.user.avatarUrl}
+            size={80}
+          />
+          {data && (
+            <IconButton
+              aria-label="Editar perfil"
+              title="Editar perfil"
+              onClick={() => void navigate("/profile/edit")}
+              sx={{
+                position: "absolute",
+                top: -14,
+                right: -12,
+                width: 44,
+                height: 44,
+                color: "text.secondary",
+              }}
+            >
+              <PencilIcon />
+            </IconButton>
+          )}
+        </Box>
         <Box sx={{ minWidth: 0, maxWidth: "100%", textAlign: "center" }}>
           <Typography variant="h6" component="h1" noWrap>
             {data?.user.name}

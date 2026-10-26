@@ -46,7 +46,7 @@ const SettingsRow = ({
     sx={[
       {
         width: "100%",
-        minHeight: 56,
+        minHeight: isAction ? 48 : 56,
         px: 4,
         gap: 2,
         justifyContent: isAction ? "center" : "space-between",
@@ -55,7 +55,14 @@ const SettingsRow = ({
       ...(Array.isArray(sx) ? sx : [sx]),
     ]}
   >
-    <Typography sx={{ flexShrink: 0 }}>{label}</Typography>
+    <Typography
+      sx={{
+        flexShrink: 0,
+        ...(isAction && { color: "primary.main" }),
+      }}
+    >
+      {label}
+    </Typography>
     {!isAction && (
       <Typography
         component="span"
