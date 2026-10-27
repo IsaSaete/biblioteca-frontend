@@ -74,12 +74,13 @@ describe("Given the onboarding page", () => {
       const { user } = renderPage();
 
       await user.click(screen.getByRole("button", { name: "Siguiente" }));
-      const second = screen.getByRole("heading", {
-        name: "Guarda tus citas con la cámara",
-      });
+      expect(
+        screen.getByRole("heading", {
+          name: "Guarda tus citas con la cámara",
+        }),
+      ).toBeInTheDocument();
       await user.click(screen.getByRole("button", { name: "Siguiente" }));
 
-      expect(second).toBeInTheDocument();
       expect(
         screen.getByRole("heading", { name: "Organiza a tu manera" }),
       ).toBeInTheDocument();
@@ -161,6 +162,21 @@ describe("Given the onboarding page", () => {
 
       expect(await screen.findByText("Inicio")).toBeInTheDocument();
       expect(calls.count).toBe(1);
+    });
+  });
+
+  describe("When the user is on the first step", () => {
+    it("Then it welcomes them by name and the greeting is not read on the other steps", async () => {
+      useSession(false);
+      const { user } = renderPage();
+
+      const greeting = await screen.findByText("Te damos la bienvenida, Isa");
+      await user.click(screen.getByRole("button", { name: "Siguiente" }));
+
+      expect(greeting).toBeInTheDocument();
+      expect(
+        screen.queryByText("Te damos la bienvenida, Isa"),
+      ).not.toBeVisible();
     });
   });
 
