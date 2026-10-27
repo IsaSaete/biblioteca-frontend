@@ -2,7 +2,13 @@ import { Navigate, Outlet, useLocation } from "react-router";
 import Box from "@mui/material/Box";
 import Skeleton from "@mui/material/Skeleton";
 import InlineError from "../../components/ui/InlineError/InlineError";
+import SlowLoadNotice from "../../components/ui/SlowLoadNotice/SlowLoadNotice";
 import { useMeQuery } from "../../domains/auth/authApi";
+import { useIsSlow } from "../../hooks/useIsSlow";
+
+// Pasado este tiempo, la espera deja de ser normal y se explica (arranque en
+// frío del servidor).
+const SLOW_LOAD_MS = 1000;
 
 const isUnauthenticated = (error: unknown): boolean =>
   typeof error === "object" &&
@@ -16,7 +22,13 @@ const RequireAuth = () => {
   const location = useLocation();
   const { data, isLoading, isError, error, refetch } = useMeQuery();
 
+  const isSlow = useIsSlow(isLoading, SLOW_LOAD_MS);
+
   if (isLoading) {
+    if (isSlow) {
+      return <SlowLoadNotice />;
+    }
+
     return (
       <Box
         role="status"
