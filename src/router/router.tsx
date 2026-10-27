@@ -72,6 +72,15 @@ export const routes = [
           ).default,
         }),
       },
+      // Deseados: pantalla de detalle, sin barra de navegación inferior.
+      {
+        path: "/wishlist",
+        lazy: async () => ({
+          Component: (
+            await import("../domains/wishlist/pages/WishlistPage/WishlistPage")
+          ).default,
+        }),
+      },
       // Editar perfil y sus pasos: pantallas de detalle, sin barra inferior.
       {
         path: "/profile/edit",

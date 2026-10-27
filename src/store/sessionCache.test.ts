@@ -3,6 +3,7 @@ import { authApi } from "../domains/auth/authApi";
 import { booksApi } from "../domains/books/booksApi";
 import { homeApi } from "../domains/home/homeApi";
 import { quotesApi } from "../domains/quotes/quotesApi";
+import { wishlistApi } from "../domains/wishlist/wishlistApi";
 import { server } from "../test/server";
 import { createStore } from "./store";
 
@@ -37,6 +38,13 @@ const fillWithIsaData = async (store: ReturnType<typeof createStore>) => {
       favorites: 0,
     }),
   );
+  await store.dispatch(
+    wishlistApi.util.upsertQueryData("getWishlist", undefined, {
+      items: [],
+      nextCursor: null,
+      total: 2,
+    }),
+  );
 };
 
 const listCaches = (store: ReturnType<typeof createStore>) => {
@@ -46,6 +54,7 @@ const listCaches = (store: ReturnType<typeof createStore>) => {
     state.booksApi.queries,
     state.quotesApi.queries,
     state.homeApi.queries,
+    state.wishlistApi.queries,
   ];
 };
 
@@ -86,7 +95,7 @@ describe("Given a store that still holds the previous user's lists", () => {
         ),
     ],
   ])("When someone %s", (_case, act) => {
-    it("Then the library, the quotes and the numbers are discarded", async () => {
+    it("Then the library, the quotes, the wishlist and the numbers are discarded", async () => {
       server.use(
         http.post(`${baseUrl}/auth/login`, () =>
           HttpResponse.json({ user: isaUser }),
@@ -107,11 +116,11 @@ describe("Given a store that still holds the previous user's lists", () => {
       await fillWithIsaData(store);
       expect(
         listCaches(store).map((queries) => Object.keys(queries).length),
-      ).toEqual([1, 1, 1]);
+      ).toEqual([1, 1, 1, 1]);
 
       await act(store);
 
-      expect(listCaches(store)).toEqual([{}, {}, {}]);
+      expect(listCaches(store)).toEqual([{}, {}, {}, {}]);
     });
   });
 
@@ -137,7 +146,7 @@ describe("Given a store that still holds the previous user's lists", () => {
 
       expect(
         listCaches(store).map((queries) => Object.keys(queries).length),
-      ).toEqual([1, 1, 1]);
+      ).toEqual([1, 1, 1, 1]);
     });
   });
 });

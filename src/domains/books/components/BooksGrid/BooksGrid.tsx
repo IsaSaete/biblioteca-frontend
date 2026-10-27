@@ -5,15 +5,21 @@ interface BooksGridProps {
   children: ReactNode;
   // Rejilla de esqueletos mientras carga: no es la lista real de libros.
   isPlaceholder?: boolean;
+  // Nombre accesible de la lista.
+  label?: string;
 }
 
 // 3 columnas en móvil, 4 en tablet y 5 en escritorio (como las páginas del
 // carrusel de Inicio): portadas de unos 173px en escritorio
 // (pantallas-y-flujos.md, «Biblioteca — doble vista»).
-const BooksGrid = ({ children, isPlaceholder = false }: BooksGridProps) => (
+const BooksGrid = ({
+  children,
+  isPlaceholder = false,
+  label = "Tus libros",
+}: BooksGridProps) => (
   <Box
     component="ul"
-    aria-label={isPlaceholder ? undefined : "Tus libros"}
+    aria-label={isPlaceholder ? undefined : label}
     aria-hidden={isPlaceholder || undefined}
     sx={{
       display: "grid",
