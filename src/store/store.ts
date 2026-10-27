@@ -3,6 +3,7 @@ import { authApi } from "../domains/auth/authApi";
 import { booksApi } from "../domains/books/booksApi";
 import { homeApi } from "../domains/home/homeApi";
 import { quotesApi } from "../domains/quotes/quotesApi";
+import { createSessionCacheMiddleware } from "./sessionCache";
 
 export const createStore = () =>
   configureStore({
@@ -13,12 +14,14 @@ export const createStore = () =>
       [quotesApi.reducerPath]: quotesApi.reducer,
     },
     middleware: (getDefault) =>
-      getDefault().concat(
-        authApi.middleware,
-        booksApi.middleware,
-        homeApi.middleware,
-        quotesApi.middleware,
-      ),
+      getDefault()
+        .prepend(createSessionCacheMiddleware())
+        .concat(
+          authApi.middleware,
+          booksApi.middleware,
+          homeApi.middleware,
+          quotesApi.middleware,
+        ),
   });
 
 export const store = createStore();

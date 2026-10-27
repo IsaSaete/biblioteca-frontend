@@ -9,7 +9,7 @@ import Link from "@mui/material/Link";
 import Button from "../../../../components/ui/Button/Button";
 import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
 import AuthLayout from "../../components/AuthLayout/AuthLayout";
-import { booksApi } from "../../../books/booksApi";
+import { resetListCaches } from "../../../../store/sessionCache";
 import { authApi, useLoginMutation } from "../../authApi";
 import { useFieldValidation } from "../../hooks/useFieldValidation";
 import { getRedirectPath } from "../../utils/getRedirectPath";
@@ -37,11 +37,11 @@ const LoginPage = () => {
   const validationHandlers = useFieldValidation(form);
 
   // Llegar al login significa que no hay sesión (se cerró o caducó): se descarta
-  // lo que hubiera en caché ligado a ella
-  // (también la biblioteca, para que no se vea desde otra cuenta).
+  // lo que hubiera en caché ligado a ella, también la biblioteca, las citas y
+  // las cifras, para que no se vean desde otra cuenta.
   useEffect(() => {
     dispatch(authApi.util.resetApiState());
-    dispatch(booksApi.util.resetApiState());
+    resetListCaches(dispatch);
   }, [dispatch]);
 
   const wasPasswordReset =
