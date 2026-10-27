@@ -31,7 +31,9 @@ const SettingsGroup = ({ title, children }: SettingsGroupProps) => {
           bgcolor: "background.paper",
           borderRadius: 1.5,
           overflow: "hidden",
-          "& > * + *": { borderTop: 1, borderColor: "secondary.main" },
+          // `&&` sube la especificidad: sin ella, el `border: 0` de ButtonBase
+          // (SettingsRow) se come la línea.
+          "&& > * + *": { borderTop: 1, borderColor: "secondary.main" },
         }}
       >
         {children}
