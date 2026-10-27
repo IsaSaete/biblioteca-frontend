@@ -3,6 +3,7 @@ import { authApi } from "../domains/auth/authApi";
 import { booksApi } from "../domains/books/booksApi";
 import { homeApi } from "../domains/home/homeApi";
 import { quotesApi } from "../domains/quotes/quotesApi";
+import { wishlistApi } from "../domains/wishlist/wishlistApi";
 import { createSessionCacheMiddleware } from "./sessionCache";
 
 export const createStore = () =>
@@ -12,6 +13,7 @@ export const createStore = () =>
       [booksApi.reducerPath]: booksApi.reducer,
       [homeApi.reducerPath]: homeApi.reducer,
       [quotesApi.reducerPath]: quotesApi.reducer,
+      [wishlistApi.reducerPath]: wishlistApi.reducer,
     },
     middleware: (getDefault) =>
       getDefault()
@@ -21,6 +23,7 @@ export const createStore = () =>
           booksApi.middleware,
           homeApi.middleware,
           quotesApi.middleware,
+          wishlistApi.middleware,
         ),
   });
 

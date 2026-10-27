@@ -10,6 +10,8 @@ import PageHeader from "../../../../components/ui/PageHeader/PageHeader";
 import SortSelector from "../../../../components/ui/SortSelector/SortSelector";
 import EmptyState from "../../../../components/ui/EmptyState/EmptyState";
 import InlineError from "../../../../components/ui/InlineError/InlineError";
+import LoadingCovers from "../../../../components/ui/LoadingCovers/LoadingCovers";
+import LoadMoreSentinel from "../../../../components/ui/LoadMoreSentinel/LoadMoreSentinel";
 import { formatCount } from "../../../../utils/formatCount";
 import { useGetBooksQuery } from "../../booksApi";
 import type { GetBooksParams } from "../../dto/GetBooksParams";
@@ -33,22 +35,9 @@ import {
 } from "../../utils/libraryFilters";
 import type { LibraryFilters } from "../../utils/libraryFilters";
 import { useAnchoredPanel } from "../../../../hooks/useAnchoredPanel";
-import { useOnVisible } from "../../../../hooks/useOnVisible";
 
 const SKELETON_COUNT = 10;
 const SKELETON_ROWS = 6;
-
-const LoadMoreSentinel = ({ onVisible }: { onVisible: () => void }) => {
-  const ref = useOnVisible(onVisible);
-  return (
-    <Box
-      component="li"
-      ref={ref}
-      aria-hidden="true"
-      sx={{ gridColumn: "1 / -1", height: 1 }}
-    />
-  );
-};
 
 interface BooksChunkProps {
   params?: GetBooksParams;
@@ -106,24 +95,6 @@ const BooksChunk = ({
     </>
   );
 };
-
-const LoadingCovers = ({ count }: { count: number }) => (
-  <>
-    {Array.from({ length: count }, (_, index) => (
-      <Box
-        component="li"
-        key={index}
-        sx={{ listStyle: "none" }}
-        aria-hidden="true"
-      >
-        <Skeleton
-          variant="rounded"
-          sx={{ aspectRatio: "2 / 3", height: "auto", borderRadius: 1.5 }}
-        />
-      </Box>
-    ))}
-  </>
-);
 
 const LoadingRows = ({ count }: { count: number }) => (
   <>
