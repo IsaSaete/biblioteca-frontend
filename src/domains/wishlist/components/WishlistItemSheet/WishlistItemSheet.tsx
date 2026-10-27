@@ -27,7 +27,7 @@ interface WishlistItemSheetProps {
 
 // Hoja de un deseado (D-036): portada y datos, la nota editable en el sitio y
 // las dos salidas: «Ya lo tengo» lo pasa a la biblioteca (pidiendo el estado de
-// lectura, «Pendiente» por defecto) y «Quitar de deseados» lo borra. No hay
+// lectura, «Pendiente» por defecto) y «Quitar de la lista» lo borra. No hay
 // ficha completa: un deseado no tiene ejemplar, etiquetas ni citas.
 const WishlistItemSheet = ({ item, onClose }: WishlistItemSheetProps) => {
   const { book } = item;
@@ -71,7 +71,7 @@ const WishlistItemSheet = ({ item, onClose }: WishlistItemSheetProps) => {
   };
 
   return (
-    <BottomSheet open title="Libro deseado" onClose={onClose} showCloseButton>
+    <BottomSheet open title="Libro guardado" onClose={onClose} showCloseButton>
       <Box sx={{ display: "grid", gap: 4, overflowY: "auto", pt: 3 }}>
         <Box sx={{ display: "grid", gridTemplateColumns: "96px 1fr", gap: 4 }}>
           <BookCover title={book.title} coverUrl={book.coverUrl} size="small" />
@@ -164,7 +164,7 @@ const WishlistItemSheet = ({ item, onClose }: WishlistItemSheetProps) => {
               onClick={() => setIsConfirmingRemove(true)}
               sx={{ color: "error.main" }}
             >
-              Quitar de deseados
+              Quitar de la lista
             </Button>
             {hasRemoveFailed && (
               <Alert severity="error">
@@ -176,8 +176,8 @@ const WishlistItemSheet = ({ item, onClose }: WishlistItemSheetProps) => {
       </Box>
       <ConfirmDialog
         open={isConfirmingRemove}
-        title="¿Quitar de deseados?"
-        description="El libro saldrá de tu lista de deseados."
+        title="¿Quitar de la lista?"
+        description="El libro saldrá de Quiero tener."
         confirmLabel="Sí, quitar"
         pendingLabel="Quitando…"
         isPending={isRemoving}
