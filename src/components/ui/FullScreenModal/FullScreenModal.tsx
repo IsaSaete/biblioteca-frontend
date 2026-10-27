@@ -36,7 +36,11 @@ const FullScreenModal = ({
       aria-labelledby={titleId}
       slotProps={{
         paper: {
-          sx: isMobile ? undefined : { maxWidth: 480, borderRadius: "20px" },
+          // `backgroundImage: "none"` quita el degradado de elevación que MUI
+          // pone en modo oscuro y que aclara el fondo hacia un gris.
+          sx: isMobile
+            ? { backgroundImage: "none" }
+            : { maxWidth: 480, borderRadius: "20px", backgroundImage: "none" },
         },
       }}
     >

@@ -25,7 +25,7 @@ const theme = createTheme({
   colorSchemes: {
     light: {
       palette: {
-        primary: { main: "#C1653D", contrastText: "#FFFFFF" },
+        primary: { main: "#AA5936", contrastText: "#FFFFFF" },
         secondary: { main: "#F5DED2", contrastText: "#7A3D22" },
         success: {
           main: "#3F6B52",
