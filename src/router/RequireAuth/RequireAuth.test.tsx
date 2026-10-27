@@ -46,6 +46,26 @@ describe("Given a protected route", () => {
     });
   });
 
+  describe("When the session takes longer than a second", () => {
+    it("Then it explains that the server is waking up", async () => {
+      server.use(
+        http.get(`${baseUrl}/auth/me`, async () => {
+          await new Promise(() => undefined);
+        }),
+      );
+
+      renderRoutes(routes, ["/library"]);
+
+      expect(
+        await screen.findByText(
+          "Estamos despertando el servidor",
+          {},
+          { timeout: 3000 },
+        ),
+      ).toBeInTheDocument();
+    });
+  });
+
   describe("When there is a valid session", () => {
     it("Then the protected content is shown", async () => {
       server.use(
