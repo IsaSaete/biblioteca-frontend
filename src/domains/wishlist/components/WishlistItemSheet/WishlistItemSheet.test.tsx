@@ -140,7 +140,7 @@ describe("Given the sheet of a wishlist item", () => {
       const { user, onClose } = renderSheet();
 
       await user.click(
-        screen.getByRole("button", { name: "Quitar de deseados" }),
+        screen.getByRole("button", { name: "Quitar de la lista" }),
       );
       expect(removed).toBe(false);
       await user.click(screen.getByRole("button", { name: "Sí, quitar" }));

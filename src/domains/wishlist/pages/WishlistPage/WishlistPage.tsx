@@ -84,7 +84,7 @@ const WishlistChunk = ({
   );
 };
 
-// Deseados (HU-43, D-036): los libros que quieres tener, aparte de la
+// Quiero tener (HU-43, D-036): los libros que quieres tener, aparte de la
 // biblioteca. Cuadrícula de portadas con scroll infinito; al tocar una se abre
 // su hoja.
 const WishlistPage = () => {
@@ -105,7 +105,7 @@ const WishlistPage = () => {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <Box role="status" aria-label="Cargando tus deseados">
+        <Box role="status" aria-label="Cargando tu lista Quiero tener">
           <BooksGrid isPlaceholder>
             <LoadingCovers count={SKELETON_COUNT} />
           </BooksGrid>
@@ -116,7 +116,7 @@ const WishlistPage = () => {
     if (isError || !data) {
       return (
         <InlineError
-          message="No hemos podido cargar tus deseados."
+          message="No hemos podido cargar tu lista Quiero tener."
           onRetry={() => void refetch()}
         />
       );
@@ -126,13 +126,14 @@ const WishlistPage = () => {
       return (
         <EmptyState
           icon={<BookmarkIcon />}
-          title="Aún no has guardado ningún libro que quieras tener"
+          title="Todavía no has apuntado ningún libro"
+          description="Apunta aquí los libros que quieres conseguir. Cuando los tengas, pásalos a tu biblioteca."
         />
       );
     }
 
     return (
-      <BooksGrid label="Tus libros deseados">
+      <BooksGrid label="Libros que quieres tener">
         {data.items.map((item) => (
           <BookCard
             key={item.id}
@@ -162,7 +163,7 @@ const WishlistPage = () => {
         <BackButton fallbackTo="/home" />
       </Box>
       <PageHeader
-        title="Deseados"
+        title="Quiero tener"
         meta={data ? formatCount(data.total, "libro", "libros") : undefined}
       />
       {renderContent()}

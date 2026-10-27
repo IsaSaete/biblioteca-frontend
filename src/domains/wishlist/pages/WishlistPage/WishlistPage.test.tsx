@@ -47,7 +47,7 @@ describe("Given the wishlist page", () => {
       expect(screen.getAllByRole("button", { name: /Autora/ })).toHaveLength(3);
       expect(screen.getByText("3 libros")).toBeInTheDocument();
       expect(
-        screen.getByRole("heading", { name: "Deseados" }),
+        screen.getByRole("heading", { name: "Quiero tener" }),
       ).toBeInTheDocument();
     });
   });
@@ -59,9 +59,7 @@ describe("Given the wishlist page", () => {
       renderRoutes(routes, ["/wishlist"]);
 
       expect(
-        await screen.findByText(
-          "Aún no has guardado ningún libro que quieras tener",
-        ),
+        await screen.findByText("Todavía no has apuntado ningún libro"),
       ).toBeInTheDocument();
     });
   });
@@ -80,7 +78,9 @@ describe("Given the wishlist page", () => {
       renderRoutes(routes, ["/wishlist"]);
 
       expect(
-        await screen.findByText("No hemos podido cargar tus deseados."),
+        await screen.findByText(
+          "No hemos podido cargar tu lista Quiero tener.",
+        ),
       ).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: "Reintentar" }),
@@ -98,7 +98,7 @@ describe("Given the wishlist page", () => {
       );
 
       expect(
-        await screen.findByRole("dialog", { name: "Libro deseado" }),
+        await screen.findByRole("dialog", { name: "Libro guardado" }),
       ).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: "Ya lo tengo" }),
