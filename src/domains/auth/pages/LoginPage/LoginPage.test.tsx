@@ -2,6 +2,9 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { authApi } from "../../authApi";
+import { booksApi } from "../../../books/booksApi";
+import { homeApi } from "../../../home/homeApi";
+import { quotesApi } from "../../../quotes/quotesApi";
 import { createStore } from "../../../../store/store";
 import { renderRoutes } from "../../../../test/renderRoutes";
 import { server } from "../../../../test/server";
@@ -218,6 +221,44 @@ describe("Given the login page", () => {
       expect(
         authApi.endpoints.me.select()(store.getState()).data,
       ).toBeUndefined();
+    });
+  });
+
+  describe("When the user arrives at login with another account's lists still cached", () => {
+    it("Then the library, the quotes and the numbers are discarded too", async () => {
+      const store = createStore();
+      await store.dispatch(
+        quotesApi.util.upsertQueryData("getQuotes", undefined, {
+          items: [],
+          nextCursor: null,
+          total: 4,
+        }),
+      );
+      await store.dispatch(
+        booksApi.util.upsertQueryData("getBooks", undefined, {
+          items: [],
+          nextCursor: null,
+          total: 3,
+        }),
+      );
+      await store.dispatch(
+        homeApi.util.upsertQueryData("getStats", undefined, {
+          books: 3,
+          quotes: 4,
+          favorites: 0,
+        }),
+      );
+
+      renderRoutes(
+        [{ path: "/login", element: <LoginPage /> }],
+        ["/login"],
+        store,
+      );
+
+      const state = store.getState();
+      expect(state.quotesApi.queries).toEqual({});
+      expect(state.booksApi.queries).toEqual({});
+      expect(state.homeApi.queries).toEqual({});
     });
   });
 });
