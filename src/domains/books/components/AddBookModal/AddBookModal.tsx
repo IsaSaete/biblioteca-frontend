@@ -2,7 +2,7 @@ import { useState } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import FullScreenModal from "../../../../components/ui/FullScreenModal/FullScreenModal";
-import Pill from "../../../../components/ui/Pill/Pill";
+import OptionList from "../../../../components/ui/OptionList/OptionList";
 import type { ExternalBook } from "../../dto/ExternalBook";
 import ConfirmBookStep from "../ConfirmBookStep/ConfirmBookStep";
 import { useHasCamera } from "../../hooks/useHasCamera";
@@ -159,34 +159,34 @@ const AddBookModal = ({ initialStep, onClose }: AddBookModalProps) => {
         </Box>
 
         {step.name === "choose" && (
-          <Box sx={{ display: "grid", gap: 3 }}>
-            {hasCamera && (
-              <Pill
-                fullWidth
-                icon={<BarcodeIcon />}
-                label="Escanear código de barras"
-                onClick={() => setStep({ name: "scan" })}
-              />
-            )}
-            <Pill
-              fullWidth
-              icon={<KeyboardIcon />}
-              label="Escribir ISBN"
-              onClick={() => setStep({ name: "isbn" })}
-            />
-            <Pill
-              fullWidth
-              icon={<SearchIcon />}
-              label="Buscar por título o autor"
-              onClick={() => setStep({ name: "search" })}
-            />
-            <Pill
-              fullWidth
-              icon={<PencilIcon />}
-              label="Añadir manualmente"
-              onClick={() => setStep({ name: "manual", back: step })}
-            />
-          </Box>
+          <OptionList
+            options={[
+              ...(hasCamera
+                ? [
+                    {
+                      icon: <BarcodeIcon />,
+                      label: "Escanear código de barras",
+                      onClick: () => setStep({ name: "scan" }),
+                    },
+                  ]
+                : []),
+              {
+                icon: <KeyboardIcon />,
+                label: "Escribir ISBN",
+                onClick: () => setStep({ name: "isbn" }),
+              },
+              {
+                icon: <SearchIcon />,
+                label: "Buscar por título o autor",
+                onClick: () => setStep({ name: "search" }),
+              },
+              {
+                icon: <PencilIcon />,
+                label: "Añadir manualmente",
+                onClick: () => setStep({ name: "manual", back: step }),
+              },
+            ]}
+          />
         )}
         {step.name === "scan" && (
           <ScanStep

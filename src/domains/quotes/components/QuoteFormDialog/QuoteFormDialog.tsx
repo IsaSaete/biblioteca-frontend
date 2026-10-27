@@ -5,7 +5,7 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import FullScreenModal from "../../../../components/ui/FullScreenModal/FullScreenModal";
-import Pill from "../../../../components/ui/Pill/Pill";
+import OptionList from "../../../../components/ui/OptionList/OptionList";
 import { visuallyHidden } from "../../../../utils/visuallyHidden";
 import { useHasCamera } from "../../../books/hooks/useHasCamera";
 import type { Quote } from "../../dto/Quote";
@@ -110,6 +110,40 @@ const headings: Record<Step["name"], { title: string; subtitle?: string }> = {
   review: { title: "Escribe una cita" },
 };
 
+const CameraIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+    <circle cx="12" cy="13" r="4" />
+  </svg>
+);
+
+const PencilIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+  </svg>
+);
+
 // Añadir una cita al libro ya elegido —escaneando con la cámara (HU-24, HU-25)
 // o escribiéndola (HU-26)— o editar una existente (HU-30). El texto reconocido
 // nunca se guarda sin que el usuario lo revise.
@@ -144,22 +178,25 @@ const QuoteFormDialog = ({
     switch (step.name) {
       case "choose":
         return (
-          <Box sx={{ display: "grid", gap: 3 }}>
-            {hasCamera && (
-              <Pill
-                label="Escanear con la cámara"
-                fullWidth
-                onClick={() => setStep({ name: "scan" })}
-              />
-            )}
-            <Pill
-              label="Escribir manualmente"
-              fullWidth
-              onClick={() =>
-                setStep({ name: "review", text: "", origin: "manual" })
-              }
-            />
-          </Box>
+          <OptionList
+            options={[
+              ...(hasCamera
+                ? [
+                    {
+                      icon: <CameraIcon />,
+                      label: "Escanear con la cámara",
+                      onClick: () => setStep({ name: "scan" }),
+                    },
+                  ]
+                : []),
+              {
+                icon: <PencilIcon />,
+                label: "Escribir manualmente",
+                onClick: () =>
+                  setStep({ name: "review", text: "", origin: "manual" }),
+              },
+            ]}
+          />
         );
       case "scan":
         return (
