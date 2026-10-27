@@ -1,11 +1,15 @@
 import type { ComponentType } from "react";
-import { BarcodeIcon, CameraIcon, TagIcon } from "./OnboardingIcons";
+import {
+  CatalogIllustration,
+  QuotesIllustration,
+  TagsIllustration,
+} from "./OnboardingIllustrations";
 
 export interface OnboardingStep {
   id: string;
   title: string;
   description: string;
-  Icon: ComponentType;
+  Illustration: ComponentType;
 }
 
 // Contenido de pantallas-y-flujos.md («Onboarding»): el paso de las citas con
@@ -16,20 +20,20 @@ export const onboardingSteps: OnboardingStep[] = [
     title: "Cataloga tus libros en segundos",
     description:
       "Escanea el código de barras o escribe el ISBN y Glosa rellena los datos por ti.",
-    Icon: BarcodeIcon,
+    Illustration: CatalogIllustration,
   },
   {
     id: "quotes",
     title: "Guarda tus citas con la cámara",
     description:
       "Fotografía un párrafo y Glosa lo convierte en texto. La foto no sale de tu dispositivo.",
-    Icon: CameraIcon,
+    Illustration: QuotesIllustration,
   },
   {
     id: "tags",
     title: "Organiza a tu manera",
     description:
       "Crea tus propias etiquetas y encuentra cualquier libro o cita al instante.",
-    Icon: TagIcon,
+    Illustration: TagsIllustration,
   },
 ];
