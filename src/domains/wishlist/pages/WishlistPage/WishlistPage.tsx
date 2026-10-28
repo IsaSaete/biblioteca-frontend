@@ -12,27 +12,12 @@ import PageHeader from "../../../../components/ui/PageHeader/PageHeader";
 import { formatCount } from "../../../../utils/formatCount";
 import BookCard from "../../../books/components/BookCard/BookCard";
 import BooksGrid from "../../../books/components/BooksGrid/BooksGrid";
+import WishlistIcon from "../../components/WishlistIcon/WishlistIcon";
 import WishlistItemSheet from "../../components/WishlistItemSheet/WishlistItemSheet";
 import type { WishlistItem } from "../../dto/WishlistItem";
 import { useGetWishlistQuery } from "../../wishlistApi";
 
 const SKELETON_COUNT = 10;
-
-const BookmarkIcon = () => (
-  <svg
-    width="40"
-    height="40"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <path d="M6 3h12v18l-6-4-6 4z" />
-  </svg>
-);
 
 interface WishlistChunkProps {
   cursor: string;
@@ -130,7 +115,7 @@ const WishlistPage = () => {
     if (data.items.length === 0) {
       return (
         <EmptyState
-          icon={<BookmarkIcon />}
+          icon={<WishlistIcon size={48} />}
           title="Tu lista de deseos está vacía"
           description="Añade aquí los libros que quieres conseguir. Cuando los tengas, pásalos a tu biblioteca."
           action={
