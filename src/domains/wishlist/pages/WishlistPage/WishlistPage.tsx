@@ -1,6 +1,9 @@
 import { useCallback, useState } from "react";
 import Box from "@mui/material/Box";
+import Snackbar from "@mui/material/Snackbar";
+import AddBookModal from "../../../books/components/AddBookModal/AddBookModal";
 import BackButton from "../../../../components/ui/BackButton/BackButton";
+import Button from "../../../../components/ui/Button/Button";
 import EmptyState from "../../../../components/ui/EmptyState/EmptyState";
 import InlineError from "../../../../components/ui/InlineError/InlineError";
 import LoadingCovers from "../../../../components/ui/LoadingCovers/LoadingCovers";
@@ -84,11 +87,13 @@ const WishlistChunk = ({
   );
 };
 
-// Quiero tener (HU-43, D-036): los libros que quieres tener, aparte de la
+// Lista de deseos (HU-43, D-036): los libros que quieres tener, aparte de la
 // biblioteca. Cuadrícula de portadas con scroll infinito; al tocar una se abre
 // su hoja.
 const WishlistPage = () => {
   const [moreCursors, setMoreCursors] = useState<string[]>([]);
+  const [isAdding, setIsAdding] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<WishlistItem | null>(null);
   const { data, isLoading, isError, refetch } = useGetWishlistQuery();
 
@@ -105,7 +110,7 @@ const WishlistPage = () => {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <Box role="status" aria-label="Cargando tu lista Quiero tener">
+        <Box role="status" aria-label="Cargando tu lista de deseos">
           <BooksGrid isPlaceholder>
             <LoadingCovers count={SKELETON_COUNT} />
           </BooksGrid>
@@ -116,7 +121,7 @@ const WishlistPage = () => {
     if (isError || !data) {
       return (
         <InlineError
-          message="No hemos podido cargar tu lista Quiero tener."
+          message="No hemos podido cargar tu lista de deseos."
           onRetry={() => void refetch()}
         />
       );
@@ -126,8 +131,11 @@ const WishlistPage = () => {
       return (
         <EmptyState
           icon={<BookmarkIcon />}
-          title="Todavía no has apuntado ningún libro"
-          description="Apunta aquí los libros que quieres conseguir. Cuando los tengas, pásalos a tu biblioteca."
+          title="Tu lista de deseos está vacía"
+          description="Añade aquí los libros que quieres conseguir. Cuando los tengas, pásalos a tu biblioteca."
+          action={
+            <Button onClick={() => setIsAdding(true)}>Añadir a la lista</Button>
+          }
         />
       );
     }
@@ -163,17 +171,35 @@ const WishlistPage = () => {
         <BackButton fallbackTo="/home" />
       </Box>
       <PageHeader
-        title="Quiero tener"
+        title="Lista de deseos"
+        action={
+          <Button
+            onClick={() => setIsAdding(true)}
+            sx={{ minHeight: 40, px: 4, borderRadius: "999px" }}
+          >
+            Añadir a la lista
+          </Button>
+        }
         meta={data ? formatCount(data.total, "libro", "libros") : undefined}
       />
       {renderContent()}
+      {isAdding && (
+        <AddBookModal mode="wishlist" onClose={() => setIsAdding(false)} />
+      )}
       {selectedItem && (
         <WishlistItemSheet
           key={selectedItem.id}
           item={selectedItem}
           onClose={() => setSelectedItem(null)}
+          onDone={setNotice}
         />
       )}
+      <Snackbar
+        open={notice !== null}
+        autoHideDuration={4000}
+        onClose={() => setNotice(null)}
+        message={notice}
+      />
     </Box>
   );
 };

@@ -10,6 +10,8 @@ interface FullScreenModalProps {
   titleId: string;
   onClose?: () => void;
   onBack?: () => void;
+  // Tocar fuera del diálogo no lo cierra: solo la ✕, Esc o sus propias acciones.
+  disableBackdropClose?: boolean;
   children: ReactNode;
 }
 
@@ -21,6 +23,7 @@ const FullScreenModal = ({
   titleId,
   onClose,
   onBack,
+  disableBackdropClose = false,
   children,
 }: FullScreenModalProps) => {
   const theme = useTheme();
@@ -29,18 +32,19 @@ const FullScreenModal = ({
   return (
     <Dialog
       open
-      onClose={onClose}
+      onClose={(_event, reason) => {
+        if (reason === "backdropClick" && disableBackdropClose) {
+          return;
+        }
+        onClose?.();
+      }}
       fullScreen={isMobile}
       fullWidth
       maxWidth={false}
       aria-labelledby={titleId}
       slotProps={{
         paper: {
-          // `backgroundImage: "none"` quita el degradado de elevación que MUI
-          // pone en modo oscuro y que aclara el fondo hacia un gris.
-          sx: isMobile
-            ? { backgroundImage: "none" }
-            : { maxWidth: 480, borderRadius: "20px", backgroundImage: "none" },
+          sx: isMobile ? undefined : { maxWidth: 480, borderRadius: "20px" },
         },
       }}
     >

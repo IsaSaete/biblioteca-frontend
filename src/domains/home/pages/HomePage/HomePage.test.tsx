@@ -9,7 +9,6 @@ const routes = [
   { path: "/home", element: <HomePage /> },
   { path: "/library", element: <p>Pantalla de Biblioteca</p> },
   { path: "/quotes", element: <p>Pantalla de Citas</p> },
-  { path: "/wishlist", element: <p>Pantalla de Quiero tener</p> },
 ];
 
 const bookEntry = (id: number) => ({
@@ -70,17 +69,7 @@ const failWith500 = (path: string) =>
     ),
   );
 
-// Sin deseados por defecto: cada test que los necesite los pide aparte.
-const mockEmptyWishlist = () =>
-  server.use(
-    http.get(`${baseUrl}/wishlist`, () =>
-      HttpResponse.json({ items: [], nextCursor: null, total: 0 }),
-    ),
-  );
-
 describe("Given the home page", () => {
-  beforeEach(mockEmptyWishlist);
-
   describe("When the user has books, quotes and stats", () => {
     it("Then it shows the recent books, the latest quotes and the three figures", async () => {
       mockBooks(12);
@@ -188,22 +177,15 @@ describe("Given the home page", () => {
   });
 
   describe("When the user follows a «Ver todos» link", () => {
-    it("Then it goes to the library, the wishlist or the quotes", async () => {
+    it("Then it goes to the library or to the quotes", async () => {
       mockBooks(1);
       mockQuotes(1);
       mockStats();
 
       const { user, router } = renderRoutes(routes, ["/home"]);
 
-      const seeAll = await screen.findAllByRole("link", { name: /Ver todos/ });
-      await user.click(seeAll[0]);
+      await user.click(await screen.findByRole("link", { name: /Ver todos/ }));
       expect(router.state.location.pathname).toBe("/library");
-
-      await router.navigate("/home");
-      await user.click(
-        (await screen.findAllByRole("link", { name: /Ver todos/ }))[1],
-      );
-      expect(router.state.location.pathname).toBe("/wishlist");
 
       await router.navigate("/home");
       await user.click(await screen.findByRole("link", { name: /Ver todas/ }));

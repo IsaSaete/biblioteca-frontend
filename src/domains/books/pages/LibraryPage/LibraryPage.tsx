@@ -12,6 +12,7 @@ import EmptyState from "../../../../components/ui/EmptyState/EmptyState";
 import InlineError from "../../../../components/ui/InlineError/InlineError";
 import LoadingCovers from "../../../../components/ui/LoadingCovers/LoadingCovers";
 import LoadMoreSentinel from "../../../../components/ui/LoadMoreSentinel/LoadMoreSentinel";
+import WishlistLink from "../../../wishlist/components/WishlistLink/WishlistLink";
 import { formatCount } from "../../../../utils/formatCount";
 import { useGetBooksQuery } from "../../booksApi";
 import type { GetBooksParams } from "../../dto/GetBooksParams";
@@ -252,6 +253,7 @@ const LibraryPage = () => {
             : formatCount(total, "libro", "libros")
         }
       />
+      <WishlistLink />
       {hasToolbar && (
         <ListToolbar
           start={

@@ -24,13 +24,14 @@ const item: WishlistItem = {
 
 const renderSheet = () => {
   const onClose = vi.fn();
+  const onDone = vi.fn();
   render(
     <Provider store={createStore()}>
-      <WishlistItemSheet item={item} onClose={onClose} />
+      <WishlistItemSheet item={item} onClose={onClose} onDone={onDone} />
     </Provider>,
   );
 
-  return { onClose, user: userEvent.setup() };
+  return { onClose, onDone, user: userEvent.setup() };
 };
 
 describe("Given the sheet of a wishlist item", () => {
@@ -67,11 +68,10 @@ describe("Given the sheet of a wishlist item", () => {
       await user.click(screen.getByRole("button", { name: "Guardar nota" }));
 
       expect(body).toEqual({ note: "Regalo de cumpleaños" });
-      await vi.waitFor(() =>
-        expect(
-          screen.queryByRole("button", { name: "Guardar nota" }),
-        ).not.toBeInTheDocument(),
-      );
+      expect(await screen.findByText("Nota guardada.")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Guardar nota" }),
+      ).not.toBeInTheDocument();
     });
 
     it("Then clearing the note sends null", async () => {
@@ -111,7 +111,7 @@ describe("Given the sheet of a wishlist item", () => {
           );
         }),
       );
-      const { user, onClose } = renderSheet();
+      const { user, onClose, onDone } = renderSheet();
 
       await user.click(screen.getByRole("button", { name: "Ya lo tengo" }));
       expect(screen.getByRole("button", { name: "Pendiente" })).toHaveAttribute(
@@ -125,6 +125,9 @@ describe("Given the sheet of a wishlist item", () => {
 
       await vi.waitFor(() => expect(onClose).toHaveBeenCalled());
       expect(body).toEqual({ status: "read" });
+      expect(onDone).toHaveBeenCalledWith(
+        "«Cien años de soledad» se ha añadido a tu biblioteca.",
+      );
     });
   });
 
@@ -137,7 +140,7 @@ describe("Given the sheet of a wishlist item", () => {
           return new HttpResponse(null, { status: 204 });
         }),
       );
-      const { user, onClose } = renderSheet();
+      const { user, onClose, onDone } = renderSheet();
 
       await user.click(
         screen.getByRole("button", { name: "Quitar de la lista" }),
@@ -147,6 +150,9 @@ describe("Given the sheet of a wishlist item", () => {
 
       await vi.waitFor(() => expect(onClose).toHaveBeenCalled());
       expect(removed).toBe(true);
+      expect(onDone).toHaveBeenCalledWith(
+        "«Cien años de soledad» se ha quitado de tu lista de deseos.",
+      );
     });
   });
 
@@ -172,6 +178,86 @@ describe("Given the sheet of a wishlist item", () => {
           "No se pudo añadir el libro. Inténtalo de nuevo.",
         ),
       ).toBeInTheDocument();
+      expect(onClose).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("When it is opened", () => {
+    it("Then it is a dialog named after the book", () => {
+      renderSheet();
+
+      expect(
+        screen.getByRole("dialog", { name: "Cien años de soledad" }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the user tries to close it", () => {
+    it("Then tapping outside does nothing, and the cross closes it when there is nothing unsaved", async () => {
+      const { user, onClose } = renderSheet();
+
+      await user.click(document.querySelector(".MuiBackdrop-root") as Element);
+      expect(onClose).not.toHaveBeenCalled();
+      await user.click(screen.getByRole("button", { name: "Cerrar" }));
+
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it("Then Escape closes it like the cross", async () => {
+      const { user, onClose } = renderSheet();
+
+      await user.keyboard("{Escape}");
+
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("When there is a note not saved and the user closes it", () => {
+    it("Then it asks first, and staying keeps the note", async () => {
+      const { user, onClose } = renderSheet();
+      await user.type(screen.getByLabelText("Nota"), " y más");
+
+      await user.click(screen.getByRole("button", { name: "Cerrar" }));
+
+      expect(
+        screen.getByRole("dialog", {
+          name: "¿Salir sin guardar la nota?",
+        }),
+      ).toBeInTheDocument();
+      expect(onClose).not.toHaveBeenCalled();
+      await user.click(screen.getByRole("button", { name: "Cancelar" }));
+      expect(screen.getByLabelText("Nota")).toHaveValue(
+        "Me lo recomendó Ana y más",
+      );
+    });
+
+    it("Then confirming leaves and discards the note", async () => {
+      const { user, onClose } = renderSheet();
+      await user.type(screen.getByLabelText("Nota"), " y más");
+
+      await user.click(screen.getByRole("button", { name: "Cerrar" }));
+      await user.click(screen.getByRole("button", { name: "Sí, salir" }));
+
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("When the user is choosing the reading status", () => {
+    it("Then the back arrow, opposite the cross, returns to the two actions without adding anything", async () => {
+      const { user, onClose } = renderSheet();
+      expect(
+        screen.queryByRole("button", { name: "Volver" }),
+      ).not.toBeInTheDocument();
+      await user.click(screen.getByRole("button", { name: "Ya lo tengo" }));
+
+      await user.click(screen.getByRole("button", { name: "Volver" }));
+
+      expect(
+        screen.getByRole("button", { name: "Ya lo tengo" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Añadir a mi biblioteca" }),
+      ).not.toBeInTheDocument();
       expect(onClose).not.toHaveBeenCalled();
     });
   });

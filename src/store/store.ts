@@ -5,6 +5,7 @@ import { homeApi } from "../domains/home/homeApi";
 import { quotesApi } from "../domains/quotes/quotesApi";
 import { wishlistApi } from "../domains/wishlist/wishlistApi";
 import { createSessionCacheMiddleware } from "./sessionCache";
+import { createWishlistInvalidationMiddleware } from "./wishlistInvalidation";
 
 export const createStore = () =>
   configureStore({
@@ -17,7 +18,10 @@ export const createStore = () =>
     },
     middleware: (getDefault) =>
       getDefault()
-        .prepend(createSessionCacheMiddleware())
+        .prepend(
+          createSessionCacheMiddleware(),
+          createWishlistInvalidationMiddleware(),
+        )
         .concat(
           authApi.middleware,
           booksApi.middleware,
