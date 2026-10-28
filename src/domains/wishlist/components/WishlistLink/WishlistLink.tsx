@@ -2,22 +2,7 @@ import { Link as RouterLink } from "react-router";
 import Box from "@mui/material/Box";
 import ButtonBase from "@mui/material/ButtonBase";
 import Typography from "@mui/material/Typography";
-
-const BookmarkIcon = () => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <path d="M6 3h12v18l-6-4-6 4z" />
-  </svg>
-);
+import WishlistIcon from "../WishlistIcon/WishlistIcon";
 
 const ChevronIcon = () => (
   <svg
@@ -55,7 +40,7 @@ const WishlistLink = () => (
     }}
   >
     <Box component="span" sx={{ display: "flex", color: "primary.main" }}>
-      <BookmarkIcon />
+      <WishlistIcon />
     </Box>
     <Typography component="span" sx={{ flexGrow: 1 }}>
       Lista de deseos
