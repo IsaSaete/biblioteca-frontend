@@ -3,9 +3,8 @@ import { visuallyHidden } from "../../../../utils/visuallyHidden";
 import LatestQuotesSection from "../../components/LatestQuotesSection/LatestQuotesSection";
 import RecentBooksSection from "../../components/RecentBooksSection/RecentBooksSection";
 import StatsSection from "../../components/StatsSection/StatsSection";
-import WishlistSection from "../../components/WishlistSection/WishlistSection";
 
-// Inicio (HU-32, 34 y 35): libros recientes, últimas citas, deseados y tres cifras, en
+// Inicio (HU-32, 34 y 35): libros recientes, últimas citas y tres cifras, en
 // una sola columna. Cada sección carga y falla por su cuenta.
 const HomePage = () => (
   <Box
@@ -25,7 +24,6 @@ const HomePage = () => (
     </Box>
     <RecentBooksSection />
     <LatestQuotesSection />
-    <WishlistSection />
     <StatsSection />
   </Box>
 );

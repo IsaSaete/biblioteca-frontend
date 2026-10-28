@@ -10,7 +10,7 @@ import type { ConfirmBookFormValues } from "./confirmBookSchema";
 export const buildCreateBookRequest = (
   book: ExternalBook | null,
   values: ConfirmBookFormValues,
-  status: BookStatus,
+  status?: BookStatus,
 ): CreateBookRequest => {
   const { publishedYear, language, pageCount } = values;
   const hasCover =
@@ -27,6 +27,6 @@ export const buildCreateBookRequest = (
     ...(hasCover && { coverUrl: book.coverUrl, coverSource: book.coverSource }),
     ...(book?.synopsis && { synopsis: book.synopsis }),
     ...(book?.categories && { categories: book.categories }),
-    status,
+    ...(status && { status }),
   };
 };

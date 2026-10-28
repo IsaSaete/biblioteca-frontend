@@ -74,6 +74,12 @@ const theme = createTheme({
     button: { fontSize: "0.875rem", fontWeight: 500, textTransform: "none" },
   },
   components: {
+    // En modo oscuro MUI tiñe de gris el fondo de todo lo elevado (hojas,
+    // diálogos, paneles) con un degradado. Aquí se quita para que todo use el
+    // color de superficie del sistema de diseño, igual en claro y en oscuro.
+    MuiPaper: {
+      styleOverrides: { root: { backgroundImage: "none" } },
+    },
     // Velo detrás de hojas, paneles anclados y diálogos: el mismo para todos, para
     // que lo abierto gane protagonismo sin ocultar el contenido de detrás. Los
     // fondos invisibles (menús, selects) siguen sin velo.

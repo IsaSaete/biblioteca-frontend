@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import AppLayout from "../../../../components/navigation/AppLayout/AppLayout";
 import { renderRoutes } from "../../../../test/renderRoutes";
 import { server } from "../../../../test/server";
+import AddBookModal from "./AddBookModal";
 
 const detectMock = vi.hoisted(() => vi.fn());
 
@@ -18,6 +20,15 @@ const routes = [
     children: [{ path: "/library", element: <p>Contenido de biblioteca</p> }],
   },
 ];
+
+// El modo «Lista de deseos» lo abre la pantalla de la lista, que lleva su modal.
+const WishlistModalHost = () => {
+  const [isOpen, setIsOpen] = useState(true);
+
+  return isOpen ? (
+    <AddBookModal mode="wishlist" onClose={() => setIsOpen(false)} />
+  ) : null;
+};
 
 const externalBook = {
   isbn: "9788437604947",
@@ -131,7 +142,9 @@ describe("Given the add book flow", () => {
         "true",
       );
       await user.click(screen.getByRole("button", { name: "Leyendo" }));
-      await user.click(screen.getByRole("button", { name: "Guardar libro" }));
+      await user.click(
+        screen.getByRole("button", { name: "Añadir a mi biblioteca" }),
+      );
 
       await waitFor(() =>
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
@@ -161,7 +174,7 @@ describe("Given the add book flow", () => {
       await user.click(screen.getByRole("button", { name: "Buscar libro" }));
 
       await user.click(
-        await screen.findByRole("button", { name: "Guardar libro" }),
+        await screen.findByRole("button", { name: "Añadir a mi biblioteca" }),
       );
 
       expect(screen.getByLabelText("Editorial")).toBeInvalid();
@@ -190,7 +203,9 @@ describe("Given the add book flow", () => {
       const title = screen.getByLabelText("Título");
       await user.clear(title);
       await user.type(title, "Cien años");
-      await user.click(screen.getByRole("button", { name: "Guardar libro" }));
+      await user.click(
+        screen.getByRole("button", { name: "Añadir a mi biblioteca" }),
+      );
 
       expect(await screen.findByRole("alert")).toHaveTextContent(
         "Este libro ya está en tu biblioteca.",
@@ -225,7 +240,9 @@ describe("Given the add book flow", () => {
         screen.getByRole("button", { name: "Añadir manualmente" }),
       );
 
-      await user.click(screen.getByRole("button", { name: "Guardar libro" }));
+      await user.click(
+        screen.getByRole("button", { name: "Añadir a mi biblioteca" }),
+      );
       expect(screen.getByText("Escribe el título")).toBeInTheDocument();
       expect(screen.getByText("Escribe al menos un autor")).toBeInTheDocument();
       expect(screen.getByText("Escribe la editorial")).toBeInTheDocument();
@@ -234,7 +251,9 @@ describe("Given the add book flow", () => {
       await user.type(screen.getByLabelText("Título"), "Libro raro");
       await user.type(screen.getByLabelText("Autores"), "Alguien, Otra");
       await user.type(screen.getByLabelText("Editorial"), "Editorial X");
-      await user.click(screen.getByRole("button", { name: "Guardar libro" }));
+      await user.click(
+        screen.getByRole("button", { name: "Añadir a mi biblioteca" }),
+      );
 
       await waitFor(() =>
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
@@ -273,7 +292,9 @@ describe("Given the add book flow", () => {
       await user.type(screen.getByLabelText("Título"), "Libro");
       await user.type(screen.getByLabelText("Autores"), "Autor");
       await user.type(screen.getByLabelText("Editorial"), "Editorial");
-      await user.click(screen.getByRole("button", { name: "Guardar libro" }));
+      await user.click(
+        screen.getByRole("button", { name: "Añadir a mi biblioteca" }),
+      );
 
       await screen.findByRole("alert");
       expect(body).toMatchObject({ isbn: "9788437604947" });
@@ -460,6 +481,131 @@ describe("Given the add book flow", () => {
       expect(
         screen.getByRole("button", { name: "Escribir ISBN" }),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the user saves a found book in the wishlist from the normal flow", () => {
+    it("Then it posts it to the wishlist without a reading status or a note and closes the dialog", async () => {
+      mockLookup();
+      let body: Record<string, unknown> | null = null;
+      server.use(
+        http.post(`${baseUrl}/wishlist`, async ({ request }) => {
+          body = (await request.json()) as Record<string, unknown>;
+          return HttpResponse.json(
+            {
+              item: {
+                id: "item-1",
+                book: { ...externalBook, id: "book-1" },
+                createdAt: "2026-10-27T10:00:00.000Z",
+              },
+            },
+            { status: 201 },
+          );
+        }),
+      );
+      const { user } = renderRoutes(routes, ["/library"]);
+      await openIsbnStep(user);
+
+      await user.type(screen.getByLabelText("ISBN"), "9788437604947");
+      await user.click(screen.getByRole("button", { name: "Buscar libro" }));
+      await screen.findByText("Confirma los datos");
+      await user.click(
+        screen.getByRole("button", { name: "Añadir a la lista de deseos" }),
+      );
+
+      await waitFor(() =>
+        expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+      );
+      expect(body).toMatchObject({
+        isbn: "9788437604947",
+        title: "Cien años de soledad",
+      });
+      expect(body).not.toHaveProperty("status");
+      expect(body).not.toHaveProperty("note");
+    });
+  });
+
+  describe("When the book is already in the wishlist", () => {
+    it("Then it says so and keeps the dialog open", async () => {
+      mockLookup();
+      server.use(
+        http.post(`${baseUrl}/wishlist`, () =>
+          apiError(409, "BOOK_ALREADY_IN_WISHLIST"),
+        ),
+      );
+      const { user } = renderRoutes(routes, ["/library"]);
+      await openIsbnStep(user);
+      await user.type(screen.getByLabelText("ISBN"), "9788437604947");
+      await user.click(screen.getByRole("button", { name: "Buscar libro" }));
+      await screen.findByText("Confirma los datos");
+
+      await user.click(
+        screen.getByRole("button", { name: "Añadir a la lista de deseos" }),
+      );
+
+      expect(
+        await screen.findByText("Este libro ya está en tu lista de deseos."),
+      ).toBeInTheDocument();
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+    });
+  });
+
+  describe("When the flow is opened to write down a book in the wishlist", () => {
+    it("Then it has its own title, no reading status, a note and a read-only catalog book", async () => {
+      mockLookup();
+      let body: Record<string, unknown> | null = null;
+      server.use(
+        http.post(`${baseUrl}/wishlist`, async ({ request }) => {
+          body = (await request.json()) as Record<string, unknown>;
+          return HttpResponse.json(
+            {
+              item: {
+                id: "item-1",
+                book: { ...externalBook, id: "book-1" },
+                note: "Regalo",
+                createdAt: "2026-10-27T10:00:00.000Z",
+              },
+            },
+            { status: 201 },
+          );
+        }),
+      );
+      const { user } = renderRoutes(
+        [{ path: "/wishlist", element: <WishlistModalHost /> }],
+        ["/wishlist"],
+      );
+      expect(
+        await screen.findByRole("heading", {
+          name: "Añade a tu lista de deseos",
+        }),
+      ).toBeInTheDocument();
+      await user.click(screen.getByRole("button", { name: "Escribir ISBN" }));
+
+      await user.type(screen.getByLabelText("ISBN"), "9788437604947");
+      await user.click(screen.getByRole("button", { name: "Buscar libro" }));
+      await screen.findByText("Confirma los datos");
+      expect(
+        screen.queryByRole("button", { name: "Pendiente" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Editar datos del libro" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Añadir a mi biblioteca" }),
+      ).not.toBeInTheDocument();
+      await user.type(screen.getByLabelText("Nota (opcional)"), "Regalo");
+      await user.click(
+        screen.getByRole("button", { name: "Añadir a la lista de deseos" }),
+      );
+
+      await waitFor(() =>
+        expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+      );
+      expect(body).toMatchObject({
+        note: "Regalo",
+        title: "Cien años de soledad",
+      });
+      expect(body).not.toHaveProperty("status");
     });
   });
 });

@@ -13,6 +13,8 @@ import SearchStep from "../SearchStep/SearchStep";
 interface AddBookModalProps {
   // Abrir directamente en el escaneo (icono de la barra superior).
   initialStep?: "scan";
+  // Añadir el libro a la «Lista de deseos» en lugar de añadirlo a la biblioteca.
+  mode?: "wishlist";
   onClose: () => void;
 }
 
@@ -123,11 +125,15 @@ const KeyboardIcon = () => (
 // Flujo «Añadir libro». Cada paso que avanza guarda a dónde vuelve «Volver».
 // «Escanear código de barras» solo se ofrece si hay cámara (en escritorio sin
 // ella queda «Escribir ISBN», que llega al mismo autocompletado).
-const AddBookModal = ({ initialStep, onClose }: AddBookModalProps) => {
+const AddBookModal = ({ initialStep, mode, onClose }: AddBookModalProps) => {
   const [step, setStep] = useState<Step>(
     initialStep === "scan" ? { name: "scan" } : { name: "choose" },
   );
-  const heading = headings[step.name];
+  const baseHeading = headings[step.name];
+  const heading =
+    mode === "wishlist" && step.name === "choose"
+      ? { ...baseHeading, title: "Añade a tu lista de deseos" }
+      : baseHeading;
   const hasCamera = useHasCamera();
 
   const handleBack = (): void => {
@@ -243,11 +249,12 @@ const AddBookModal = ({ initialStep, onClose }: AddBookModalProps) => {
               ...(step.isbn && { isbn: step.isbn }),
             }}
             isManual
+            mode={mode}
             onSaved={onClose}
           />
         )}
         {step.name === "confirm" && (
-          <ConfirmBookStep book={step.book} onSaved={onClose} />
+          <ConfirmBookStep book={step.book} mode={mode} onSaved={onClose} />
         )}
       </Box>
     </FullScreenModal>
