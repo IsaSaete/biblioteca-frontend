@@ -1,11 +1,11 @@
 import { Link as RouterLink } from "react-router";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
-import Typography from "@mui/material/Typography";
-import ThemeSwitch from "../ThemeSwitch/ThemeSwitch";
+import Brand from "../../../../components/ui/Brand/Brand";
 import { landingContent } from "../../content/landingContent";
+import ThemeSwitch from "../ThemeSwitch/ThemeSwitch";
 
-const { brand, header } = landingContent;
+const { header } = landingContent;
 
 const LandingHeader = () => (
   <Box
@@ -19,83 +19,59 @@ const LandingHeader = () => (
       pb: 6,
     }}
   >
+    <Brand to="/" />
+    {/* Móvil: «Entrar» y «Crear cuenta» arriba y el interruptor de tema justo
+        debajo, a la vista. Desde 768 px, todo en una fila. */}
     <Box
-      component={RouterLink}
-      to="/"
-      aria-label={`${brand.name}, ${brand.tagline.toLowerCase()}`}
       sx={{
-        display: "inline-flex",
-        flexDirection: "column",
-        gap: 2,
-        color: "inherit",
-        textDecoration: "none",
+        display: "flex",
+        flexDirection: { xs: "column", sm: "row" },
+        alignItems: { xs: "flex-end", sm: "center" },
+        gap: { xs: 1, sm: 5 },
       }}
     >
-      <Typography
-        variant="landingDisplay"
-        component="span"
-        sx={{
-          fontSize: "clamp(44px, 5.6vw, 64px)",
-          lineHeight: 0.95,
-          letterSpacing: "-0.015em",
-        }}
+      <Box
+        component="nav"
+        aria-label="Principal"
+        sx={{ display: "flex", alignItems: "center", gap: { xs: 3, sm: 5 } }}
       >
-        {brand.name}
-      </Typography>
-      <Typography
-        variant="landingUi"
-        component="span"
-        sx={{
-          fontSize: "clamp(17px, 1.7vw, 20px)",
-          fontWeight: 400,
-          color: "text.secondary",
-        }}
-      >
-        {brand.tagline}
-      </Typography>
-    </Box>
-    <Box
-      component="nav"
-      aria-label="Principal"
-      sx={{ display: "flex", alignItems: "center", gap: { xs: 3, sm: 5 } }}
-    >
-      {/* En móvil no cabe junto a «Entrar» y «Crear cuenta»: allí va en el pie. */}
-      <Box sx={{ display: { xs: "none", sm: "block" } }}>
+        <Link
+          component={RouterLink}
+          to="/login"
+          color="inherit"
+          underline="always"
+          sx={(theme) => ({
+            ...theme.typography.landingUi,
+            whiteSpace: "nowrap",
+            py: 3,
+            px: 1,
+            textUnderlineOffset: "5px",
+          })}
+        >
+          {header.signIn}
+        </Link>
+        <Link
+          component={RouterLink}
+          to="/register"
+          underline="none"
+          sx={(theme) => ({
+            ...theme.typography.landingUi,
+            whiteSpace: "nowrap",
+            display: "inline-flex",
+            alignItems: "center",
+            minHeight: 44,
+            px: { xs: 4, sm: 5 },
+            borderRadius: "999px",
+            bgcolor: "primary.main",
+            color: "primary.contrastText",
+          })}
+        >
+          {header.signUp}
+        </Link>
+      </Box>
+      <Box sx={{ order: { xs: 1, sm: -1 } }}>
         <ThemeSwitch />
       </Box>
-      <Link
-        component={RouterLink}
-        to="/login"
-        color="inherit"
-        underline="always"
-        sx={(theme) => ({
-          ...theme.typography.landingUi,
-          whiteSpace: "nowrap",
-          py: 3,
-          px: 1,
-          textUnderlineOffset: "5px",
-        })}
-      >
-        {header.signIn}
-      </Link>
-      <Link
-        component={RouterLink}
-        to="/register"
-        underline="none"
-        sx={(theme) => ({
-          ...theme.typography.landingUi,
-          whiteSpace: "nowrap",
-          display: "inline-flex",
-          alignItems: "center",
-          minHeight: 44,
-          px: { xs: 4, sm: 5 },
-          borderRadius: "999px",
-          bgcolor: "primary.main",
-          color: "primary.contrastText",
-        })}
-      >
-        {header.signUp}
-      </Link>
     </Box>
   </Box>
 );

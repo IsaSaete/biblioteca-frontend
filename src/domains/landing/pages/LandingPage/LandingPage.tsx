@@ -7,7 +7,7 @@ import TagsDemo from "../../components/TagsDemo/TagsDemo";
 import LandingHeader from "../../components/LandingHeader/LandingHeader";
 import LandingIntro from "../../components/LandingIntro/LandingIntro";
 import { useRedirectWhenSignedIn } from "../../hooks/useRedirectWhenSignedIn";
-import "../../landingFonts.css";
+import "../../../../styles/landingFonts.css";
 
 // Las tres fuentes que pintan la portada se piden desde el principio; el resto
 // se descarga solo si hay texto que las necesita.
