@@ -6,7 +6,7 @@ import LandingSection from "../LandingSection/LandingSection";
 import SectionTitle from "../SectionTitle/SectionTitle";
 
 const DataSection = () => (
-  <LandingSection>
+  <LandingSection tone="surface">
     <SectionTitle>{dataContent.title}</SectionTitle>
     <Box sx={{ display: "grid", gap: 4, maxWidth: "34em" }}>
       {dataContent.points.map(({ lead, text }) => (

@@ -13,7 +13,7 @@ interface ClosingSectionProps {
 }
 
 const ClosingSection = ({ ctaRef }: ClosingSectionProps) => (
-  <LandingSection>
+  <LandingSection tone="surface">
     <SectionTitle>{closingContent.title}</SectionTitle>
     <Typography
       variant="landingText"
