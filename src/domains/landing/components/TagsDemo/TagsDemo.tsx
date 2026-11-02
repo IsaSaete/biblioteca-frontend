@@ -47,23 +47,7 @@ const TagsDemo = () => {
           <Box
             role="group"
             aria-label={tagsContent.groupLabel}
-            sx={(theme) => ({
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 2,
-              mt: 6,
-              // Móvil: una sola fila que se desliza, pegada a las portadas.
-              [theme.breakpoints.down("md")]: {
-                flexWrap: "nowrap",
-                overflowX: "auto",
-                mx: -4,
-                px: 4,
-                py: 1,
-                scrollbarWidth: "none",
-                "&::-webkit-scrollbar": { display: "none" },
-                "& > *": { flex: "0 0 auto" },
-              },
-            })}
+            sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 6 }}
           >
             {demoFilters.map(({ id, label }) => {
               const selected = id === filter;
