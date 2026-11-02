@@ -20,16 +20,12 @@ const LandingHeader = () => (
     }}
   >
     <Brand to="/" />
-    {/* Móvil: «Entrar» y «Crear cuenta» arriba y el interruptor de tema justo
-        debajo, a la vista. Desde 768 px, todo en una fila. */}
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: { xs: "column", sm: "row" },
-        alignItems: { xs: "flex-end", sm: "center" },
-        gap: { xs: 1, sm: 5 },
-      }}
-    >
+    {/* El interruptor de tema solo se muestra desde 768 px: en móvil la landing
+        sigue el modo del sistema y el cambio se hace desde Perfil (D-041). */}
+    <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 3, sm: 5 } }}>
+      <Box sx={{ display: { xs: "none", sm: "block" } }}>
+        <ThemeSwitch />
+      </Box>
       <Box
         component="nav"
         aria-label="Principal"
@@ -68,9 +64,6 @@ const LandingHeader = () => (
         >
           {header.signUp}
         </Link>
-      </Box>
-      <Box sx={{ order: { xs: 1, sm: -1 } }}>
-        <ThemeSwitch />
       </Box>
     </Box>
   </Box>
