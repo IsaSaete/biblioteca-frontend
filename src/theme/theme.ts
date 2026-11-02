@@ -132,7 +132,9 @@ const theme = createTheme({
           dashed: "#7A7266",
           line: "#322D26",
           lineStrong: "#4A4339",
-          band: "#231F1A",
+          // Más oscura que el fondo y que la superficie: así la banda se
+          // distingue de las dos en modo oscuro.
+          band: "#0F0D0A",
           onBand: "#F2ECE4",
           onBandMuted: "#B8AFA0",
           bandAccent: "#E9A987",
