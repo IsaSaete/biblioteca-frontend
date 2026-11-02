@@ -5,17 +5,31 @@ import { themeVars } from "../../themeVars";
 interface LandingSectionProps {
   // Nota al margen: solo si aporta información.
   note?: string;
+  // Fondo de superficie a todo el ancho, para dar ritmo entre secciones.
+  surface?: boolean;
   children: ReactNode;
 }
 
 // Un folio de manuscrito: el texto en su columna y, al lado, el margen donde
 // otra mano anota. En el código el texto va primero y la nota después, para
 // que un lector de pantalla lea la sección antes que su glosa.
-const LandingSection = ({ note, children }: LandingSectionProps) => (
+const LandingSection = ({
+  note,
+  surface = false,
+  children,
+}: LandingSectionProps) => (
   <Box
     component="section"
     sx={(theme) => ({
       pt: "clamp(64px, 9vw, 120px)",
+      ...(surface && {
+        pb: "clamp(64px, 9vw, 120px)",
+        bgcolor: "background.paper",
+        // Se extiende a los lados con una sombra y se recorta en vertical:
+        // así ocupa todo el ancho sin provocar scroll horizontal.
+        boxShadow: `0 0 0 100vmax ${themeVars(theme).palette.background.paper}`,
+        clipPath: "inset(0 -100vmax)",
+      }),
       display: "grid",
       gridTemplateColumns: "230px minmax(0, 1fr)",
       columnGap: "clamp(40px, 6vw, 76px)",
