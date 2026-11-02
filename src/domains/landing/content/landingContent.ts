@@ -23,15 +23,29 @@ export const addBookContent = {
   title: "Cuatro maneras de añadir un libro.",
   methods: [
     {
+      icon: "scan",
+      color: 1,
       name: "Escaneando el código de barras",
       hint: "apuntas con la cámara y listo",
     },
-    { name: "Escribiendo el ISBN", hint: "si prefieres teclear" },
     {
+      icon: "isbn",
+      color: 2,
+      name: "Escribiendo el ISBN",
+      hint: "si prefieres teclear",
+    },
+    {
+      icon: "search",
+      color: 6,
       name: "Buscando por título o autor",
       hint: "cuando no tienes el código a mano",
     },
-    { name: "A mano", hint: "si no aparece en ningún sitio" },
+    {
+      icon: "manual",
+      color: 5,
+      name: "A mano",
+      hint: "si no aparece en ningún sitio",
+    },
   ],
   sources:
     "Glosa busca el título, el autor, la portada y la editorial en Google Books y Open Library. Si alguno de esos datos no aparece, como a veces pasa con la editorial, lo escribes tú.",
