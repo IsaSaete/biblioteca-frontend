@@ -27,7 +27,7 @@ const TagsDemo = () => {
           display: "grid",
           gridTemplateColumns: "minmax(0, 1fr) 292px",
           columnGap: "clamp(24px, 4vw, 48px)",
-          rowGap: 8,
+          rowGap: 5,
           alignItems: "start",
           [theme.breakpoints.down("md")]: {
             gridTemplateColumns: "minmax(0, 1fr)",
@@ -87,12 +87,24 @@ const TagsDemo = () => {
             variant="landingUi"
             component="p"
             aria-live="polite"
-            sx={{
+            sx={(theme) => ({
               mt: 4,
               fontWeight: 400,
               color: "text.secondary",
               minHeight: "1.4em",
-            }}
+              // En móvil el recuento ya se ve en la tarjeta: aquí solo se
+              // deja para quien usa un lector de pantalla.
+              [theme.breakpoints.down("md")]: {
+                position: "absolute",
+                width: 1,
+                height: 1,
+                m: 0,
+                minHeight: 0,
+                overflow: "hidden",
+                clip: "rect(0 0 0 0)",
+                whiteSpace: "nowrap",
+              },
+            })}
           >
             {touched === null
               ? ""

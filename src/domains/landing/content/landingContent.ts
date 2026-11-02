@@ -1,3 +1,5 @@
+import type { Quote } from "../../quotes/dto/Quote";
+
 // Todos los textos de la landing viven aquí: retocar una frase no obliga a
 // tocar componentes. Diseño y texto aprobados en D-039.
 export const landingContent = {
@@ -23,15 +25,29 @@ export const addBookContent = {
   title: "Cuatro maneras de añadir un libro.",
   methods: [
     {
+      icon: "scan",
+      color: 1,
       name: "Escaneando el código de barras",
       hint: "apuntas con la cámara y listo",
     },
-    { name: "Escribiendo el ISBN", hint: "si prefieres teclear" },
     {
+      icon: "isbn",
+      color: 2,
+      name: "Escribiendo el ISBN",
+      hint: "si prefieres teclear",
+    },
+    {
+      icon: "search",
+      color: 6,
       name: "Buscando por título o autor",
       hint: "cuando no tienes el código a mano",
     },
-    { name: "A mano", hint: "si no aparece en ningún sitio" },
+    {
+      icon: "manual",
+      color: 5,
+      name: "A mano",
+      hint: "si no aparece en ningún sitio",
+    },
   ],
   sources:
     "Glosa busca el título, el autor, la portada y la editorial en Google Books y Open Library. Si alguno de esos datos no aparece, como a veces pasa con la editorial, lo escribes tú.",
@@ -58,10 +74,18 @@ export const quotesContent = {
       "La libertad, Sancho, es uno de los más preciosos dones que a los hombres dieron los cielos;",
     rest: "con ella no pueden igualarse los tesoros que encierra la tierra ni el mar encubre.",
   },
-  card: {
-    text: "La libertad, Sancho, es uno de los más preciosos dones que a los hombres dieron los cielos.",
-    author: "Miguel de Cervantes",
-    book: "Don Quijote de la Mancha",
-    saved: "Guardada",
-  },
 } as const;
+
+// Cita de ejemplo, con la forma de una cita real de la app (no es de ninguna
+// cuenta): se pinta con la misma tarjeta que Citas.
+export const demoQuote: Quote = {
+  id: "demo-quote",
+  text: "La libertad, Sancho, es uno de los más preciosos dones que a los hombres dieron los cielos.",
+  page: 812,
+  createdAt: "2026-11-02T00:00:00.000Z",
+  book: {
+    id: "demo-book",
+    title: "Don Quijote de la Mancha",
+    authors: ["Miguel de Cervantes"],
+  },
+};

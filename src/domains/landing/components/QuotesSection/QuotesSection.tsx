@@ -1,9 +1,11 @@
 import Box from "@mui/material/Box";
 import { keyframes } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
-import { quotesContent } from "../../content/landingContent";
+import { demoQuote, quotesContent } from "../../content/landingContent";
 import { useOnceInView } from "../../hooks/useOnceInView";
 import { themeVars } from "../../themeVars";
+import QuoteCardContent from "../../../quotes/components/QuoteCard/QuoteCardContent";
+import { quoteCardSx } from "../../../quotes/components/QuoteCard/quoteCardSx";
 import LandingSection from "../LandingSection/LandingSection";
 import SectionTitle from "../SectionTitle/SectionTitle";
 
@@ -47,7 +49,7 @@ const corners = [
   },
 ];
 
-const { page, card } = quotesContent;
+const { page } = quotesContent;
 
 // Único movimiento de la landing: el subrayado y el marco de cámara, una vez,
 // al entrar la escena en pantalla. Con `prefers-reduced-motion` no se mueve.
@@ -178,51 +180,14 @@ const QuotesSection = () => {
             </Box>
           </Typography>
         </Box>
+        {/* La misma tarjeta que Citas, sin ser un enlace: así lo que se promete
+            es exactamente lo que luego se ve en la app. */}
         <Box
           component="figure"
-          sx={(theme) => ({
-            m: 0,
-            px: 4,
-            pt: 4,
-            pb: 3,
-            bgcolor: "background.default",
-            border: `1px solid ${themeVars(theme).palette.landing.lineStrong}`,
-            borderRadius: "10px",
-            transform: "rotate(1.2deg)",
-            boxShadow: "0 18px 36px -26px rgba(43,38,32,.45)",
-            [theme.breakpoints.down("md")]: { transform: "none" },
-          })}
+          aria-label="Ejemplo de cita guardada"
+          sx={{ m: 0, ...quoteCardSx(false), height: "auto" }}
         >
-          <Typography
-            variant="landingNote"
-            component="blockquote"
-            sx={{ m: 0, mb: 2, fontSize: "1em", lineHeight: 1.45 }}
-          >
-            {card.text}
-          </Typography>
-          <Typography
-            variant="landingUi"
-            component="figcaption"
-            sx={{
-              display: "grid",
-              gap: 1,
-              fontWeight: 400,
-              color: "text.secondary",
-            }}
-          >
-            <span>
-              {card.author}, <i>{card.book}</i>
-            </span>
-            <Box
-              component="span"
-              sx={(theme) => ({
-                color: themeVars(theme).palette.landing.note,
-                fontWeight: 700,
-              })}
-            >
-              ✓ {card.saved}
-            </Box>
-          </Typography>
+          <QuoteCardContent quote={demoQuote} />
         </Box>
       </Box>
     </LandingSection>

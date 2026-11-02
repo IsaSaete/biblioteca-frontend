@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Box from "@mui/material/Box";
 import FullScreenModal from "../../../../components/ui/FullScreenModal/FullScreenModal";
-import Logo from "../../../../components/ui/Logo/Logo";
+import Brand from "../../../../components/ui/Brand/Brand";
 import AuthFormHeader from "../AuthFormHeader/AuthFormHeader";
 
 interface AuthLayoutProps {
@@ -9,6 +9,8 @@ interface AuthLayoutProps {
   subtitle: string;
   footer?: ReactNode;
   onBack?: () => void;
+  // Cierra la pantalla de acceso y vuelve a la portada (✕, Esc o el fondo).
+  onClose?: () => void;
   children: ReactNode;
 }
 
@@ -19,11 +21,12 @@ const AuthLayout = ({
   subtitle,
   footer,
   onBack,
+  onClose,
   children,
 }: AuthLayoutProps) => (
-  <FullScreenModal titleId={titleId} onBack={onBack}>
-    <Box sx={{ mb: 5 }}>
-      <Logo />
+  <FullScreenModal titleId={titleId} onBack={onBack} onClose={onClose}>
+    <Box sx={{ display: "flex", justifyContent: "center", mb: 8 }}>
+      <Brand to="/" tagline={false} compact accent />
     </Box>
     <AuthFormHeader titleId={titleId} title={title} subtitle={subtitle} />
     {children}

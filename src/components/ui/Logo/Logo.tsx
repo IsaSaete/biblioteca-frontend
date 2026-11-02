@@ -1,9 +1,11 @@
-import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import Brand from "../Brand/Brand";
 
+// Marca centrada, sin enlace ni lema, para pantallas sueltas (404, carga lenta).
 const Logo = () => (
-  <Typography variant="h3" component="p" align="center" color="primary">
-    Glosa
-  </Typography>
+  <Box sx={{ display: "flex", justifyContent: "center" }}>
+    <Brand tagline={false} />
+  </Box>
 );
 
 export default Logo;
