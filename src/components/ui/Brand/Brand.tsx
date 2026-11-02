@@ -7,12 +7,22 @@ interface BrandProps {
   // Con `to`, el logotipo es un enlace (normalmente a la portada).
   to?: string;
   tagline?: boolean;
+  // Versión pequeña (40 px) para diálogos, donde la marca no debe competir con
+  // el título.
+  compact?: boolean;
+  // Marca en el color de acento, en lugar del color del texto.
+  accent?: boolean;
 }
 
 // Logotipo de Glosa: la marca en Besley con «Tu biblioteca personal» debajo,
 // justificada al mismo ancho y pegada a ella. Es el mismo en la landing y en
 // las pantallas de acceso.
-const Brand = ({ to, tagline = true }: BrandProps) => (
+const Brand = ({
+  to,
+  tagline = true,
+  compact = false,
+  accent = false,
+}: BrandProps) => (
   <Box
     {...(to ? { component: RouterLink, to } : { component: "span" })}
     aria-label={tagline ? "Glosa, tu biblioteca personal" : undefined}
@@ -28,7 +38,8 @@ const Brand = ({ to, tagline = true }: BrandProps) => (
       variant="landingDisplay"
       component="span"
       sx={{
-        fontSize: "clamp(52px, 5.6vw, 64px)",
+        fontSize: compact ? "40px" : "clamp(52px, 5.6vw, 64px)",
+        color: accent ? "primary.main" : undefined,
         lineHeight: 0.95,
         letterSpacing: "-0.015em",
       }}
