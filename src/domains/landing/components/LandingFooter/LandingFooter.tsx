@@ -11,7 +11,7 @@ import { themeVars } from "../../themeVars";
 const LandingFooter = () => {
   const linkSx = (theme: Theme) => ({
     ...theme.typography.landingUi,
-    color: "text.secondary",
+    color: themeVars(theme).palette.landing.onBandMuted,
     py: 3,
   });
 
@@ -19,15 +19,22 @@ const LandingFooter = () => {
     <Box
       component="footer"
       sx={(theme) => ({
-        mt: "clamp(24px, 3vw, 48px)",
-        borderTop: `1px solid ${themeVars(theme).palette.landing.lineStrong}`,
+        // Banda oscura a todo el ancho que cierra la página.
+        bgcolor: themeVars(theme).palette.landing.band,
+        color: themeVars(theme).palette.landing.onBand,
+        boxShadow: `0 0 0 100vmax ${themeVars(theme).palette.landing.band}`,
+        clipPath: "inset(0 -100vmax)",
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
         justifyContent: "space-between",
         gap: "4px 28px",
-        pt: 3,
-        pb: "calc(24px + env(safe-area-inset-bottom))",
+        pt: 6,
+        // En móvil deja sitio a la barra fija de «Crear cuenta».
+        pb: {
+          xs: "calc(84px + env(safe-area-inset-bottom))",
+          sm: "calc(32px + env(safe-area-inset-bottom))",
+        },
       })}
     >
       <Typography
@@ -55,7 +62,10 @@ const LandingFooter = () => {
       </Box>
       <Typography
         variant="landingUi"
-        sx={{ fontWeight: 400, color: "text.secondary" }}
+        sx={(theme) => ({
+          fontWeight: 400,
+          color: themeVars(theme).palette.landing.onBandMuted,
+        })}
       >
         {footerContent.copyright}
       </Typography>

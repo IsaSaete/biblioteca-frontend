@@ -47,7 +47,6 @@ const LandingPage = () => {
         bgcolor: "background.default",
         color: "text.primary",
         px: "max(16px, env(safe-area-inset-left))",
-        pb: { xs: "calc(84px + env(safe-area-inset-bottom))", sm: 16 },
       })}
     >
       <Box sx={{ maxWidth: 1120, mx: "auto" }}>
