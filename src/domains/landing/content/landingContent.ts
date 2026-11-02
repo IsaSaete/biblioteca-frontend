@@ -36,3 +36,10 @@ export const addBookContent = {
   sources:
     "Glosa busca el título, el autor, la portada y la editorial en Google Books y Open Library. Si alguno de esos datos no aparece, como a veces pasa con la editorial, lo escribes tú.",
 } as const;
+
+export const tagsContent = {
+  note: "Prueba: toca una etiqueta.",
+  title: "Ponles las etiquetas que quieras.",
+  text: "Cada libro puede llevar tus propias etiquetas, como «club de lectura» o «ensayo», y luego las usas de filtro para encontrar justo lo que buscas. Marcas tus favoritos y si lo estás leyendo, ya lo leíste o lo tienes pendiente.",
+  groupLabel: "Probar un filtro",
+} as const;
