@@ -89,3 +89,51 @@ export const demoQuote: Quote = {
     authors: ["Miguel de Cervantes"],
   },
 };
+
+export const dataContent = {
+  title: "Tus datos son tuyos.",
+  points: [
+    {
+      lead: "La foto no se sube.",
+      text: "El texto se lee en tu móvil y solo se guarda el texto.",
+    },
+    {
+      lead: "Puedes llevártelos.",
+      text: "Descarga en un archivo tus libros, tus citas y tu lista de deseos, o borra tu cuenta y todo lo que contiene.",
+    },
+    {
+      lead: "Es gratis y no hay anuncios.",
+      text: "Si algún día eso cambia, tus datos seguirán siendo descargables.",
+    },
+  ],
+} as const;
+
+// Entrada de diccionario con palabras propias (la de la RAE tiene derechos).
+// «Valle de la Lengua» es una iniciativa, no una denominación oficial, y las
+// fuentes discrepan en la fecha de las glosas: no se da fecha (D-039).
+export const dictionaryContent = {
+  note: "Valle de la Lengua, La Rioja.",
+  word: "glosa",
+  partOfSpeech: "f.",
+  meanings: [
+    "Nota que se escribe al margen o entre las líneas de un texto para explicarlo.",
+    "Comentario que alguien añade a un texto que no es suyo.",
+  ],
+  origin:
+    "Las glosas más famosas de nuestra lengua son las Glosas Emilianenses, que reciben su nombre de San Millán de la Cogolla, en La Rioja, en el territorio que hoy se promueve como Valle de la Lengua. Son anotaciones en romance y en vasco entre las líneas y en los márgenes de un manuscrito en latín que el monasterio conservó durante siglos. Hoy se guarda en la Real Academia de la Historia.",
+} as const;
+
+export const closingContent = {
+  title: "Empieza por el libro que tienes más cerca.",
+  text: "Crea tu cuenta, escanea su código de barras y ya está en tu estantería.",
+  signUp: "Crear cuenta",
+  fine: "Gratis, sin anuncios y sin tarjeta.",
+} as const;
+
+export const footerContent = {
+  brand: "Glosa",
+  signIn: "Entrar",
+  privacy: "Privacidad",
+  terms: "Términos",
+  copyright: "© 2026 Glosa",
+} as const;
