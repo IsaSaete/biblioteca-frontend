@@ -2,6 +2,7 @@ import { Link as RouterLink } from "react-router";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
+import ThemeSwitch from "../ThemeSwitch/ThemeSwitch";
 import { landingContent } from "../../content/landingContent";
 
 const { brand, header } = landingContent;
@@ -58,6 +59,10 @@ const LandingHeader = () => (
       aria-label="Principal"
       sx={{ display: "flex", alignItems: "center", gap: { xs: 3, sm: 5 } }}
     >
+      {/* En móvil no cabe junto a «Entrar» y «Crear cuenta»: allí va en el pie. */}
+      <Box sx={{ display: { xs: "none", sm: "block" } }}>
+        <ThemeSwitch />
+      </Box>
       <Link
         component={RouterLink}
         to="/login"
@@ -65,6 +70,7 @@ const LandingHeader = () => (
         underline="always"
         sx={(theme) => ({
           ...theme.typography.landingUi,
+          whiteSpace: "nowrap",
           py: 3,
           px: 1,
           textUnderlineOffset: "5px",
@@ -78,10 +84,11 @@ const LandingHeader = () => (
         underline="none"
         sx={(theme) => ({
           ...theme.typography.landingUi,
+          whiteSpace: "nowrap",
           display: "inline-flex",
           alignItems: "center",
           minHeight: 44,
-          px: 5,
+          px: { xs: 4, sm: 5 },
           borderRadius: "999px",
           bgcolor: "primary.main",
           color: "primary.contrastText",
