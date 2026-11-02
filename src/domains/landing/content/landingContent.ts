@@ -1,3 +1,5 @@
+import type { Quote } from "../../quotes/dto/Quote";
+
 // Todos los textos de la landing viven aquí: retocar una frase no obliga a
 // tocar componentes. Diseño y texto aprobados en D-039.
 export const landingContent = {
@@ -72,9 +74,18 @@ export const quotesContent = {
       "La libertad, Sancho, es uno de los más preciosos dones que a los hombres dieron los cielos;",
     rest: "con ella no pueden igualarse los tesoros que encierra la tierra ni el mar encubre.",
   },
-  card: {
-    text: "La libertad, Sancho, es uno de los más preciosos dones que a los hombres dieron los cielos.",
-    author: "Miguel de Cervantes",
-    book: "Don Quijote de la Mancha",
-  },
 } as const;
+
+// Cita de ejemplo, con la forma de una cita real de la app (no es de ninguna
+// cuenta): se pinta con la misma tarjeta que Citas.
+export const demoQuote: Quote = {
+  id: "demo-quote",
+  text: "La libertad, Sancho, es uno de los más preciosos dones que a los hombres dieron los cielos.",
+  page: 812,
+  createdAt: "2026-11-02T00:00:00.000Z",
+  book: {
+    id: "demo-book",
+    title: "Don Quijote de la Mancha",
+    authors: ["Miguel de Cervantes"],
+  },
+};
