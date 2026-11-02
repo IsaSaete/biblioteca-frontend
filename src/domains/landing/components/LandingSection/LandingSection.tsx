@@ -52,7 +52,7 @@ const LandingSection = ({ note, children }: LandingSectionProps) => (
             transform: "none",
             mb: 5,
             pl: 3,
-            py: 0.5,
+            py: 1,
             borderLeft: `2px solid ${themeVars(theme).palette.primary.main}`,
           },
         })}

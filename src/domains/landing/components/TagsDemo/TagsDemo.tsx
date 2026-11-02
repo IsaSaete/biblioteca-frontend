@@ -62,7 +62,7 @@ const TagsDemo = () => {
                   sx={(theme) => ({
                     ...theme.typography.landingUi,
                     minHeight: 44,
-                    px: 4.5,
+                    px: 4,
                     cursor: "pointer",
                     borderRadius: "999px",
                     border: `1.5px solid ${selected ? themeVars(theme).palette.primary.main : themeVars(theme).palette.landing.lineStrong}`,
