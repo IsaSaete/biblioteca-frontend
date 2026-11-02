@@ -22,7 +22,7 @@ const renderLanding = () =>
           </ThemeProvider>
         ),
       },
-      { path: "/home", element: <p>Inicio</p> },
+      { path: "/home", element: <p>Pantalla de Home</p> },
       { path: "/login", element: <p>Acceso</p> },
       { path: "/register", element: <p>Registro</p> },
     ],
@@ -78,7 +78,7 @@ describe("Given the public landing page", () => {
 
       expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
       expect(screen.queryByRole("status")).not.toBeInTheDocument();
-      expect(screen.queryByText("Inicio")).not.toBeInTheDocument();
+      expect(screen.queryByText("Pantalla de Home")).not.toBeInTheDocument();
     });
   });
 
@@ -91,7 +91,7 @@ describe("Given the public landing page", () => {
       await waitFor(() =>
         expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument(),
       );
-      expect(screen.queryByText("Inicio")).not.toBeInTheDocument();
+      expect(screen.queryByText("Pantalla de Home")).not.toBeInTheDocument();
     });
   });
 
@@ -101,7 +101,7 @@ describe("Given the public landing page", () => {
 
       const { router } = renderLanding();
 
-      expect(await screen.findByText("Inicio")).toBeInTheDocument();
+      expect(await screen.findByText("Pantalla de Home")).toBeInTheDocument();
       expect(router.state.location.pathname).toBe("/home");
       expect(router.state.historyAction).toBe("REPLACE");
     });
