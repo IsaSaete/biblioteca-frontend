@@ -52,15 +52,25 @@ describe("Given the public landing page", () => {
       expect(
         screen.getAllByRole("link", { name: "Crear cuenta" })[0],
       ).toHaveAttribute("href", "/register");
-      expect(screen.getByRole("link", { name: "Entrar" })).toHaveAttribute(
+      // «Entrar» está en la cabecera y en el pie (la barra de móvil queda oculta).
+      expect(
+        screen
+          .getAllByRole("link", { name: "Entrar" })
+          .every((link) => link.getAttribute("href") === "/login"),
+      ).toBe(true);
+      expect(screen.getByRole("link", { name: "Privacidad" })).toHaveAttribute(
         "href",
-        "/login",
+        "/privacy",
+      );
+      expect(screen.getByRole("link", { name: "Términos" })).toHaveAttribute(
+        "href",
+        "/terms",
       );
       expect(
         screen.getByRole("img", { name: /estantería con libros/i }),
       ).toBeInTheDocument();
       expect(
-        screen.getByText("Gratis, sin anuncios y sin tarjeta."),
+        screen.getAllByText("Gratis, sin anuncios y sin tarjeta.")[0],
       ).toBeVisible();
     });
   });

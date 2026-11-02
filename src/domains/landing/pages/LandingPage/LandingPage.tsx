@@ -4,8 +4,14 @@ import AddBookMethods from "../../components/AddBookMethods/AddBookMethods";
 import Bookshelf from "../../components/Bookshelf/Bookshelf";
 import QuotesSection from "../../components/QuotesSection/QuotesSection";
 import TagsDemo from "../../components/TagsDemo/TagsDemo";
+import ClosingSection from "../../components/ClosingSection/ClosingSection";
+import DataSection from "../../components/DataSection/DataSection";
+import DictionaryBand from "../../components/DictionaryBand/DictionaryBand";
+import LandingFooter from "../../components/LandingFooter/LandingFooter";
+import MobileCtaBar from "../../components/MobileCtaBar/MobileCtaBar";
 import LandingHeader from "../../components/LandingHeader/LandingHeader";
 import LandingIntro from "../../components/LandingIntro/LandingIntro";
+import { useInView } from "../../hooks/useInView";
 import { useRedirectWhenSignedIn } from "../../hooks/useRedirectWhenSignedIn";
 import "../../../../styles/landingFonts.css";
 
@@ -28,6 +34,11 @@ const LandingPage = () => {
 
   useRedirectWhenSignedIn();
 
+  // La barra fija de móvil sale cuando el botón de la portada ya no se ve y
+  // el del cierre todavía no.
+  const heroCta = useInView<HTMLDivElement>(true);
+  const closingCta = useInView<HTMLDivElement>(false);
+
   return (
     <Box
       sx={(theme) => ({
@@ -36,19 +47,24 @@ const LandingPage = () => {
         bgcolor: "background.default",
         color: "text.primary",
         px: "max(16px, env(safe-area-inset-left))",
-        pb: 16,
+        pb: { xs: "calc(84px + env(safe-area-inset-bottom))", sm: 16 },
       })}
     >
       <Box sx={{ maxWidth: 1120, mx: "auto" }}>
         <LandingHeader />
         <Box component="main">
           <Bookshelf />
-          <LandingIntro />
+          <LandingIntro ctaRef={heroCta.ref} />
           <AddBookMethods />
           <TagsDemo />
           <QuotesSection />
+          <DataSection />
+          <DictionaryBand />
+          <ClosingSection ctaRef={closingCta.ref} />
         </Box>
+        <LandingFooter />
       </Box>
+      <MobileCtaBar visible={!heroCta.inView && !closingCta.inView} />
     </Box>
   );
 };
