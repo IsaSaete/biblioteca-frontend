@@ -1,6 +1,9 @@
 import { preload } from "react-dom";
 import Box from "@mui/material/Box";
+import AddBookMethods from "../../components/AddBookMethods/AddBookMethods";
 import Bookshelf from "../../components/Bookshelf/Bookshelf";
+import QuotesSection from "../../components/QuotesSection/QuotesSection";
+import TagsDemo from "../../components/TagsDemo/TagsDemo";
 import LandingHeader from "../../components/LandingHeader/LandingHeader";
 import LandingIntro from "../../components/LandingIntro/LandingIntro";
 import { useRedirectWhenSignedIn } from "../../hooks/useRedirectWhenSignedIn";
@@ -41,6 +44,9 @@ const LandingPage = () => {
         <Box component="main">
           <Bookshelf />
           <LandingIntro />
+          <AddBookMethods />
+          <TagsDemo />
+          <QuotesSection />
         </Box>
       </Box>
     </Box>

@@ -20,6 +20,8 @@ export interface LandingPalette {
   onSpine6: string;
   plank: string;
   dashed: string;
+  line: string;
+  lineStrong: string;
   note: string;
 }
 
@@ -88,6 +90,8 @@ const theme = createTheme({
           onSpine6: "#2B2620",
           plank: "#B9AE9C",
           dashed: "#A39A8B",
+          line: "#E6E0D6",
+          lineStrong: "#CFC6B8",
           note: "#8A4526",
         },
       },
@@ -118,6 +122,8 @@ const theme = createTheme({
           onSpine6: "#15130F",
           plank: "#5A5144",
           dashed: "#7A7266",
+          line: "#322D26",
+          lineStrong: "#4A4339",
           note: "#E9A987",
         },
       },
