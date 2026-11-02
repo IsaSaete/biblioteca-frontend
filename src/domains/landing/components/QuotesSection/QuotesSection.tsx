@@ -55,7 +55,7 @@ const QuotesSection = () => {
   const { ref, seen } = useOnceInView<HTMLDivElement>();
 
   return (
-    <LandingSection note={quotesContent.note}>
+    <LandingSection note={quotesContent.note} surface>
       <SectionTitle>{quotesContent.title}</SectionTitle>
       {quotesContent.paragraphs.map((text) => (
         <Typography
@@ -83,7 +83,7 @@ const QuotesSection = () => {
         <Box
           sx={(theme) => ({
             position: "relative",
-            bgcolor: "background.paper",
+            bgcolor: "background.default",
             borderRadius: "4px 12px 12px 4px",
             borderLeft: `3px solid ${themeVars(theme).palette.landing.lineStrong}`,
             pt: 5,
@@ -216,7 +216,7 @@ const QuotesSection = () => {
             <Box
               component="span"
               sx={(theme) => ({
-                color: themeVars(theme).palette.landing.note,
+                color: themeVars(theme).palette.landing.sage,
                 fontWeight: 700,
               })}
             >
