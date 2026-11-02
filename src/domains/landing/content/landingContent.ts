@@ -76,6 +76,5 @@ export const quotesContent = {
     text: "La libertad, Sancho, es uno de los más preciosos dones que a los hombres dieron los cielos.",
     author: "Miguel de Cervantes",
     book: "Don Quijote de la Mancha",
-    saved: "Guardada",
   },
 } as const;

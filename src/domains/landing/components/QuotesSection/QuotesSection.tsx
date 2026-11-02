@@ -213,15 +213,6 @@ const QuotesSection = () => {
             <span>
               {card.author}, <i>{card.book}</i>
             </span>
-            <Box
-              component="span"
-              sx={(theme) => ({
-                color: themeVars(theme).palette.landing.sage,
-                fontWeight: 700,
-              })}
-            >
-              ✓ {card.saved}
-            </Box>
           </Typography>
         </Box>
       </Box>
