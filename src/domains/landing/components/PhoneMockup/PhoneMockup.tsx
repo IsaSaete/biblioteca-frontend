@@ -53,18 +53,36 @@ const PhoneMockup = ({ books, filter }: PhoneMockupProps) => {
     <Box
       aria-hidden="true"
       sx={(theme) => ({
-        width: 292,
-        height: 612,
+        // Desde escritorio, un teléfono con sus proporciones reales. En móvil
+        // ya se está en un teléfono: queda solo la pantalla, como una tarjeta
+        // con las portadas, sin marco ni barra de navegación.
+        position: "relative",
+        width: { xs: "100%", md: 292 },
+        height: { xs: "auto", md: 612 },
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
-        border: `9px solid ${themeVars(theme).palette.text.primary}`,
-        borderRadius: "44px",
-        bgcolor: "background.default",
+        border: {
+          xs: 0,
+          md: `9px solid ${themeVars(theme).palette.text.primary}`,
+        },
+        borderRadius: { xs: "12px", md: "44px" },
+        bgcolor: { xs: "background.paper", md: "background.default" },
         color: "text.primary",
         fontFamily: APP_FONT,
         lineHeight: 1.35,
-        boxShadow: "0 30px 50px -34px rgba(43,38,32,.55)",
+        boxShadow: { xs: "none", md: "0 30px 50px -34px rgba(43,38,32,.55)" },
+        "&::after": {
+          content: '""',
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 90,
+          display: { xs: "block", md: "none" },
+          pointerEvents: "none",
+          background: `linear-gradient(to bottom, transparent, ${themeVars(theme).palette.background.paper})`,
+        },
       })}
     >
       <Box
@@ -74,8 +92,9 @@ const PhoneMockup = ({ books, filter }: PhoneMockupProps) => {
           minHeight: 0,
           overflow: "hidden",
           px: 3.5,
-          pt: 3,
+          pt: { xs: 4, md: 3 },
           "&::before": {
+            display: { xs: "none", md: "block" },
             content: '""',
             position: "absolute",
             top: 8,
@@ -90,7 +109,7 @@ const PhoneMockup = ({ books, filter }: PhoneMockupProps) => {
       >
         <Box
           sx={{
-            display: "flex",
+            display: { xs: "none", md: "flex" },
             justifyContent: "space-between",
             fontSize: 11,
             fontWeight: 500,
@@ -112,7 +131,7 @@ const PhoneMockup = ({ books, filter }: PhoneMockupProps) => {
         </Box>
         <Box
           sx={{
-            display: "flex",
+            display: { xs: "none", md: "flex" },
             alignItems: "center",
             gap: 2,
             bgcolor: "background.paper",
@@ -143,7 +162,7 @@ const PhoneMockup = ({ books, filter }: PhoneMockupProps) => {
         </Box>
         <Box
           sx={(theme) => ({
-            display: "flex",
+            display: { xs: "none", md: "flex" },
             justifyContent: "space-between",
             fontSize: 12,
             fontWeight: 500,
@@ -166,6 +185,8 @@ const PhoneMockup = ({ books, filter }: PhoneMockupProps) => {
             listStyle: "none",
             m: 0,
             p: 0,
+            height: { xs: 330, md: "auto" },
+            overflow: { xs: "hidden", md: "visible" },
           }}
         >
           {books.map((book) => {
@@ -250,7 +271,7 @@ const PhoneMockup = ({ books, filter }: PhoneMockupProps) => {
       <Box
         sx={(theme) => ({
           flex: "0 0 auto",
-          display: "grid",
+          display: { xs: "none", md: "grid" },
           gridTemplateColumns: "repeat(5, 1fr)",
           alignItems: "end",
           px: 1,
