@@ -23,9 +23,18 @@ export const routes = [
       ).default,
     }),
   },
-  { path: "/login", element: <LoginPage /> },
-  { path: "/register", element: <RegisterPage /> },
-  { path: "/forgot-password", element: <ForgotPasswordPage /> },
+  // Acceso, registro y recuperar contraseña: un diálogo sobre la landing.
+  {
+    lazy: async () => ({
+      Component: (await import("./LandingBehindAuth/LandingBehindAuth"))
+        .default,
+    }),
+    children: [
+      { path: "/login", element: <LoginPage /> },
+      { path: "/register", element: <RegisterPage /> },
+      { path: "/forgot-password", element: <ForgotPasswordPage /> },
+    ],
+  },
   {
     path: "/verify-email",
     lazy: async () => ({
