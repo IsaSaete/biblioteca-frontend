@@ -18,6 +18,7 @@ const LandingIntro = () => (
       rowGap: 8,
       alignItems: "end",
       pt: "clamp(40px, 6vw, 72px)",
+      pb: "clamp(64px, 9vw, 120px)",
     }}
   >
     <Box>

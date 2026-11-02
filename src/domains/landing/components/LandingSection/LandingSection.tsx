@@ -21,9 +21,11 @@ const LandingSection = ({
   <Box
     component="section"
     sx={(theme) => ({
-      pt: "clamp(64px, 9vw, 120px)",
+      // El aire entre secciones se reparte arriba y abajo: así nada queda
+      // pegado al borde de una superficie vecina.
+      py: "clamp(32px, 4.5vw, 60px)",
       ...(surface && {
-        pb: "clamp(64px, 9vw, 120px)",
+        py: "clamp(64px, 9vw, 120px)",
         bgcolor: "background.paper",
         // Se extiende a los lados con una sombra y se recorta en vertical:
         // así ocupa todo el ancho sin provocar scroll horizontal.
