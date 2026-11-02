@@ -22,7 +22,6 @@ export interface LandingPalette {
   dashed: string;
   line: string;
   lineStrong: string;
-  sage: string;
   note: string;
 }
 
@@ -93,7 +92,6 @@ const theme = createTheme({
           dashed: "#A39A8B",
           line: "#E6E0D6",
           lineStrong: "#CFC6B8",
-          sage: "#55663C",
           note: "#8A4526",
         },
       },
@@ -126,7 +124,6 @@ const theme = createTheme({
           dashed: "#7A7266",
           line: "#322D26",
           lineStrong: "#4A4339",
-          sage: "#8FA172",
           note: "#E9A987",
         },
       },
