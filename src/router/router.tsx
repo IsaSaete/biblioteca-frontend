@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router";
+import { createBrowserRouter } from "react-router";
 import AppLayout from "../components/navigation/AppLayout/AppLayout";
 import LoginPage from "../domains/auth/pages/LoginPage/LoginPage";
 import ForgotPasswordPage from "../domains/auth/pages/ForgotPasswordPage/ForgotPasswordPage";
@@ -13,7 +13,16 @@ import RequireAuth from "./RequireAuth/RequireAuth";
 // Login y registro son las páginas de entrada y van en el bundle principal; el
 // resto de rutas públicas se descarga solo cuando se visita.
 export const routes = [
-  { path: "/", element: <Navigate to="/home" replace /> },
+  // La landing se pinta sin esperar al backend: la sesión se comprueba en
+  // segundo plano dentro de la propia página (no usa RequireAuth).
+  {
+    path: "/",
+    lazy: async () => ({
+      Component: (
+        await import("../domains/landing/pages/LandingPage/LandingPage")
+      ).default,
+    }),
+  },
   { path: "/login", element: <LoginPage /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/forgot-password", element: <ForgotPasswordPage /> },
