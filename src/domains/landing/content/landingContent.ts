@@ -43,3 +43,25 @@ export const tagsContent = {
   text: "Cada libro puede llevar tus propias etiquetas, como «club de lectura» o «ensayo», y luego las usas de filtro para encontrar justo lo que buscas. Marcas tus favoritos y si lo estás leyendo, ya lo leíste o lo tienes pendiente.",
   groupLabel: "Probar un filtro",
 } as const;
+
+export const quotesContent = {
+  note: "Aunque no tengas el libro.",
+  title: "Cuando una frase te llama la atención, guárdala.",
+  paragraphs: [
+    "Estás leyendo y hay un párrafo que te gusta y no quieres perder. Lo encuadras con la cámara, el texto se lee en tu móvil y queda guardado dentro de ese libro. También puedes escribirlo tú, o subir una foto desde el ordenador.",
+    "Todas tus citas tienen además su propia sección, Citas, donde las ves juntas y las filtras por libro.",
+  ],
+  page: {
+    book: "Don Quijote",
+    chapter: "Capítulo LVIII",
+    highlighted:
+      "La libertad, Sancho, es uno de los más preciosos dones que a los hombres dieron los cielos;",
+    rest: "con ella no pueden igualarse los tesoros que encierra la tierra ni el mar encubre.",
+  },
+  card: {
+    text: "La libertad, Sancho, es uno de los más preciosos dones que a los hombres dieron los cielos.",
+    author: "Miguel de Cervantes",
+    book: "Don Quijote de la Mancha",
+    saved: "Guardada",
+  },
+} as const;
