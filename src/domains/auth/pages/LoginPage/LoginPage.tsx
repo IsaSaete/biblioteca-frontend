@@ -77,6 +77,7 @@ const LoginPage = () => {
 
   return (
     <AuthLayout
+      onClose={() => void navigate("/", { replace: true })}
       title="Bienvenido"
       subtitle="Inicia sesión para continuar"
       footer={

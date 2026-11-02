@@ -74,6 +74,7 @@ const RegisterPage = () => {
 
   return (
     <AuthLayout
+      onClose={() => void navigate("/", { replace: true })}
       title="Bienvenido"
       subtitle="Regístrate para continuar"
       footer={
