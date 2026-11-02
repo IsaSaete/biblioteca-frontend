@@ -17,3 +17,22 @@ export const landingContent = {
       "¿Estás en una librería y no recuerdas si ya lo tienes? Lo miras en Glosa y, si no está, lo apuntas en tu lista de deseos.",
   },
 } as const;
+
+export const addBookContent = {
+  note: "Sin cámara, sin problema: se escribe el ISBN.",
+  title: "Cuatro maneras de añadir un libro.",
+  methods: [
+    {
+      name: "Escaneando el código de barras",
+      hint: "apuntas con la cámara y listo",
+    },
+    { name: "Escribiendo el ISBN", hint: "si prefieres teclear" },
+    {
+      name: "Buscando por título o autor",
+      hint: "cuando no tienes el código a mano",
+    },
+    { name: "A mano", hint: "si no aparece en ningún sitio" },
+  ],
+  sources:
+    "Glosa busca el título, el autor, la portada y la editorial en Google Books y Open Library. Si alguno de esos datos no aparece, como a veces pasa con la editorial, lo escribes tú.",
+} as const;
