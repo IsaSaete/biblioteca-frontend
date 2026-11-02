@@ -35,9 +35,10 @@ const LandingPage = () => {
   useRedirectWhenSignedIn();
 
   // La barra fija de móvil sale cuando el botón de la portada ya no se ve y
-  // el del cierre todavía no.
+  // ni el del cierre ni el pie están a la vista.
   const heroCta = useInView<HTMLDivElement>(true);
   const closingCta = useInView<HTMLDivElement>(false);
+  const footer = useInView<HTMLElement>(false);
 
   return (
     <Box
@@ -61,9 +62,11 @@ const LandingPage = () => {
           <DictionaryBand />
           <ClosingSection ctaRef={closingCta.ref} />
         </Box>
-        <LandingFooter />
+        <LandingFooter footerRef={footer.ref} />
       </Box>
-      <MobileCtaBar visible={!heroCta.inView && !closingCta.inView} />
+      <MobileCtaBar
+        visible={!heroCta.inView && !closingCta.inView && !footer.inView}
+      />
     </Box>
   );
 };
