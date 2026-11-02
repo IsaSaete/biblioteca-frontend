@@ -9,7 +9,7 @@ import SectionTitle from "../SectionTitle/SectionTitle";
 
 // Índice con puntos guía: el nombre de cada manera y, a la derecha, una pista.
 const AddBookMethods = () => (
-  <LandingSection note={addBookContent.note} surface>
+  <LandingSection note={addBookContent.note} tone="surface">
     <SectionTitle>{addBookContent.title}</SectionTitle>
     <BarcodeScan />
     <Box
