@@ -96,8 +96,9 @@ const TagsDemo = () => {
               // deja para quien usa un lector de pantalla.
               [theme.breakpoints.down("md")]: {
                 position: "absolute",
-                width: 1,
-                height: 1,
+                // En píxeles: en `sx`, `1` significa 100 %.
+                width: "1px",
+                height: "1px",
                 m: 0,
                 minHeight: 0,
                 overflow: "hidden",
