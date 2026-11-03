@@ -220,6 +220,10 @@ const theme = createTheme({
           "&:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus":
             {
               transition: "background-color 9999s ease-in-out 0s",
+              // En modo oscuro Chrome pinta el autorrelleno con otro azul y el
+              // retraso no basta: se recorta el fondo a la forma del texto, así
+              // no queda ningún relleno visible sea cual sea el fondo.
+              WebkitBackgroundClip: "text",
               WebkitTextFillColor: (theme.vars ?? theme).palette.text.primary,
               caretColor: (theme.vars ?? theme).palette.text.primary,
             },
