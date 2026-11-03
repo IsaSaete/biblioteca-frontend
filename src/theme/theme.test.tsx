@@ -1,4 +1,5 @@
 import Backdrop from "@mui/material/Backdrop";
+import TextField from "@mui/material/TextField";
 import { ThemeProvider } from "@mui/material/styles";
 import { render } from "@testing-library/react";
 import theme from "./theme";
@@ -31,6 +32,24 @@ describe("Given the scrim behind sheets, panels and dialogs", () => {
       expect(backdrop && getComputedStyle(backdrop).backgroundColor).toMatch(
         /^(transparent|rgba\(0, 0, 0, 0\))$/,
       );
+    });
+  });
+});
+
+describe("Given the text fields", () => {
+  describe("When the browser autofills one with a saved password", () => {
+    it("Then the theme keeps the field background instead of the blue autofill one", () => {
+      render(
+        <ThemeProvider theme={theme}>
+          <TextField label="Email" />
+        </ThemeProvider>,
+      );
+
+      const styles = Array.from(document.querySelectorAll("style"))
+        .map((style) => style.textContent)
+        .join("");
+      expect(styles).toContain(":-webkit-autofill");
+      expect(styles).toContain("-webkit-text-fill-color");
     });
   });
 });

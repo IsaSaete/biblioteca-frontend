@@ -213,6 +213,16 @@ const theme = createTheme({
       styleOverrides: {
         input: ({ theme }) => ({
           [theme.breakpoints.down("sm")]: { fontSize: "1rem" },
+          // Al autorrellenar (contraseñas guardadas), Chrome y Safari pintan el
+          // campo de azul y no dejan cambiarlo con `background`. Se retrasa
+          // «para siempre» el cambio de fondo, así el campo conserva el de su
+          // contenedor en claro y en oscuro, y se fija el color del texto.
+          "&:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus":
+            {
+              transition: "background-color 9999s ease-in-out 0s",
+              WebkitTextFillColor: (theme.vars ?? theme).palette.text.primary,
+              caretColor: (theme.vars ?? theme).palette.text.primary,
+            },
         }),
       },
     },
