@@ -382,6 +382,76 @@ describe("Given the add book flow", () => {
       expect(screen.getByLabelText("Título o autor")).toHaveValue("rayuela");
     });
 
+    it("Then picking a result with ISBN but no publisher completes it from the ISBN lookup", async () => {
+      const lookedUp: (string | null)[] = [];
+      server.use(
+        http.get(`${baseUrl}/books/search-external`, () =>
+          HttpResponse.json({
+            results: [
+              {
+                book: {
+                  isbn: "9788437604947",
+                  title: "Rayuela",
+                  authors: ["Julio Cortázar"],
+                },
+              },
+            ],
+          }),
+        ),
+        http.get(`${baseUrl}/books/lookup-isbn`, ({ request }) => {
+          lookedUp.push(new URL(request.url).searchParams.get("isbn"));
+          return HttpResponse.json({
+            book: {
+              isbn: "9788437604947",
+              title: "Rayuela",
+              authors: ["Julio Cortázar"],
+              publisher: "Cátedra",
+            },
+          });
+        }),
+      );
+      const { user } = renderRoutes(routes, ["/library"]);
+      await openSearchStep(user);
+      await user.type(screen.getByLabelText("Título o autor"), "rayuela");
+
+      await user.click(await screen.findByRole("button", { name: /Rayuela/ }));
+
+      expect(await screen.findByText("Confirma los datos")).toBeInTheDocument();
+      // Con la editorial ya completada no hay que pedirla: se muestra como dato.
+      expect(screen.getByText("Cátedra")).toBeInTheDocument();
+      expect(screen.queryByLabelText("Editorial")).not.toBeInTheDocument();
+      expect(lookedUp).toEqual(["9788437604947"]);
+    });
+
+    it("Then if completing it fails, the result is still picked with what it had", async () => {
+      server.use(
+        http.get(`${baseUrl}/books/search-external`, () =>
+          HttpResponse.json({
+            results: [
+              {
+                book: {
+                  isbn: "9788437604947",
+                  title: "Rayuela",
+                  authors: ["Julio Cortázar"],
+                },
+              },
+            ],
+          }),
+        ),
+        http.get(`${baseUrl}/books/lookup-isbn`, () =>
+          apiError(502, "BOOK_PROVIDER_UNAVAILABLE"),
+        ),
+      );
+      const { user } = renderRoutes(routes, ["/library"]);
+      await openSearchStep(user);
+      await user.type(screen.getByLabelText("Título o autor"), "rayuela");
+
+      await user.click(await screen.findByRole("button", { name: /Rayuela/ }));
+
+      expect(await screen.findByText("Confirma los datos")).toBeInTheDocument();
+      expect(screen.getByLabelText("Editorial")).toHaveValue("");
+    });
+
     it("Then no results offer the manual entry", async () => {
       server.use(
         http.get(`${baseUrl}/books/search-external`, () =>

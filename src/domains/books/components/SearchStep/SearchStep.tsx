@@ -6,9 +6,10 @@ import ListItemButton from "@mui/material/ListItemButton";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
-import { useSearchExternalQuery } from "../../booksApi";
+import { useLazyLookupIsbnQuery, useSearchExternalQuery } from "../../booksApi";
 import type { ExternalBook } from "../../dto/ExternalBook";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
+import { completeBook, needsCompletion } from "../../utils/completeBook";
 import { getBookLookupError } from "../../utils/getBookLookupError";
 import BookCover from "../BookCover/BookCover";
 
@@ -35,7 +36,23 @@ const SearchStep = ({
     skip: !canSearch,
   });
 
+  const [lookupIsbn, { isFetching: isCompleting }] = useLazyLookupIsbnQuery();
+
   const lookupError = error ? getBookLookupError(error) : null;
+
+  // Si al resultado le falta la editorial o el autor y tiene ISBN, se completa
+  // con `lookup-isbn` antes de seguir. Si falla, se sigue con lo que había: el
+  // usuario lo completa en «Confirma los datos».
+  const handleSelect = async (book: ExternalBook) => {
+    if (!needsCompletion(book) || !book.isbn) {
+      onBookSelected(book, query);
+      return;
+    }
+
+    const result = await lookupIsbn(book.isbn, true);
+
+    onBookSelected(result.data ? completeBook(book, result.data) : book, query);
+  };
 
   return (
     <Box sx={{ display: "grid", gap: 5 }}>
@@ -50,6 +67,11 @@ const SearchStep = ({
       <Box role="status" aria-live="polite">
         {canSearch && isFetching && (
           <Typography color="text.secondary">Buscando…</Typography>
+        )}
+        {isCompleting && (
+          <Typography color="text.secondary">
+            Buscando los datos del libro…
+          </Typography>
         )}
       </Box>
 
@@ -92,7 +114,8 @@ const SearchStep = ({
           {data.map((book, index) => (
             <ListItemButton
               key={`${book.isbn ?? book.title}-${index}`}
-              onClick={() => onBookSelected(book, query)}
+              disabled={isCompleting}
+              onClick={() => void handleSelect(book)}
               sx={{
                 gap: 4,
                 minHeight: 44,

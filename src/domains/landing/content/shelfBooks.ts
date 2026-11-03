@@ -18,11 +18,11 @@ export interface ShelfBook {
 // Los libros de Isa y, completando, otros en su línea: distopía, ciencia
 // ficción, ensayo feminista y clásicos. `optional` los oculta en móvil.
 export const ownedBooks: ShelfBook[] = [
-  { title: "Un mundo feliz", height: 276, width: 50, color: 1, label: true },
-  { title: "1984", height: 300, width: 44, color: 3 },
+  { title: "Loops", height: 276, width: 50, color: 1, label: true },
+  { title: "Un mundo feliz", height: 300, width: 44, color: 3 },
   { title: "La mujer habitada", height: 262, width: 56, color: 2 },
   { title: "La conejera", height: 230, width: 42, color: 6, optional: true },
-  { title: "Loops", height: 206, width: 34, color: 5, label: true },
+  { title: "1984", height: 206, width: 34, color: 5, label: true },
   { title: "La Odisea", height: 292, width: 50, color: 4 },
   { title: "Cara de pan", height: 238, width: 44, color: 1, optional: true },
   {
@@ -49,13 +49,13 @@ export const ownedBooks: ShelfBook[] = [
     optional: true,
   },
   {
-    title: "El cuento de la criada",
+    title: "Fahrenheit 451",
     height: 308,
     width: 56,
     color: 4,
     optional: true,
   },
-  { title: "Frankenstein", height: 196, width: 34, color: 1, leaning: true },
+  { title: "Electroshock", height: 196, width: 34, color: 1, leaning: true },
 ];
 
 export const wishlistBooks: ShelfBook[] = [
