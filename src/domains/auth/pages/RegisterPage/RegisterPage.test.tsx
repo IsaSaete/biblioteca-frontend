@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { http, HttpResponse } from "msw";
+import { delay, http, HttpResponse } from "msw";
 import { server } from "../../../../test/server";
 import { renderRoutes } from "../../../../test/renderRoutes";
 import RegisterPage from "./RegisterPage";
@@ -254,6 +254,31 @@ describe("Given the sign-up form", () => {
       expect(terms).toHaveAttribute("target", "_blank");
       expect(privacy).toHaveAttribute("href", "/privacy");
       expect(privacy).toHaveAttribute("target", "_blank");
+    });
+  });
+});
+
+describe("Given the register page while the server takes a while to answer", () => {
+  describe("When the user submits a valid form", () => {
+    it("Then the button says it is creating the account and cannot be pressed again until it answers", async () => {
+      server.use(
+        http.post(registerUrl, async () => {
+          await delay(150);
+          return HttpResponse.json(
+            { user: { id: "1", name: "Isa", email: "isa@example.com" } },
+            { status: 201 },
+          );
+        }),
+      );
+      const user = renderPage();
+      await fillForm(user);
+
+      await submit(user);
+
+      const busy = screen.getByRole("button", { name: "Creando cuenta…" });
+      expect(busy).toBeDisabled();
+      expect(busy).toHaveAttribute("aria-busy", "true");
+      expect(await screen.findByText("Onboarding")).toBeInTheDocument();
     });
   });
 });
