@@ -121,7 +121,7 @@ export const dictionaryContent = {
     "Anotación que se escribe en el margen o sobre las líneas de un texto, junto a la palabra o el pasaje que aclara.",
   ],
   origin:
-    "Hace unos mil años, en el monasterio de San Millán de la Cogolla, alguien añadió a un manuscrito escrito en latín anotaciones en romance y en euskera. Aquellas notas, conocidas como Glosas Emilianenses, constituyen un testimonio fundamental para conocer los primeros romances peninsulares y el euskera escrito. En el Valle de la Lengua nació una forma de acercar las palabras a quien las leía. Glosa recoge ese espíritu: conservar palabras que merecen permanecer.",
+    "Hace unos mil años, en el monasterio de San Millán de la Cogolla, alguien añadió a un manuscrito escrito en latín anotaciones en romance y en euskera. Aquellas notas, conocidas como Glosas Emilianenses, constituyen un testimonio fundamental para conocer los primeros romances peninsulares y el euskera escrito. En el Valle de la Lengua nació una forma de acercar las palabras a quien las leía. Glosa recoge ese espíritu: guardar tus libros y las palabras que merecen permanecer en ellos. Porque algunas lecturas merecen quedarse con nosotros.",
 } as const;
 
 export const closingContent = {
