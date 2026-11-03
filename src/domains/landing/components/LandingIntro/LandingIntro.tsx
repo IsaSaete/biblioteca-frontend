@@ -3,6 +3,7 @@ import { Link as RouterLink } from "react-router";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
+import { SECTION_PADDING } from "../../layout";
 import { landingContent } from "../../content/landingContent";
 
 const { intro } = landingContent;
@@ -24,7 +25,7 @@ const LandingIntro = ({ ctaRef }: LandingIntroProps) => (
       rowGap: 8,
       alignItems: "end",
       pt: "clamp(40px, 6vw, 72px)",
-      pb: "clamp(64px, 9vw, 120px)",
+      pb: SECTION_PADDING,
     }}
   >
     <Box>

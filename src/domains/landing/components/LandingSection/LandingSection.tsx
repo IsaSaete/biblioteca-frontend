@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Box from "@mui/material/Box";
 import type { Theme } from "@mui/material/styles";
+import { SECTION_PADDING } from "../../layout";
 import { themeVars } from "../../themeVars";
 
 const background = (theme: Theme, tone: "surface" | "band") =>
@@ -28,11 +29,8 @@ const LandingSection = ({
   <Box
     component="section"
     sx={(theme) => ({
-      // El aire entre secciones se reparte arriba y abajo: así nada queda
-      // pegado al borde de una superficie vecina.
-      py: "clamp(32px, 4.5vw, 60px)",
+      py: SECTION_PADDING,
       ...(tone !== "default" && {
-        py: "clamp(64px, 9vw, 120px)",
         bgcolor: background(theme, tone),
         ...(tone === "band" && {
           color: themeVars(theme).palette.landing.onBand,
