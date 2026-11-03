@@ -30,6 +30,15 @@ const LegalDocument = ({ content }: LegalDocumentProps) => (
             {paragraph}
           </Typography>
         ))}
+        {section.items && (
+          <Box component="ul" sx={{ mt: 2, mb: 0, pl: 5 }}>
+            {section.items.map((item) => (
+              <Typography component="li" key={item} sx={{ mt: 1 }}>
+                {item}
+              </Typography>
+            ))}
+          </Box>
+        )}
       </Box>
     ))}
   </Box>

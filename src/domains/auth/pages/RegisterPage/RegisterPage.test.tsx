@@ -240,3 +240,20 @@ describe("Given the register page", () => {
     });
   });
 });
+
+describe("Given the sign-up form", () => {
+  describe("When it asks to accept the terms", () => {
+    it("Then the terms and the privacy policy are links that open in a new tab", () => {
+      renderPage();
+
+      const terms = screen.getByRole("link", { name: "Términos" });
+      const privacy = screen.getByRole("link", {
+        name: "Política de Privacidad",
+      });
+      expect(terms).toHaveAttribute("href", "/terms");
+      expect(terms).toHaveAttribute("target", "_blank");
+      expect(privacy).toHaveAttribute("href", "/privacy");
+      expect(privacy).toHaveAttribute("target", "_blank");
+    });
+  });
+});
