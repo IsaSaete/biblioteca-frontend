@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { http, HttpResponse } from "msw";
+import { delay, http, HttpResponse } from "msw";
 import { authApi } from "../../authApi";
 import { booksApi } from "../../../books/booksApi";
 import { homeApi } from "../../../home/homeApi";
@@ -119,6 +119,25 @@ describe("Given the login page", () => {
 
       expect(await screen.findByText("Inicio")).toBeInTheDocument();
       expect(body).toEqual({ email: "isa@example.com", password: "Secreta1!" });
+    });
+  });
+
+  describe("When the server takes a while to answer the login", () => {
+    it("Then the button says it is logging in and cannot be pressed again until it answers", async () => {
+      server.use(
+        http.post(loginUrl, async () => {
+          await delay(150);
+          return HttpResponse.json({ user });
+        }),
+      );
+      const actor = renderPage();
+
+      await fillAndSubmit(actor);
+
+      const busy = screen.getByRole("button", { name: "Iniciando sesión…" });
+      expect(busy).toBeDisabled();
+      expect(busy).toHaveAttribute("aria-busy", "true");
+      expect(await screen.findByText("Inicio")).toBeInTheDocument();
     });
   });
 
