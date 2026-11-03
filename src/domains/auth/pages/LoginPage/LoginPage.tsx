@@ -129,8 +129,15 @@ const LoginPage = () => {
           </Link>
         </Box>
 
-        <Button type="submit" fullWidth disabled={isLoading}>
-          Iniciar sesión
+        {/* Mientras espera al servidor (que a veces tarda en despertar) el
+            botón dice qué está pasando. */}
+        <Button
+          type="submit"
+          fullWidth
+          disabled={isLoading}
+          aria-busy={isLoading}
+        >
+          {isLoading ? "Iniciando sesión…" : "Iniciar sesión"}
         </Button>
       </Box>
     </AuthLayout>
