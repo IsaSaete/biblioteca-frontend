@@ -109,18 +109,19 @@ export const dataContent = {
 } as const;
 
 // Entrada de diccionario con palabras propias (la de la RAE tiene derechos).
-// «Valle de la Lengua» es una iniciativa, no una denominación oficial, y las
-// fuentes discrepan en la fecha de las glosas: no se da fecha (D-039).
+// El texto del origen lo escribió Isa (D-045): «Valle de la Lengua» es el nombre
+// con el que se conoce su tierra y se usa sin matices.
 export const dictionaryContent = {
-  note: "Valle de la Lengua, La Rioja.",
+  note: "El origen de un nombre.",
   word: "glosa",
   partOfSpeech: "f.",
+  etymology: "Viene del latín glossa, y este del griego γλῶσσα, «lengua».",
   meanings: [
-    "Nota que se escribe al margen o entre las líneas de un texto para explicarlo.",
-    "Comentario que alguien añade a un texto que no es suyo.",
+    "Explicación breve que se añade a un texto para aclarar su significado.",
+    "Anotación que se escribe en el margen o sobre las líneas de un texto, junto a la palabra o el pasaje que aclara.",
   ],
   origin:
-    "Las glosas más famosas de nuestra lengua son las Glosas Emilianenses, que reciben su nombre de San Millán de la Cogolla, en La Rioja, en el territorio que hoy se promueve como Valle de la Lengua. Son anotaciones en romance y en vasco entre las líneas y en los márgenes de un manuscrito en latín que el monasterio conservó durante siglos. Hoy se guarda en la Real Academia de la Historia.",
+    "Hace unos mil años, en el monasterio de San Millán de la Cogolla, alguien añadió a un manuscrito escrito en latín anotaciones en romance y en euskera. Aquellas notas, conocidas como Glosas Emilianenses, constituyen un testimonio fundamental para conocer los primeros romances peninsulares y el euskera escrito. En el Valle de la Lengua nació una forma de acercar las palabras a quien las leía. Glosa recoge ese espíritu: conservar palabras que merecen permanecer.",
 } as const;
 
 export const closingContent = {
