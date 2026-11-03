@@ -50,6 +50,7 @@ describe("Given the text fields", () => {
         .join("");
       expect(styles).toContain(":-webkit-autofill");
       expect(styles).toContain("-webkit-text-fill-color");
+      expect(styles).toContain("-webkit-background-clip");
     });
   });
 });
