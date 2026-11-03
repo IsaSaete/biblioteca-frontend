@@ -123,7 +123,7 @@ const ResetPasswordPage = () => {
         />
 
         <Button type="submit" fullWidth disabled={isLoading}>
-          Guardar contraseña
+          {isLoading ? "Guardando…" : "Guardar contraseña"}
         </Button>
       </Box>
     </AuthLayout>
