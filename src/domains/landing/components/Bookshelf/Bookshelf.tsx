@@ -10,6 +10,8 @@ const { shelf } = landingContent;
 
 // En pantallas pequeñas la balda se escala y los lomos opcionales se ocultan.
 const COMPACT_QUERY = "@media (max-width: 559.95px)";
+// Pantallas de 360 px o menos de 400: un poco más pequeña para que quepa.
+const SMALL_QUERY = "@media (max-width: 399.95px)";
 
 const spineColor = (theme: Theme, color: SpineColor) => ({
   background: themeVars(theme).palette.landing[`spine${color}`],
@@ -131,6 +133,7 @@ const Bookshelf = () => (
         [theme.breakpoints.down("md")]: { "--k": 0.66 },
         [theme.breakpoints.down("sm")]: { "--k": 0.48 },
         [COMPACT_QUERY]: { "--k": 0.62 },
+        [SMALL_QUERY]: { "--k": 0.55 },
         position: "relative",
         display: "flex",
         alignItems: "flex-end",
@@ -190,7 +193,9 @@ const Bookshelf = () => (
           alignItems: "flex-end",
           gap: "3px",
           ml: "calc(36px * var(--k))",
-          [COMPACT_QUERY]: { ml: "calc(26px * var(--k))" },
+          // Móvil: los de la lista de deseos se van al otro extremo de la balda,
+          // y la estantería queda repartida de lado a lado.
+          [COMPACT_QUERY]: { ml: "auto" },
         }}
       >
         <Box
