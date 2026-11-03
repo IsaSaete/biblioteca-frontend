@@ -31,11 +31,22 @@ const DictionaryBand = () => (
       </Box>
     </Typography>
     <Typography
+      variant="landingText"
+      component="p"
+      sx={(theme) => ({
+        mt: 3,
+        fontStyle: "italic",
+        color: themeVars(theme).palette.landing.onBandMuted,
+      })}
+    >
+      {dictionaryContent.etymology}
+    </Typography>
+    <Typography
       variant="landingDisplay"
       component="ol"
       sx={(theme) => ({
         m: 0,
-        mt: 4,
+        mt: 3,
         pl: "1.2em",
         maxWidth: "28em",
         fontSize: "1.08em",
