@@ -56,7 +56,7 @@ export const addBookContent = {
 export const tagsContent = {
   note: "Prueba: toca una etiqueta.",
   title: "Ponles las etiquetas que quieras.",
-  text: "Cada libro puede llevar tus propias etiquetas, como «club de lectura» o «ensayo», y luego las usas de filtro para encontrar justo lo que buscas. Marcas tus favoritos y si lo estás leyendo, ya lo leíste o lo tienes pendiente.",
+  text: "Cada libro puede llevar tus propias etiquetas, como «club de lectura» o «música», y luego las usas de filtro para encontrar justo lo que buscas. Marcas tus favoritos y si lo estás leyendo, ya lo leíste o lo tienes pendiente.",
   groupLabel: "Probar un filtro",
 } as const;
 
