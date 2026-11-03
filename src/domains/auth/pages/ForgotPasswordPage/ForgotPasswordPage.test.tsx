@@ -43,7 +43,7 @@ describe("Given the forgot password page", () => {
   });
 
   describe("When the backend has not confirmed the sending yet", () => {
-    it("Then the confirmation is not shown", async () => {
+    it("Then the button says it is sending, cannot be pressed again and the confirmation is not shown", async () => {
       server.use(
         http.post(forgotUrl, async () => {
           await new Promise(() => undefined);
@@ -53,6 +53,7 @@ describe("Given the forgot password page", () => {
 
       await requestLink(actor);
 
+      expect(screen.getByRole("button", { name: "Enviando…" })).toBeDisabled();
       expect(screen.queryByText("Revisa tu correo")).not.toBeInTheDocument();
     });
   });
@@ -123,6 +124,33 @@ describe("Given the forgot password page", () => {
         "Email reenviado",
       );
       expect(requests).toBe(2);
+    });
+  });
+
+  describe("When the resend is still waiting for the backend", () => {
+    it("Then the resend button says it is resending and cannot be pressed again", async () => {
+      let requests = 0;
+      server.use(
+        http.post(forgotUrl, async () => {
+          requests += 1;
+
+          if (requests === 1) {
+            return HttpResponse.json({});
+          }
+
+          await new Promise(() => undefined);
+        }),
+      );
+      const actor = renderPage();
+      await requestLink(actor);
+
+      await actor.click(
+        await screen.findByRole("button", { name: "Reenviar email" }),
+      );
+
+      expect(
+        await screen.findByRole("button", { name: "Reenviando…" }),
+      ).toHaveAttribute("aria-disabled", "true");
     });
   });
 

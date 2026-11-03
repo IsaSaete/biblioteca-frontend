@@ -123,7 +123,7 @@ const ProfilePage = () => {
 
       <SettingsGroup title="Cuenta">
         <SettingsRow
-          label="Cerrar sesión"
+          label={isLoading ? "Cerrando sesión…" : "Cerrar sesión"}
           isAction
           onClick={handleLogout}
           disabled={isLoading}

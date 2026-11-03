@@ -85,6 +85,21 @@ describe("Given the reset password page", () => {
     });
   });
 
+  describe("When the API has not answered yet", () => {
+    it("Then the button says it is saving and cannot be pressed again", async () => {
+      server.use(
+        http.post(resetUrl, async () => {
+          await new Promise(() => undefined);
+        }),
+      );
+      const actor = renderPage();
+
+      await submitPassword(actor, "Secreta1!");
+
+      expect(screen.getByRole("button", { name: "Guardando…" })).toBeDisabled();
+    });
+  });
+
   describe("When the API answers AUTH_INVALID_TOKEN", () => {
     it("Then the invalid link state is shown with a way to request a new one", async () => {
       server.use(

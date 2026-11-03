@@ -70,6 +70,25 @@ describe("Given the profile page of a user with a session", () => {
     });
   });
 
+  describe("When the logout request has not answered yet", () => {
+    it("Then the row says it is closing the session and cannot be pressed again", async () => {
+      useSession();
+      server.use(
+        http.post(`${baseUrl}/auth/logout`, async () => {
+          await new Promise(() => undefined);
+        }),
+      );
+      const { user } = renderRoutes(routes, ["/profile"]);
+      await screen.findByRole("heading", { name: "Isa" });
+
+      await user.click(screen.getByRole("button", { name: "Cerrar sesión" }));
+
+      expect(
+        await screen.findByRole("button", { name: "Cerrando sesión…" }),
+      ).toBeDisabled();
+    });
+  });
+
   describe("When the logout request fails", () => {
     it("Then an error is shown and the user stays on the page", async () => {
       useSession();

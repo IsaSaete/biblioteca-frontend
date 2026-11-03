@@ -109,7 +109,11 @@ const ForgotPasswordPage = () => {
               Email reenviado
             </Typography>
           )}
-          <Pill label="Reenviar email" onClick={resend} disabled={isLoading} />
+          <Pill
+            label={isLoading ? "Reenviando…" : "Reenviar email"}
+            onClick={resend}
+            disabled={isLoading}
+          />
         </Box>
       </AuthLayout>
     );
@@ -139,7 +143,7 @@ const ForgotPasswordPage = () => {
         />
 
         <Button type="submit" fullWidth disabled={isLoading}>
-          Enviar enlace
+          {isLoading ? "Enviando…" : "Enviar enlace"}
         </Button>
       </Box>
     </AuthLayout>
