@@ -14,11 +14,26 @@ describe("Given the demo library of the landing", () => {
   describe("When a tag filter is applied", () => {
     it("Then only the books with that tag match", () => {
       expect(matching("favoritos").map((book) => book.title)).toEqual([
-        "Don Quijote",
-        "Rimas",
+        "1984",
+        "La mujer habitada",
+        "Una habitación propia",
       ]);
-      expect(matching("ensayo")).toHaveLength(2);
+      expect(matching("musica").map((book) => book.title)).toEqual([
+        "Energy Flash",
+        "Por favor, mátame",
+      ]);
     });
+  });
+});
+
+describe("Given every filter of the demo", () => {
+  describe("When it is applied", () => {
+    it.each(["favoritos", "club", "musica", "heredados"] as const)(
+      "Then %s leaves at least two books to see",
+      (filter) => {
+        expect(matching(filter).length).toBeGreaterThanOrEqual(2);
+      },
+    );
   });
 });
 

@@ -45,7 +45,24 @@ describe("Given the tags demo of the landing", () => {
         "false",
       );
       expect(
-        screen.getByText("Mostrando los favoritos: 2 libros."),
+        screen.getByText("Mostrando los favoritos: 3 libros."),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the visitor taps a tag", () => {
+    it("Then the example library shows only the books with that tag, like the app", async () => {
+      const user = renderDemo();
+
+      await user.click(screen.getByRole("button", { name: "música" }));
+
+      expect(screen.getAllByText("Energy Flash").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("Por favor, mátame").length).toBeGreaterThan(
+        0,
+      );
+      expect(screen.queryByText("1984")).not.toBeInTheDocument();
+      expect(
+        screen.getByText("Mostrando los de la etiqueta música: 2 libros."),
       ).toBeInTheDocument();
     });
   });
@@ -54,7 +71,7 @@ describe("Given the tags demo of the landing", () => {
     it("Then the full count is announced", async () => {
       const user = renderDemo();
 
-      await user.click(screen.getByRole("button", { name: "ensayo" }));
+      await user.click(screen.getByRole("button", { name: "música" }));
       await user.click(screen.getByRole("button", { name: "Todos" }));
 
       expect(

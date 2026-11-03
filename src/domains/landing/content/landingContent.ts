@@ -28,35 +28,35 @@ export const addBookContent = {
       icon: "scan",
       color: 1,
       name: "Escaneando el código de barras",
-      hint: "apuntas con la cámara y listo",
+      hint: "Apuntas con la cámara y listo",
     },
     {
       icon: "isbn",
       color: 2,
       name: "Escribiendo el ISBN",
-      hint: "si prefieres teclear",
+      hint: "Si prefieres teclear",
     },
     {
       icon: "search",
       color: 6,
       name: "Buscando por título o autor",
-      hint: "cuando no tienes el código a mano",
+      hint: "Cuando no tienes el código a mano",
     },
     {
       icon: "manual",
       color: 5,
       name: "A mano",
-      hint: "si no aparece en ningún sitio",
+      hint: "Si no aparece en ningún sitio",
     },
   ],
   sources:
-    "Glosa busca el título, el autor, la portada y la editorial en Google Books y Open Library. Si alguno de esos datos no aparece, como a veces pasa con la editorial, lo escribes tú.",
+    "Glosa busca el título, el autor, la portada y la editorial por ti. Si falta algún dato, lo completas tú.",
 } as const;
 
 export const tagsContent = {
   note: "Prueba: toca una etiqueta.",
   title: "Ponles las etiquetas que quieras.",
-  text: "Cada libro puede llevar tus propias etiquetas, como «club de lectura» o «ensayo», y luego las usas de filtro para encontrar justo lo que buscas. Marcas tus favoritos y si lo estás leyendo, ya lo leíste o lo tienes pendiente.",
+  text: "Cada libro puede llevar tus propias etiquetas, como «club de lectura» o «música», y luego las usas de filtro para encontrar justo lo que buscas. Marcas tus favoritos y si lo estás leyendo, ya lo leíste o lo tienes pendiente.",
   groupLabel: "Probar un filtro",
 } as const;
 

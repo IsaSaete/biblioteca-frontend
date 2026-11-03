@@ -1,6 +1,6 @@
 import type { SpineColor } from "./shelfBooks";
 
-export type DemoTag = "favoritos" | "club" | "ensayo" | "heredados";
+export type DemoTag = "favoritos" | "club" | "musica" | "heredados";
 export type DemoFilterId = "todos" | DemoTag;
 
 export interface DemoBook {
@@ -10,56 +10,57 @@ export interface DemoBook {
   tags: DemoTag[];
 }
 
-// Biblioteca de ejemplo del móvil. Son datos inventados, no de ninguna cuenta.
+// Biblioteca de ejemplo del móvil. Son libros reales con etiquetas inventadas,
+// no de ninguna cuenta. Cada etiqueta tiene al menos dos libros.
 export const demoBooks: DemoBook[] = [
   {
-    title: "Don Quijote",
-    author: "Miguel de Cervantes",
-    color: 1,
-    tags: ["heredados", "favoritos"],
-  },
-  {
-    title: "La Regenta",
-    author: "Leopoldo Alas «Clarín»",
+    title: "1984",
+    author: "George Orwell",
     color: 3,
-    tags: ["club"],
-  },
-  {
-    title: "Rimas",
-    author: "Gustavo Adolfo Bécquer",
-    color: 6,
     tags: ["heredados", "favoritos"],
   },
   {
-    title: "Campos de Castilla",
-    author: "Antonio Machado",
+    title: "Un mundo feliz",
+    author: "Aldous Huxley",
+    color: 1,
+    tags: ["club", "heredados"],
+  },
+  {
+    title: "La mujer habitada",
+    author: "Gioconda Belli",
+    color: 2,
+    tags: ["club", "favoritos"],
+  },
+  {
+    title: "Energy Flash",
+    author: "Simon Reynolds",
+    color: 5,
+    tags: ["musica"],
+  },
+  {
+    title: "Una habitación propia",
+    author: "Virginia Woolf",
+    color: 6,
+    tags: ["favoritos"],
+  },
+  { title: "Cara de pan", author: "Sara Mesa", color: 4, tags: ["club"] },
+  {
+    title: "Por favor, mátame",
+    author: "Legs McNeil y Gillian McCain",
+    color: 1,
+    tags: ["musica"],
+  },
+  {
+    title: "Crónicas marcianas",
+    author: "Ray Bradbury",
     color: 2,
     tags: ["heredados"],
   },
   {
-    title: "La Celestina",
-    author: "Fernando de Rojas",
-    color: 4,
-    tags: ["heredados"],
-  },
-  {
-    title: "El sí de las niñas",
-    author: "Leandro Fernández de Moratín",
-    color: 5,
-    tags: ["club"],
-  },
-  { title: "Niebla", author: "Miguel de Unamuno", color: 2, tags: ["club"] },
-  {
-    title: "Meditaciones del Quijote",
-    author: "José Ortega y Gasset",
+    title: "Calibán y la bruja",
+    author: "Silvia Federici",
     color: 3,
-    tags: ["ensayo", "club"],
-  },
-  {
-    title: "Del sentimiento trágico de la vida",
-    author: "Miguel de Unamuno",
-    color: 1,
-    tags: ["ensayo"],
+    tags: ["heredados"],
   },
 ];
 
@@ -77,7 +78,7 @@ export const demoFilters: {
     label: "club de lectura",
     announcement: "los de la etiqueta club de lectura",
   },
-  { id: "ensayo", label: "ensayo", announcement: "los de la etiqueta ensayo" },
+  { id: "musica", label: "música", announcement: "los de la etiqueta música" },
   {
     id: "heredados",
     label: "heredados",
