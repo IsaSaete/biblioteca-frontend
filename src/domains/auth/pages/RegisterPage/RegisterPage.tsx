@@ -135,7 +135,19 @@ const RegisterPage = () => {
             control={control}
             render={({ field: { value, onChange, onBlur, ref } }) => (
               <FormControlLabel
-                label="Acepto los Términos y la Política de Privacidad"
+                // Los textos se abren en otra pestaña para no perder lo escrito.
+                label={
+                  <>
+                    Acepto los{" "}
+                    <Link href="/terms" target="_blank" rel="noopener">
+                      Términos
+                    </Link>{" "}
+                    y la{" "}
+                    <Link href="/privacy" target="_blank" rel="noopener">
+                      Política de Privacidad
+                    </Link>
+                  </>
+                }
                 control={
                   <Checkbox
                     checked={value}
