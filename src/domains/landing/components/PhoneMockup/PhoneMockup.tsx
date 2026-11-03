@@ -47,7 +47,8 @@ interface PhoneMockupProps {
 // Réplica de la pantalla Biblioteca de la app, con las proporciones de un
 // teléfono real. Es decorativa: la información útil la anuncia la sección.
 const PhoneMockup = ({ books, filter }: PhoneMockupProps) => {
-  const shown = books.filter((book) => matchesFilter(book, filter)).length;
+  // Como en la app: con un filtro solo se ven los libros que coinciden.
+  const visible = books.filter((book) => matchesFilter(book, filter));
 
   return (
     <Box
@@ -127,7 +128,7 @@ const PhoneMockup = ({ books, filter }: PhoneMockupProps) => {
           component="p"
           sx={{ m: 0, mb: 3, fontSize: 11, color: "text.secondary" }}
         >
-          {countBooks(shown)}
+          {countBooks(visible.length)}
         </Box>
         <Box
           sx={{
@@ -189,22 +190,9 @@ const PhoneMockup = ({ books, filter }: PhoneMockupProps) => {
             overflow: { xs: "hidden", md: "visible" },
           }}
         >
-          {books.map((book) => {
-            const dimmed = !matchesFilter(book, filter);
-
+          {visible.map((book) => {
             return (
-              <Box
-                key={book.title}
-                component="li"
-                sx={{
-                  minWidth: 0,
-                  transition: "opacity 220ms, filter 220ms",
-                  "@media (prefers-reduced-motion: reduce)": {
-                    transition: "none",
-                  },
-                  ...(dimmed && { opacity: 0.16, filter: "grayscale(1)" }),
-                }}
-              >
+              <Box key={book.title} component="li" sx={{ minWidth: 0 }}>
                 <Box
                   sx={(theme) => ({
                     aspectRatio: "2 / 3",
