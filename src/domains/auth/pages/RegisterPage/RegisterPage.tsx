@@ -166,8 +166,13 @@ const RegisterPage = () => {
           )}
         </Box>
 
-        <Button type="submit" fullWidth disabled={isLoading}>
-          Crear cuenta
+        <Button
+          type="submit"
+          fullWidth
+          disabled={isLoading}
+          aria-busy={isLoading}
+        >
+          {isLoading ? "Creando cuenta…" : "Crear cuenta"}
         </Button>
       </Box>
     </AuthLayout>
