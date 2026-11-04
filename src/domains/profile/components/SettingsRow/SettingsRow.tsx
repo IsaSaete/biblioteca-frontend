@@ -59,6 +59,8 @@ const SettingsRow = ({
         gap: 2,
         justifyContent: isAction ? "center" : "space-between",
         textAlign: "left",
+        // El grupo recorta lo que sobresale: el contorno va por dentro.
+        "&.Mui-focusVisible": { outlineOffset: -2 },
       },
       ...(Array.isArray(sx) ? sx : [sx]),
     ]}
