@@ -95,6 +95,8 @@ const ConfirmDialog = ({
       <DialogActions sx={{ px: 5, pb: 5, pt: 3, gap: 2 }}>
         <Button
           variant="text"
+          // El foco inicial va a la acción segura de un diálogo destructivo.
+          // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
           disabled={isPending}
           onClick={onCancel}

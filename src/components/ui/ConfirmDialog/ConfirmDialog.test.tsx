@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { setDesktopViewport } from "../../../test/setDesktopViewport";
+import { axe } from "vitest-axe";
 import ConfirmDialog from "./ConfirmDialog";
 
 const renderDialog = (overrides: { isPending?: boolean } = {}) => {
@@ -29,6 +30,15 @@ const renderDialog = (overrides: { isPending?: boolean } = {}) => {
 afterEach(() => setDesktopViewport(false));
 
 describe("Given a confirmation of a destructive action", () => {
+  describe("When it is open", () => {
+    it("Then it has no accessibility violations", async () => {
+      renderDialog();
+      const dialog = await screen.findByRole("dialog");
+
+      expect(await axe(dialog)).toHaveNoViolations();
+    });
+  });
+
   describe("When it opens on a small screen", () => {
     it("Then it is a bottom sheet with the confirm and cancel buttons", async () => {
       setDesktopViewport(false);
