@@ -25,7 +25,6 @@ const QuoteCard = ({
     to={`/quotes/${quote.id}`}
     underline="none"
     color="inherit"
-    aria-label={`Abrir la cita: ${quote.text}`}
     sx={quoteCardSx(embedded)}
   >
     <QuoteCardContent quote={quote} showBook={showBook} />

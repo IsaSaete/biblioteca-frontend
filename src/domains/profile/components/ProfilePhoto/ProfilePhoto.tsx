@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
@@ -32,6 +32,7 @@ const ProfilePhoto = ({ name, avatarUrl }: ProfilePhotoProps) => {
   const [removeAvatar, { isLoading: isRemoving }] = useRemoveAvatarMutation();
   const [error, setError] = useState<string | null>(null);
   const isBusy = isUploading || isRemoving;
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleChoose = async (event: ChangeEvent<HTMLInputElement>) => {
     const input = event.target;
@@ -84,31 +85,22 @@ const ProfilePhoto = ({ name, avatarUrl }: ProfilePhotoProps) => {
       <ProfileAvatar name={name} avatarUrl={avatarUrl} size={96} />
       <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
         <ButtonBase
-          component="label"
-          aria-disabled={isBusy}
-          sx={{
-            ...actionSx,
-            "&:focus-within": {
-              outline: "2px solid",
-              outlineColor: "primary.main",
-            },
-          }}
+          onClick={() => inputRef.current?.click()}
+          disabled={isBusy}
+          sx={actionSx}
         >
           {isUploading ? "Guardando…" : "Cambiar foto"}
-          <input
-            type="file"
-            accept="image/*"
-            disabled={isBusy}
-            onChange={(event) => void handleChoose(event)}
-            style={{
-              position: "absolute",
-              width: 1,
-              height: 1,
-              opacity: 0,
-              overflow: "hidden",
-            }}
-          />
         </ButtonBase>
+        {/* El selector no se ve ni se enfoca: lo abre el botón de arriba. */}
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          hidden
+          tabIndex={-1}
+          disabled={isBusy}
+          onChange={(event) => void handleChoose(event)}
+        />
         {avatarUrl && (
           <ButtonBase
             onClick={() => void handleRemove()}

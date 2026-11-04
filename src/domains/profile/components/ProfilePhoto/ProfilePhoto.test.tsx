@@ -30,7 +30,10 @@ const mockSession = (avatarUrl: string | null = null) =>
 
 const choosePhoto = async () => {
   const rendered = renderRoutes(routes, ["/profile/edit"]);
-  const input = await screen.findByLabelText("Cambiar foto");
+  await screen.findByRole("button", { name: "Cambiar foto" });
+  // Un selector de archivos no tiene rol ni etiqueta: lo abre el botón.
+  const input = document.querySelector<HTMLInputElement>('input[type="file"]');
+  if (!input) throw new Error("File input not found");
   await rendered.user.upload(
     input,
     new File(["foto"], "yo.png", { type: "image/png" }),
@@ -45,13 +48,32 @@ describe("Given the photo of the edit profile screen", () => {
     document.cookie = "csrfToken=csrf-123";
   });
 
+  describe("When the user presses Change photo", () => {
+    it("Then the file picker opens and the button is a real button", async () => {
+      mockSession();
+      const openPicker = vi.spyOn(HTMLInputElement.prototype, "click");
+      const { user: typist } = renderRoutes(routes, ["/profile/edit"]);
+      const button = await screen.findByRole("button", {
+        name: "Cambiar foto",
+      });
+
+      await typist.click(button);
+
+      expect(button.tagName).toBe("BUTTON");
+      expect(openPicker).toHaveBeenCalledTimes(1);
+      openPicker.mockRestore();
+    });
+  });
+
   describe("When the account has no photo", () => {
     it("Then it offers to change it but not to remove it", async () => {
       mockSession();
 
       renderRoutes(routes, ["/profile/edit"]);
 
-      expect(await screen.findByLabelText("Cambiar foto")).toBeInTheDocument();
+      expect(
+        await screen.findByRole("button", { name: "Cambiar foto" }),
+      ).toBeInTheDocument();
       expect(
         screen.queryByRole("button", { name: "Quitar foto" }),
       ).not.toBeInTheDocument();
@@ -155,7 +177,7 @@ describe("Given the photo of the edit profile screen", () => {
         await screen.findByRole("button", { name: "Quitar foto" }),
       );
 
-      await screen.findByLabelText("Cambiar foto");
+      await screen.findByRole("button", { name: "Cambiar foto" });
       expect(
         screen.queryByRole("button", { name: "Quitar foto" }),
       ).not.toBeInTheDocument();
