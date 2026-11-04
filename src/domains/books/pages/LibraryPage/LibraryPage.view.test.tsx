@@ -79,7 +79,7 @@ describe("Given the view of the library", () => {
         await screen.findByRole("button", { name: "Ver en lista" }),
       ).toBeInTheDocument();
       expect(
-        await screen.findByRole("link", { name: /^Libro 1,/ }),
+        await screen.findByRole("link", { name: /^Libro 1\s+Autora/ }),
       ).toBeInTheDocument();
       expect(screen.queryByText("Leído")).not.toBeInTheDocument();
     });
@@ -101,12 +101,12 @@ describe("Given the view of the library", () => {
       ).toBeInTheDocument();
       expect(
         await screen.findByRole("link", {
-          name: "Libro 1, Autora Uno, Autor Dos, Leído",
+          name: /Libro 1\s+Autora Uno, Autor Dos\s+Leído/,
         }),
       ).toBeInTheDocument();
       expect(
         screen.getByRole("link", {
-          name: "Libro 2, Autora Uno, Autor Dos, Leyendo",
+          name: /Libro 2\s+Autora Uno, Autor Dos\s+Leyendo/,
         }),
       ).toBeInTheDocument();
       await waitFor(() => expect(saved).toEqual([{ libraryView: "list" }]));
@@ -122,7 +122,7 @@ describe("Given the view of the library", () => {
 
       expect(
         await screen.findByRole("link", {
-          name: "Libro 1, Autora Uno, Autor Dos, Leído",
+          name: /Libro 1\s+Autora Uno, Autor Dos\s+Leído/,
         }),
       ).toBeInTheDocument();
       expect(

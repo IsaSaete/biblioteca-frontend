@@ -25,7 +25,6 @@ const Brand = ({
 }: BrandProps) => (
   <Box
     {...(to ? { component: RouterLink, to } : { component: "span" })}
-    aria-label={tagline ? "Glosa, tu biblioteca personal" : undefined}
     sx={{
       display: "inline-flex",
       flexDirection: "column",
@@ -46,11 +45,13 @@ const Brand = ({
     >
       Glosa
     </Typography>
+    {/* El espacio no se ve (el contenedor es flex) pero separa las dos
+        palabras en el nombre accesible del enlace. */}
+    {tagline && " "}
     {tagline && (
       <Typography
         variant="landingUi"
         component="span"
-        aria-hidden="true"
         sx={{
           // `width: 0` + `minWidth: 100%`: el texto toma el ancho de «Glosa»
           // sin ensancharlo, y `justify` reparte el espacio para igualarlos.
