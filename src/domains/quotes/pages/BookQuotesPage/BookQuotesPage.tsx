@@ -10,6 +10,7 @@ import NoQuotesCard from "../../components/NoQuotesCard/NoQuotesCard";
 import QuotesList from "../../components/QuotesList/QuotesList";
 import QuoteFormDialog from "../../components/QuoteFormDialog/QuoteFormDialog";
 import { useGetQuotesQuery } from "../../quotesApi";
+import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 
 const BackIcon = () => (
   <svg
@@ -33,6 +34,7 @@ const BookQuotesPage = () => {
   const navigate = useNavigate();
   const { bookId = "" } = useParams();
   const { data: book, error: bookError } = useGetBookQuery(bookId);
+  useDocumentTitle(book ? `Citas de ${book.title}` : undefined);
   const { data } = useGetQuotesQuery({ bookId });
   const [isAdding, setIsAdding] = useState(false);
 

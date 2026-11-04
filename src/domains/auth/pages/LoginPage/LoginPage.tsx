@@ -16,8 +16,10 @@ import { getRedirectPath } from "../../utils/getRedirectPath";
 import { getFormErrorMessage } from "../../utils/getFormErrorMessage";
 import { loginSchema } from "./loginSchema";
 import type { LoginFormValues } from "./loginSchema";
+import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 
 const LoginPage = () => {
+  useDocumentTitle("Entrar");
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();

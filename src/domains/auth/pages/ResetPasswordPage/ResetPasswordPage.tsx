@@ -14,8 +14,10 @@ import { getFormErrorMessage } from "../../utils/getFormErrorMessage";
 import { parseApiError } from "../../utils/parseApiError";
 import { resetPasswordSchema } from "./resetPasswordSchema";
 import type { ResetPasswordFormValues } from "./resetPasswordSchema";
+import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 
 const ResetPasswordPage = () => {
+  useDocumentTitle("Nueva contraseña");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");

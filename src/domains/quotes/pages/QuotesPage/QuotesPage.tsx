@@ -19,6 +19,7 @@ import {
   getQuotesSortOptions,
   parseQuotesSort,
 } from "../../utils/quotesSort";
+import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 
 // Citas (HU-27, HU-28): el diario de citas, de la más reciente a la más
 // antigua por defecto, filtrable por libro y ordenable (recientes, antiguas o
@@ -29,6 +30,7 @@ type AddQuote =
   | { step: "form"; ejemplarId?: string; bookTitle?: string };
 
 const QuotesPage = () => {
+  useDocumentTitle("Citas");
   const [adding, setAdding] = useState<AddQuote | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const bookId = searchParams.get("bookId") ?? undefined;

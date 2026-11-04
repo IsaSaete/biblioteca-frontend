@@ -9,6 +9,7 @@ import FullScreenModal from "../../../../components/ui/FullScreenModal/FullScree
 import { useCompleteOnboardingMutation, useMeQuery } from "../../authApi";
 import { onboardingSteps } from "./onboardingSteps";
 import { visuallyHidden } from "../../../../utils/visuallyHidden";
+import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 
 const titleId = "onboarding-title";
 const SWIPE_THRESHOLD_PX = 50;
@@ -22,6 +23,7 @@ const enter = keyframes`
 // Tour de 3 pasos, siempre saltable. Completarlo o saltarlo lleva al mismo
 // sitio y cuenta igual: se marca como visto una sola vez por cuenta (D-016).
 const OnboardingPage = () => {
+  useDocumentTitle("Bienvenida");
   const navigate = useNavigate();
   const { data } = useMeQuery();
   const [completeOnboarding] = useCompleteOnboardingMutation();

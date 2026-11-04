@@ -25,6 +25,7 @@ import BookQuotesSection from "../../../quotes/components/BookQuotesSection/Book
 import StatusSelector from "../../components/StatusSelector/StatusSelector";
 import { capitalizeWords } from "../../utils/capitalizeFirst";
 import { getTagSuggestions } from "../../utils/getTagSuggestions";
+import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 
 // En móvil y tablet la ficha es una columna con las zonas apiladas en este
 // orden. En escritorio (≥ 1024 px) la identidad del libro queda fija a la
@@ -136,6 +137,7 @@ const BookDetailPage = () => {
   // Mismo punto que el layout con sesión: desde aquí es escritorio.
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const { data: book, isLoading, error, refetch } = useGetBookQuery(bookId);
+  useDocumentTitle(book?.title);
   const [updateEjemplar, { isError: hasUpdateFailed, isLoading: isUpdating }] =
     useUpdateEjemplarMutation();
   // Sugerencias a partir de los libros que ya hay cargados: el contrato no

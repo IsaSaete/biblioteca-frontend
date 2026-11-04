@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import BackButton from "../../../../components/ui/BackButton/BackButton";
 import type { LegalContent } from "../../dto/LegalContent";
+import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 
 interface LegalDocumentProps {
   content: LegalContent;
@@ -11,6 +12,8 @@ interface LegalDocumentProps {
 const LegalDocument = ({ content }: LegalDocumentProps) => {
   // Se llega desde el pie de la landing: sin esto el documento se abre con el
   // scroll de la página anterior, al final.
+  useDocumentTitle(content.title);
+
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
   }, []);
