@@ -50,7 +50,9 @@ describe("Given the text fields", () => {
         .join("");
       expect(styles).toContain(":-webkit-autofill");
       expect(styles).toContain("-webkit-text-fill-color");
+      // Chrome (recorte del fondo) y Safari (sombra interior).
       expect(styles).toContain("-webkit-background-clip");
+      expect(styles).toContain("-webkit-box-shadow");
     });
   });
 });

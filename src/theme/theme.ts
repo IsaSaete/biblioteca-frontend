@@ -214,18 +214,23 @@ const theme = createTheme({
         input: ({ theme }) => ({
           [theme.breakpoints.down("sm")]: { fontSize: "1rem" },
           // Al autorrellenar (contraseñas guardadas), Chrome y Safari pintan el
-          // campo de azul y no dejan cambiarlo con `background`. Se retrasa
-          // «para siempre» el cambio de fondo, así el campo conserva el de su
-          // contenedor en claro y en oscuro, y se fija el color del texto.
-          "&:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus":
+          // campo de azul y no dejan cambiarlo con `background`. Se combinan dos
+          // técnicas, una por navegador, y se cubre el relleno con
+          // el color de la superficie donde viven los campos (diálogos y
+          // tarjetas) y se fija el color del texto. Se retrasa además el cambio
+          // de fondo por si el navegador lo anima.
+          "&:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus, &:-webkit-autofill:active":
             {
               transition: "background-color 9999s ease-in-out 0s",
-              // En modo oscuro Chrome pinta el autorrelleno con otro azul y el
-              // retraso no basta: se recorta el fondo a la forma del texto, así
-              // no queda ningún relleno visible sea cual sea el fondo.
+              // Chrome: recorta el fondo del autorrelleno a la forma del texto.
               WebkitBackgroundClip: "text",
+              // Safari: ignora lo anterior y solo respeta la sombra interior.
+              WebkitBoxShadow: `0 0 0 100px ${(theme.vars ?? theme).palette.background.paper} inset`,
+              boxShadow: `0 0 0 100px ${(theme.vars ?? theme).palette.background.paper} inset`,
               WebkitTextFillColor: (theme.vars ?? theme).palette.text.primary,
               caretColor: (theme.vars ?? theme).palette.text.primary,
+              // El relleno sigue la forma redondeada del campo.
+              borderRadius: "inherit",
             },
         }),
       },

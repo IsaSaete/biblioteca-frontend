@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { delay, http, HttpResponse } from "msw";
+import { http, HttpResponse } from "msw";
 import { authApi } from "../../authApi";
 import { booksApi } from "../../../books/booksApi";
 import { homeApi } from "../../../home/homeApi";
@@ -124,9 +124,15 @@ describe("Given the login page", () => {
 
   describe("When the server takes a while to answer the login", () => {
     it("Then the button says it is logging in and cannot be pressed again until it answers", async () => {
+      // El servidor simulado no contesta hasta que el test lo libera: así la
+      // comprobación no depende de lo rápido que vaya la máquina.
+      let release = () => {};
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
       server.use(
         http.post(loginUrl, async () => {
-          await delay(150);
+          await gate;
           return HttpResponse.json({ user });
         }),
       );
@@ -137,6 +143,9 @@ describe("Given the login page", () => {
       const busy = screen.getByRole("button", { name: "Iniciando sesión…" });
       expect(busy).toBeDisabled();
       expect(busy).toHaveAttribute("aria-busy", "true");
+
+      release();
+
       expect(await screen.findByText("Inicio")).toBeInTheDocument();
     });
   });
