@@ -108,13 +108,14 @@ const QuotesSection = () => {
             }}
           >
             <span>{page.book}</span>
-            <span>{page.chapter}</span>
+            <span>{page.location}</span>
           </Typography>
           <Typography
             variant="landingDisplay"
             component="p"
             sx={{ position: "relative", fontSize: "1em", lineHeight: 1.75 }}
           >
+            {page.before}{" "}
             <Box
               component="span"
               sx={(theme) => ({
@@ -135,7 +136,7 @@ const QuotesSection = () => {
             >
               {page.highlighted}
             </Box>{" "}
-            {page.rest}
+            {page.after}
             <Box
               aria-hidden="true"
               component="span"
