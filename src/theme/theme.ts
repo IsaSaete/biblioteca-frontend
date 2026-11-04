@@ -65,6 +65,10 @@ declare module "@mui/material/Typography" {
 // Velo oscuro al 40 % (sistema-diseno-visual.md, «Velo»).
 const SCRIM = "rgba(0, 0, 0, 0.4)";
 
+// Borde de los campos de formulario: 3:1 como mínimo frente al fondo y a la
+// superficie (WCAG 1.4.11); el de MUI por defecto no llegaba a 2:1.
+const FIELD_BORDER = { light: "#7A7266", dark: "#8C8478" };
+
 const theme = createTheme({
   cssVariables: { colorSchemeSelector: "data" },
   colorSchemes: {
@@ -259,6 +263,8 @@ const theme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         notchedOutline: ({ theme }) => ({
+          borderColor: FIELD_BORDER.light,
+          ...theme.applyStyles("dark", { borderColor: FIELD_BORDER.dark }),
           "& legend": {
             [theme.breakpoints.down("sm")]: { fontSize: "0.875rem" },
             [theme.breakpoints.up("sm")]: { fontSize: "0.75rem" },
