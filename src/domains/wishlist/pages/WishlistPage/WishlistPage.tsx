@@ -16,6 +16,7 @@ import WishlistIcon from "../../components/WishlistIcon/WishlistIcon";
 import WishlistItemSheet from "../../components/WishlistItemSheet/WishlistItemSheet";
 import type { WishlistItem } from "../../dto/WishlistItem";
 import { useGetWishlistQuery } from "../../wishlistApi";
+import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 
 const SKELETON_COUNT = 10;
 
@@ -76,6 +77,7 @@ const WishlistChunk = ({
 // biblioteca. Cuadrícula de portadas con scroll infinito; al tocar una se abre
 // su hoja.
 const WishlistPage = () => {
+  useDocumentTitle("Lista de deseos");
   const [moreCursors, setMoreCursors] = useState<string[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);

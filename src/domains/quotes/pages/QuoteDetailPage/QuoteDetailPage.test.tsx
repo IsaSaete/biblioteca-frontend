@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { renderRoutes } from "../../../../test/renderRoutes";
 import { server } from "../../../../test/server";
@@ -50,6 +50,26 @@ beforeEach(() =>
 );
 
 describe("Given the quote detail page", () => {
+  describe("When a quote of a book loads", () => {
+    it("Then the tab title names the book", async () => {
+      mockQuote();
+
+      renderRoutes(routes, ["/quotes/q1"]);
+
+      await waitFor(() => expect(document.title).toBe("Cita de 1984 — Glosa"));
+    });
+  });
+
+  describe("When a quote without a book loads", () => {
+    it("Then the tab title is just Quote", async () => {
+      mockQuote(quote({ book: undefined, ejemplarId: undefined }));
+
+      renderRoutes(routes, ["/quotes/q1"]);
+
+      await waitFor(() => expect(document.title).toBe("Cita — Glosa"));
+    });
+  });
+
   describe("When the quote loads", () => {
     it("Then it shows the full text, the page and the book without leaving", async () => {
       mockQuote();

@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { renderRoutes } from "../../../../test/renderRoutes";
 import { server } from "../../../../test/server";
@@ -41,6 +41,20 @@ const mockLibrary = (items: object[] = []) =>
 beforeEach(() => mockLibrary());
 
 describe("Given the book detail page", () => {
+  describe("When the book loads", () => {
+    it("Then the tab title is the book title", async () => {
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
+      );
+
+      renderRoutes(routes, ["/library/book-1"]);
+
+      await waitFor(() =>
+        expect(document.title).toBe("El mundo amarillo — Glosa"),
+      );
+    });
+  });
+
   describe("When the book loads", () => {
     it("Then it shows its data, status and synopsis", async () => {
       server.use(

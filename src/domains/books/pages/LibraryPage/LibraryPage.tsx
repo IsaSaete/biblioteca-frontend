@@ -36,6 +36,7 @@ import {
 } from "../../utils/libraryFilters";
 import type { LibraryFilters } from "../../utils/libraryFilters";
 import { useAnchoredPanel } from "../../../../hooks/useAnchoredPanel";
+import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 
 const SKELETON_COUNT = 10;
 const SKELETON_ROWS = 6;
@@ -226,6 +227,7 @@ const LibraryGrid = ({
 // (`?sort=&favorite=&tag=&untagged=`) para que volver desde una ficha, o llegar
 // desde «Favoritos» de Inicio, los conserve.
 const LibraryPage = () => {
+  useDocumentTitle("Biblioteca");
   const [searchParams, setSearchParams] = useSearchParams();
   const filtersPanel = useAnchoredPanel();
   const filters = parseLibraryFilters(searchParams);

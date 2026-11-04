@@ -11,6 +11,7 @@ import SettingsGroup from "../../components/SettingsGroup/SettingsGroup";
 import SettingsRow from "../../components/SettingsRow/SettingsRow";
 import LibraryViewSelector from "../../components/LibraryViewSelector/LibraryViewSelector";
 import ThemeSelector from "../../components/ThemeSelector/ThemeSelector";
+import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 
 const PencilIcon = () => (
   <svg
@@ -32,6 +33,7 @@ const PencilIcon = () => (
 // demás filas (Cuenta, descargar datos, eliminar cuenta) se añaden con su
 // función.
 const ProfilePage = () => {
+  useDocumentTitle("Perfil");
   const navigate = useNavigate();
   const { data } = useMeQuery();
   const [logout, { isLoading }] = useLogoutMutation();

@@ -3,8 +3,10 @@ import Typography from "@mui/material/Typography";
 import { useNavigate } from "react-router";
 import Button from "../../components/ui/Button/Button";
 import Logo from "../../components/ui/Logo/Logo";
+import { useDocumentTitle } from "../../hooks/useDocumentTitle";
 
 const NotFoundPage = () => {
+  useDocumentTitle("Página no encontrada");
   const navigate = useNavigate();
 
   return (
