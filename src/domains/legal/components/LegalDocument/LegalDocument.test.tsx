@@ -14,6 +14,22 @@ const renderDocument = (content: LegalContent) =>
   );
 
 describe("Given a legal document", () => {
+  describe("When it opens", () => {
+    it("Then the page is scrolled to the top", () => {
+      const scrollTo = vi.fn();
+      vi.stubGlobal("scrollTo", scrollTo);
+
+      renderDocument({
+        title: "Documento",
+        lastUpdated: "1 de enero",
+        sections: [],
+      });
+
+      expect(scrollTo).toHaveBeenCalledWith(0, 0);
+      vi.unstubAllGlobals();
+    });
+  });
+
   describe("When a section has paragraphs and a list", () => {
     it("Then the heading, the paragraphs and the list items are shown", () => {
       renderDocument({
