@@ -160,7 +160,7 @@ const WishlistPage = () => {
         action={
           <Button
             onClick={() => setIsAdding(true)}
-            sx={{ minHeight: 40, px: 4, borderRadius: "999px" }}
+            sx={{ px: 4, borderRadius: "999px" }}
           >
             Añadir a la lista
           </Button>

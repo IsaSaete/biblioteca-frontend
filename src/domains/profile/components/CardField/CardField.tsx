@@ -68,7 +68,18 @@ const CardField = ({
             "aria-describedby": error ? errorId : undefined,
           }}
           sx={[
-            { minHeight: 32, fontSize: "1rem" },
+            {
+              minHeight: 44,
+              // 44px de área táctil sin mover nada: los 6px de más por arriba y
+              // por abajo se compensan con margen negativo.
+              my: -1.5,
+              fontSize: "1rem",
+              "& .MuiInputBase-input": {
+                height: 44,
+                boxSizing: "border-box",
+                py: 0,
+              },
+            },
             ...(Array.isArray(sx) ? sx : [sx]),
           ]}
           {...props}
