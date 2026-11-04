@@ -50,6 +50,18 @@ beforeEach(() =>
 );
 
 describe("Given the quote detail page", () => {
+  describe("When the quote loads", () => {
+    it("Then the page has a level-one heading for screen readers", async () => {
+      mockQuote();
+
+      renderRoutes(routes, ["/quotes/q1"]);
+
+      expect(
+        await screen.findByRole("heading", { level: 1, name: "Cita de 1984" }),
+      ).toBeInTheDocument();
+    });
+  });
+
   describe("When a quote of a book loads", () => {
     it("Then the tab title names the book", async () => {
       mockQuote();

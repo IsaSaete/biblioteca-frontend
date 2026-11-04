@@ -15,6 +15,7 @@ import BookCover from "../../../books/components/BookCover/BookCover";
 import { useGetBookQuery } from "../../../books/booksApi";
 import { useDeleteQuoteMutation, useGetQuoteQuery } from "../../quotesApi";
 import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
+import { visuallyHidden } from "../../../../utils/visuallyHidden";
 
 const PencilIcon = () => (
   <svg
@@ -80,9 +81,10 @@ const QuoteDetailPage = () => {
   const navigate = useNavigate();
   const { quoteId = "" } = useParams();
   const { data: quote, isLoading, error, refetch } = useGetQuoteQuery(quoteId);
-  useDocumentTitle(
-    quote ? `Cita${quote.book ? ` de ${quote.book.title}` : ""}` : undefined,
-  );
+  const pageTitle = quote
+    ? `Cita${quote.book ? ` de ${quote.book.title}` : ""}`
+    : undefined;
+  useDocumentTitle(pageTitle);
   // La cita no trae portada (api-contract.md): se toma del libro, que suele
   // estar ya en caché por la ficha.
   const { data: book } = useGetBookQuery(quote?.book?.id ?? "", {
@@ -322,6 +324,10 @@ const QuoteDetailPage = () => {
           </Box>
         )}
       </Box>
+      {/* La pantalla no muestra título: este solo lo leen los lectores de pantalla. */}
+      <Typography component="h1" sx={visuallyHidden}>
+        {pageTitle ?? "Cita"}
+      </Typography>
       {renderContent()}
       <Snackbar
         open={copyMessage !== null}

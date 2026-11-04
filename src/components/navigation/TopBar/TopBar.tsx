@@ -88,6 +88,7 @@ const TopBar = () => {
 
   return (
     <Box
+      component="header"
       sx={{
         maxWidth: 960,
         mx: "auto",
@@ -98,86 +99,88 @@ const TopBar = () => {
         gap: 2,
       }}
     >
-      <Autocomplete
-        fullWidth
-        options={suggestions}
-        value={null}
-        inputValue={query}
-        open={isOpen && query.trim().length >= MIN_QUERY_LENGTH}
-        onOpen={() => setIsOpen(true)}
-        onClose={() => setIsOpen(false)}
-        onInputChange={(_event, value, reason) =>
-          setQuery(reason === "reset" ? "" : value)
-        }
-        onChange={(_event, book) => {
-          if (book) {
-            void navigate(`/library/${book.id}`);
+      <Box role="search" sx={{ flex: 1, minWidth: 0 }}>
+        <Autocomplete
+          fullWidth
+          options={suggestions}
+          value={null}
+          inputValue={query}
+          open={isOpen && query.trim().length >= MIN_QUERY_LENGTH}
+          onOpen={() => setIsOpen(true)}
+          onClose={() => setIsOpen(false)}
+          onInputChange={(_event, value, reason) =>
+            setQuery(reason === "reset" ? "" : value)
           }
-        }}
-        filterOptions={(options) => options}
-        getOptionLabel={(book) => book.title}
-        isOptionEqualToValue={(a, b) => a.id === b.id}
-        loading={isFetching}
-        loadingText="Buscando…"
-        noOptionsText="Ningún libro de tu biblioteca coincide."
-        forcePopupIcon={false}
-        renderOption={({ key, ...props }, book) => (
-          <Box
-            component="li"
-            key={key}
-            {...props}
-            sx={{ display: "flex", gap: 3, minHeight: 56 }}
-          >
-            <Box sx={{ width: 32, flexShrink: 0 }}>
-              <BookCover
-                title={book.title}
-                coverUrl={book.coverUrl}
-                size="small"
-              />
+          onChange={(_event, book) => {
+            if (book) {
+              void navigate(`/library/${book.id}`);
+            }
+          }}
+          filterOptions={(options) => options}
+          getOptionLabel={(book) => book.title}
+          isOptionEqualToValue={(a, b) => a.id === b.id}
+          loading={isFetching}
+          loadingText="Buscando…"
+          noOptionsText="Ningún libro de tu biblioteca coincide."
+          forcePopupIcon={false}
+          renderOption={({ key, ...props }, book) => (
+            <Box
+              component="li"
+              key={key}
+              {...props}
+              sx={{ display: "flex", gap: 3, minHeight: 56 }}
+            >
+              <Box sx={{ width: 32, flexShrink: 0 }}>
+                <BookCover
+                  title={book.title}
+                  coverUrl={book.coverUrl}
+                  size="small"
+                />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography sx={{ fontWeight: 700, overflowWrap: "anywhere" }}>
+                  {book.title}
+                </Typography>
+                <Typography
+                  color="text.secondary"
+                  sx={{ fontSize: "0.875rem", overflowWrap: "anywhere" }}
+                >
+                  {book.authors.join(", ")}
+                </Typography>
+              </Box>
             </Box>
-            <Box sx={{ minWidth: 0 }}>
-              <Typography sx={{ fontWeight: 700, overflowWrap: "anywhere" }}>
-                {book.title}
-              </Typography>
-              <Typography
-                color="text.secondary"
-                sx={{ fontSize: "0.875rem", overflowWrap: "anywhere" }}
-              >
-                {book.authors.join(", ")}
-              </Typography>
-            </Box>
-          </Box>
-        )}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            placeholder={SEARCH_LABEL}
-            slotProps={{
-              ...params.slotProps,
-              htmlInput: {
-                ...params.slotProps.htmlInput,
-                "aria-label": SEARCH_LABEL,
-              },
-              input: {
-                ...params.slotProps.input,
-                sx: {
-                  borderRadius: "999px",
-                  height: BAR_HEIGHT,
-                  "& .MuiInputBase-input": { py: 0, height: "100%" },
+          )}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              placeholder={SEARCH_LABEL}
+              slotProps={{
+                ...params.slotProps,
+                htmlInput: {
+                  ...params.slotProps.htmlInput,
+                  "aria-label": SEARCH_LABEL,
                 },
-                startAdornment: (
-                  <InputAdornment
-                    position="start"
-                    sx={{ color: "text.secondary" }}
-                  >
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-        )}
-      />
+                input: {
+                  ...params.slotProps.input,
+                  sx: {
+                    borderRadius: "999px",
+                    height: BAR_HEIGHT,
+                    "& .MuiInputBase-input": { py: 0, height: "100%" },
+                  },
+                  startAdornment: (
+                    <InputAdornment
+                      position="start"
+                      sx={{ color: "text.secondary" }}
+                    >
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+          )}
+        />
+      </Box>
       {hasCamera && (
         <IconButton
           aria-label="Escanear el código de barras de un libro"

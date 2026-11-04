@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { renderRoutes } from "../../../test/renderRoutes";
 import { server } from "../../../test/server";
@@ -51,6 +51,23 @@ const stubCamera = (hasCamera: boolean) =>
 afterEach(() => stubCamera(false));
 
 describe("Given the top bar", () => {
+  describe("When the bar is shown", () => {
+    it("Then it is the page header and the search field is in a search region", async () => {
+      mockLibrary();
+      stubCamera(false);
+
+      renderRoutes(routes, ["/"]);
+
+      const header = await screen.findByRole("banner");
+      const search = within(header).getByRole("search");
+      expect(
+        within(search).getByRole("combobox", {
+          name: "Buscar en tu biblioteca",
+        }),
+      ).toBeInTheDocument();
+    });
+  });
+
   describe("When the user types part of a title", () => {
     it("Then it suggests only the matching books of the library and opens the chosen one", async () => {
       const searches = mockLibrary();
