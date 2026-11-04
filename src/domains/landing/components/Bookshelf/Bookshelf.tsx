@@ -18,9 +18,15 @@ const spineColor = (theme: Theme, color: SpineColor) => ({
   text: themeVars(theme).palette.landing[`onSpine${color}`],
 });
 
+// Las bandas del lomo toman el color del texto del libro (`currentColor`): claras
+// sobre los lomos oscuros y oscuras sobre los claros, donde unas líneas blancas
+// no se verían.
+const BAND_STRONG = "color-mix(in srgb, currentColor 38%, transparent)";
+const BAND_SOFT = "color-mix(in srgb, currentColor 22%, transparent)";
+
 const paperBands = `
-  linear-gradient(to bottom, transparent 16px, rgba(255,255,255,.38) 16px, rgba(255,255,255,.38) 18px, transparent 18px, transparent 22px, rgba(255,255,255,.22) 22px, rgba(255,255,255,.22) 23px, transparent 23px),
-  linear-gradient(to top, transparent 16px, rgba(255,255,255,.38) 16px, rgba(255,255,255,.38) 18px, transparent 18px)
+  linear-gradient(to bottom, transparent 16px, ${BAND_STRONG} 16px, ${BAND_STRONG} 18px, transparent 18px, transparent 22px, ${BAND_SOFT} 22px, ${BAND_SOFT} 23px, transparent 23px),
+  linear-gradient(to top, transparent 16px, ${BAND_STRONG} 16px, ${BAND_STRONG} 18px, transparent 18px)
 `;
 
 interface SpineProps {
