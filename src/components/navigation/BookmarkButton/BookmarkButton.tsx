@@ -26,7 +26,7 @@ const Bookmark = ({ height }: { height: number }) => (
 );
 
 // Distancia entre el borde inferior de la casilla de la etiqueta y la base de
-// sus letras (con la fuente de 11px y su interlineado de 1,3, unos 3px).
+// sus letras (con la fuente de 12px y su interlineado de 1,3, unos 3px).
 const LABEL_BASELINE_OFFSET = 3;
 
 // Alto del marcapáginas en la barra inferior: con la punta en la base de las
@@ -95,7 +95,7 @@ const BookmarkButton = ({ placement }: BookmarkButtonProps) => {
         <Typography
           aria-hidden="true"
           component="span"
-          sx={{ fontSize: "0.6875rem", lineHeight: 1.3, fontWeight: 500 }}
+          sx={{ fontSize: "0.75rem", lineHeight: 1.3, fontWeight: 500 }}
         >
           &nbsp;
         </Typography>
