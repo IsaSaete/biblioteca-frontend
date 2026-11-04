@@ -137,6 +137,7 @@ const Bookshelf = () => (
         position: "relative",
         display: "flex",
         alignItems: "flex-end",
+        justifyContent: "center",
         gap: "3px",
         m: 0,
         px: 1,
