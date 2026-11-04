@@ -19,7 +19,7 @@ describe("Given the Glosa logotype", () => {
       renderBrand({ to: "/" });
 
       expect(
-        screen.getByRole("link", { name: "Glosa, tu biblioteca personal" }),
+        screen.getByRole("link", { name: "Glosa Tu biblioteca personal" }),
       ).toHaveAttribute("href", "/");
     });
   });

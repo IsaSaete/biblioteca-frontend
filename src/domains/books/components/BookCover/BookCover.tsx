@@ -7,12 +7,20 @@ interface BookCoverProps {
   coverUrl?: string;
   // Las miniaturas (listas, buscadores) llevan una sombra más corta.
   size?: "regular" | "small";
+  // Dentro de un enlace o botón que ya lleva el título al lado, la portada no
+  // aporta nombre: sin `alt` el lector no repite «Portada de…» + el título.
+  decorative?: boolean;
 }
 
 // Portada 2:3 desde la URL del proveedor (nunca se descarga ni se guarda). Sin
 // `coverUrl`, o si la imagen falla (p. ej. la CSP o un enlace roto), se muestra
 // un marcador en su lugar.
-const BookCover = ({ title, coverUrl, size = "regular" }: BookCoverProps) => {
+const BookCover = ({
+  title,
+  coverUrl,
+  size = "regular",
+  decorative = false,
+}: BookCoverProps) => {
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
   const hasImage = coverUrl !== undefined && coverUrl !== failedUrl;
 
@@ -35,7 +43,7 @@ const BookCover = ({ title, coverUrl, size = "regular" }: BookCoverProps) => {
         <Box
           component="img"
           src={coverUrl}
-          alt={`Portada de ${title}`}
+          alt={decorative ? "" : `Portada de ${title}`}
           loading="lazy"
           onError={() => setFailedUrl(coverUrl)}
           sx={{ width: "100%", height: "100%", objectFit: "cover" }}

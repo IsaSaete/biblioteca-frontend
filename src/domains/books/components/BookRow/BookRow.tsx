@@ -51,11 +51,15 @@ const BookRow = ({ book }: BookRowProps) => {
         to={`/library/${book.id}`}
         underline="none"
         color="inherit"
-        aria-label={`${book.title}, ${authors}, ${label}`}
         sx={{ display: "flex", gap: 4, py: 3, borderRadius: 1.5 }}
       >
         <Box sx={{ width: COVER_WIDTH, flexShrink: 0 }}>
-          <BookCover title={book.title} coverUrl={book.coverUrl} size="small" />
+          <BookCover
+            title={book.title}
+            coverUrl={book.coverUrl}
+            size="small"
+            decorative
+          />
         </Box>
         <Box sx={{ minWidth: 0, alignSelf: "center" }}>
           <Typography

@@ -42,7 +42,7 @@ describe("Given the wishlist page", () => {
       renderRoutes(routes, ["/wishlist"]);
 
       expect(
-        await screen.findByRole("button", { name: /Libro 1, Autora/ }),
+        await screen.findByRole("button", { name: /Libro 1\s+Autora/ }),
       ).toBeInTheDocument();
       expect(screen.getAllByRole("button", { name: /Autora/ })).toHaveLength(3);
       expect(screen.getByText("3 libros")).toBeInTheDocument();
@@ -92,7 +92,7 @@ describe("Given the wishlist page", () => {
       const { user } = renderRoutes(routes, ["/wishlist"]);
 
       await user.click(
-        await screen.findByRole("button", { name: /Libro 2, Autora/ }),
+        await screen.findByRole("button", { name: /Libro 2\s+Autora/ }),
       );
 
       expect(
@@ -151,7 +151,7 @@ describe("Given the wishlist page", () => {
       const { user } = renderRoutes(routes, ["/wishlist"]);
 
       await user.click(
-        await screen.findByRole("button", { name: /Libro 1, Autora/ }),
+        await screen.findByRole("button", { name: /Libro 1\s+Autora/ }),
       );
       await user.click(
         screen.getByRole("button", { name: "Quitar de la lista" }),

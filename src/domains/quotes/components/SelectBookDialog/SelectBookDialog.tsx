@@ -82,7 +82,6 @@ const SelectBookDialog = ({ onSelect, onClose }: SelectBookDialogProps) => {
           <Box component="li" key={book.ejemplarId} sx={{ listStyle: "none" }}>
             <ButtonBase
               onClick={() => onSelect(book)}
-              aria-label={`${book.title}, ${book.authors.join(", ")}`}
               sx={{
                 width: "100%",
                 minHeight: 56,
@@ -98,6 +97,7 @@ const SelectBookDialog = ({ onSelect, onClose }: SelectBookDialogProps) => {
                   title={book.title}
                   coverUrl={book.coverUrl}
                   size="small"
+                  decorative
                 />
               </Box>
               <Box sx={{ minWidth: 0 }}>

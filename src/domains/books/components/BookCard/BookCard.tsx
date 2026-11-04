@@ -38,7 +38,6 @@ const BookCard = ({ book, onSelect }: BookCardProps) => {
         {...target}
         underline="none"
         color="inherit"
-        aria-label={`${book.title}, ${authors}`}
         sx={{
           display: "block",
           borderRadius: 1.5,
@@ -46,7 +45,7 @@ const BookCard = ({ book, onSelect }: BookCardProps) => {
           textAlign: "left",
         }}
       >
-        <BookCover title={book.title} coverUrl={book.coverUrl} />
+        <BookCover title={book.title} coverUrl={book.coverUrl} decorative />
         <Typography
           sx={{ mt: 2, fontWeight: 700, ...clampLines(2) }}
           title={book.title}

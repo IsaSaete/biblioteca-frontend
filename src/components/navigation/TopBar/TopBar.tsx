@@ -133,6 +133,7 @@ const TopBar = () => {
                 title={book.title}
                 coverUrl={book.coverUrl}
                 size="small"
+                decorative
               />
             </Box>
             <Box sx={{ minWidth: 0 }}>
