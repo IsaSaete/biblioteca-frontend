@@ -49,7 +49,7 @@ const NavItemLink = ({ item, placement }: NavItemLinkProps) => (
     <Typography
       className="nav-label"
       component="span"
-      sx={{ fontSize: "0.6875rem", lineHeight: 1.3, fontWeight: 500 }}
+      sx={{ fontSize: "0.75rem", lineHeight: 1.3, fontWeight: 500 }}
     >
       {item.label}
     </Typography>
