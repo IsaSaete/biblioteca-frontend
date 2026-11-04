@@ -44,6 +44,10 @@ const FilterChip = ({
     aria-label={removable ? `Quitar el filtro ${label}` : undefined}
     sx={{
       minHeight: 40,
+      // Un poco menos alto a la vista, con el área táctil de 44px intacta: la
+      // zona extra es invisible.
+      position: "relative",
+      "&::after": { content: '""', position: "absolute", inset: "-2px 0" },
       px: 4,
       gap: 1.5,
       borderRadius: "999px",

@@ -98,7 +98,7 @@ const QuotesPage = () => {
         action={
           <Button
             onClick={() => setAdding({ step: "select" })}
-            sx={{ minHeight: 40, px: 4, borderRadius: "999px" }}
+            sx={{ px: 4, borderRadius: "999px" }}
           >
             Añadir cita
           </Button>
