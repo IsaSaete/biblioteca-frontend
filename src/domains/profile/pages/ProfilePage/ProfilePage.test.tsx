@@ -2,12 +2,18 @@ import { screen } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { renderRoutes } from "../../../../test/renderRoutes";
 import { server } from "../../../../test/server";
-import LoginPage from "../../../auth/pages/LoginPage/LoginPage";
+import { useRedirectWhenSignedIn } from "../../../landing/hooks/useRedirectWhenSignedIn";
 import ProfilePage from "./ProfilePage";
 
 const baseUrl = import.meta.env.VITE_API_URL;
+const LandingStub = () => {
+  useRedirectWhenSignedIn();
+  return <p>Pantalla de landing</p>;
+};
+
 const routes = [
   { path: "/profile", element: <ProfilePage /> },
+  { path: "/", element: <LandingStub /> },
   { path: "/login", element: <p>Pantalla de login</p> },
 ];
 
@@ -50,7 +56,7 @@ describe("Given the profile page of a user with a session", () => {
   });
 
   describe("When the user logs out", () => {
-    it("Then the logout request carries the CSRF token and the user goes to login", async () => {
+    it("Then the logout request carries the CSRF token and the user goes to the landing", async () => {
       document.cookie = "csrfToken=csrf-123";
       let header: string | null = null;
       useSession();
@@ -65,7 +71,9 @@ describe("Given the profile page of a user with a session", () => {
 
       await user.click(screen.getByRole("button", { name: "Cerrar sesión" }));
 
-      expect(await screen.findByText("Pantalla de login")).toBeInTheDocument();
+      expect(
+        await screen.findByText("Pantalla de landing"),
+      ).toBeInTheDocument();
       expect(header).toBe("csrf-123");
     });
   });
@@ -112,7 +120,7 @@ describe("Given the profile page of a user with a session", () => {
   });
 
   describe("When the user logs out", () => {
-    it("Then the session is not requested again from the page being left", async () => {
+    it("Then the landing is not sent back to Home by the session still cached", async () => {
       document.cookie = "csrfToken=csrf-123";
       let meRequests = 0;
       server.use(
@@ -130,17 +138,18 @@ describe("Given the profile page of a user with a session", () => {
       const { user } = renderRoutes(
         [
           { path: "/profile", element: <ProfilePage /> },
-          { path: "/login", element: <LoginPage /> },
+          { path: "/", element: <LandingStub /> },
         ],
         ["/profile"],
       );
       await screen.findByRole("heading", { name: "Isa" });
 
       await user.click(screen.getByRole("button", { name: "Cerrar sesión" }));
-      await screen.findByRole("heading", { name: "Bienvenido" });
+      await screen.findByText("Pantalla de landing");
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      expect(meRequests).toBe(1);
+      expect(screen.getByText("Pantalla de landing")).toBeInTheDocument();
+      expect(meRequests).toBeLessThanOrEqual(2);
     });
   });
 });

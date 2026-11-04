@@ -41,7 +41,9 @@ const ProfilePage = () => {
 
     try {
       await logout().unwrap();
-      await navigate("/login", { replace: true });
+      // La marca avisa a la landing de que la sesión ya terminó: ella vacía la
+      // caché cuando esta pantalla ya no está montada.
+      await navigate("/", { replace: true, state: { signedOut: true } });
     } catch {
       setHasFailed(true);
     }
