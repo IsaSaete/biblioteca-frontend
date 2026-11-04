@@ -26,6 +26,8 @@ export interface LandingPalette {
   onBand: string;
   onBandMuted: string;
   bandAccent: string;
+  // Canto de las hojas de los libros tumbados.
+  pages: string;
   note: string;
 }
 
@@ -100,6 +102,7 @@ const theme = createTheme({
           onBand: "#F2ECE4",
           onBandMuted: "#B8AFA0",
           bandAccent: "#E9A987",
+          pages: "#E9E0D0",
           note: "#8A4526",
         },
       },
@@ -138,6 +141,7 @@ const theme = createTheme({
           onBand: "#F2ECE4",
           onBandMuted: "#B8AFA0",
           bandAccent: "#E9A987",
+          pages: "#E5DCCD",
           note: "#E9A987",
         },
       },
