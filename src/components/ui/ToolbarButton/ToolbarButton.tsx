@@ -53,6 +53,7 @@ const ToolbarButton = ({
     aria-label={ariaLabel}
     sx={{
       minHeight: 44,
+      minWidth: 44,
       maxWidth: "100%",
       px: 2,
       gap: 2,
