@@ -202,6 +202,21 @@ const theme = createTheme({
     // En modo oscuro MUI tiñe de gris el fondo de todo lo elevado (hojas,
     // diálogos, paneles) con un degradado. Aquí se quita para que todo use el
     // color de superficie del sistema de diseño, igual en claro y en oscuro.
+    // Indicador de foco para todo lo que se enfoca con teclado (WCAG 2.4.7):
+    // MUI quita el contorno de `ButtonBase` y los componentes que no lo
+    // redefinen se quedaban sin ninguna señal. Mismo estilo que `Pill` y
+    // `FilterChip`; el acento tiene ≥ 3:1 frente al fondo en los dos modos.
+    MuiButtonBase: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          "&.Mui-focusVisible": {
+            outline: "2px solid",
+            outlineColor: (theme.vars ?? theme).palette.primary.main,
+            outlineOffset: 2,
+          },
+        }),
+      },
+    },
     MuiPaper: {
       styleOverrides: { root: { backgroundImage: "none" } },
     },
