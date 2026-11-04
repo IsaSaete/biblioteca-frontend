@@ -67,6 +67,10 @@ declare module "@mui/material/Typography" {
 // Velo oscuro al 40 % (sistema-diseno-visual.md, «Velo»).
 const SCRIM = "rgba(0, 0, 0, 0.4)";
 
+// Borde de los campos de formulario: 3:1 como mínimo frente al fondo y a la
+// superficie (WCAG 1.4.11); el de MUI por defecto no llegaba a 2:1.
+const FIELD_BORDER = { light: "#7A7266", dark: "#8C8478" };
+
 const theme = createTheme({
   cssVariables: { colorSchemeSelector: "data" },
   colorSchemes: {
@@ -82,17 +86,17 @@ const theme = createTheme({
         background: { default: "#FFFFFF", paper: "#F7F5F1" },
         text: { primary: "#2B2620", secondary: "#6B6459" },
         landing: {
-          spine1: "#AA5936",
-          spine2: "#6F7F55",
-          spine3: "#2B2620",
-          spine4: "#8C8478",
-          spine5: "#7A4B3A",
-          spine6: "#C9A27E",
-          onSpine1: "#FFFFFF",
-          onSpine2: "#FFFFFF",
+          spine1: "#C6886B",
+          spine2: "#919F7A",
+          spine3: "#524B41",
+          spine4: "#AEA496",
+          spine5: "#B38472",
+          spine6: "#D8BB98",
+          onSpine1: "#2B2620",
+          onSpine2: "#2B2620",
           onSpine3: "#F2ECE4",
-          onSpine4: "#FFFFFF",
-          onSpine5: "#F5DED2",
+          onSpine4: "#2B2620",
+          onSpine5: "#2B2620",
           onSpine6: "#2B2620",
           plank: "#B9AE9C",
           dashed: "#A39A8B",
@@ -122,7 +126,7 @@ const theme = createTheme({
           spine1: "#E08A5F",
           spine2: "#8FA172",
           spine3: "#E5DCCD",
-          spine4: "#7A7266",
+          spine4: "#8C8478",
           spine5: "#B9785F",
           spine6: "#B58E6A",
           onSpine1: "#15130F",
@@ -263,6 +267,8 @@ const theme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         notchedOutline: ({ theme }) => ({
+          borderColor: FIELD_BORDER.light,
+          ...theme.applyStyles("dark", { borderColor: FIELD_BORDER.dark }),
           "& legend": {
             [theme.breakpoints.down("sm")]: { fontSize: "0.875rem" },
             [theme.breakpoints.up("sm")]: { fontSize: "0.75rem" },
