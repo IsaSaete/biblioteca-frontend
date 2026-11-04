@@ -18,6 +18,7 @@ import { getFormErrorMessage } from "../../utils/getFormErrorMessage";
 import { parseApiError } from "../../utils/parseApiError";
 import { registerSchema } from "./registerSchema";
 import type { RegisterFormValues } from "./registerSchema";
+import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 
 const formFields = ["name", "email", "password", "acceptedTerms"] as const;
 
@@ -25,6 +26,7 @@ const isFormField = (field: string): field is (typeof formFields)[number] =>
   (formFields as readonly string[]).includes(field);
 
 const RegisterPage = () => {
+  useDocumentTitle("Crear cuenta");
   const navigate = useNavigate();
   const [register, { isLoading }] = useRegisterMutation();
   const [formError, setFormError] = useState<string | null>(null);

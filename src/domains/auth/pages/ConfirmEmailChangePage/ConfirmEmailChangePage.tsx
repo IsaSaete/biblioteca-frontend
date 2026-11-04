@@ -7,11 +7,13 @@ import InlineError from "../../../../components/ui/InlineError/InlineError";
 import AuthLayout from "../../components/AuthLayout/AuthLayout";
 import { useConfirmEmailChangeQuery } from "../../authApi";
 import { parseApiError } from "../../utils/parseApiError";
+import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 
 // Destino del enlace que llega al email nuevo (`/confirm-email-change?token=`).
 // Al confirmarse, el servidor cierra las sesiones: hay que entrar con el email
 // nuevo.
 const ConfirmEmailChangePage = () => {
+  useDocumentTitle("Confirmar cambio de email");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");

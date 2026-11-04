@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import BackButton from "../../../../components/ui/BackButton/BackButton";
+import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 
 interface EditScreenProps {
   title: string;
@@ -12,19 +13,23 @@ interface EditScreenProps {
 
 // Pantalla de detalle de Perfil (sin barra inferior): flecha atrás, título y
 // una columna de 480 px, como la ficha del libro.
-const EditScreen = ({ title, backTo, children }: EditScreenProps) => (
-  <Box
-    component="main"
-    sx={{ maxWidth: 480, mx: "auto", px: 4, pb: 8, display: "grid", gap: 6 }}
-  >
-    <Box sx={{ pt: "calc(env(safe-area-inset-top) + 8px)", mx: -2 }}>
-      <BackButton fallbackTo={backTo} />
+const EditScreen = ({ title, backTo, children }: EditScreenProps) => {
+  useDocumentTitle(title);
+
+  return (
+    <Box
+      component="main"
+      sx={{ maxWidth: 480, mx: "auto", px: 4, pb: 8, display: "grid", gap: 6 }}
+    >
+      <Box sx={{ pt: "calc(env(safe-area-inset-top) + 8px)", mx: -2 }}>
+        <BackButton fallbackTo={backTo} />
+      </Box>
+      <Typography variant="h6" component="h1" sx={{ textAlign: "center" }}>
+        {title}
+      </Typography>
+      {children}
     </Box>
-    <Typography variant="h6" component="h1" sx={{ textAlign: "center" }}>
-      {title}
-    </Typography>
-    {children}
-  </Box>
-);
+  );
+};
 
 export default EditScreen;

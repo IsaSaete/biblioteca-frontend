@@ -7,10 +7,12 @@ import InlineError from "../../../../components/ui/InlineError/InlineError";
 import AuthLayout from "../../components/AuthLayout/AuthLayout";
 import { useVerifyEmailQuery } from "../../authApi";
 import { parseApiError } from "../../utils/parseApiError";
+import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 
 // Destino del enlace del correo de verificación (`/verify-email?token=`).
 // Verificar el email es recomendado, no obligatorio: no bloquea el uso de la app.
 const VerifyEmailPage = () => {
+  useDocumentTitle("Verificar email");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");

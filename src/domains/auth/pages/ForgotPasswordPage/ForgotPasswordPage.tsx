@@ -14,6 +14,7 @@ import { useFieldValidation } from "../../hooks/useFieldValidation";
 import { getFormErrorMessage } from "../../utils/getFormErrorMessage";
 import { forgotPasswordSchema } from "./forgotPasswordSchema";
 import type { ForgotPasswordFormValues } from "./forgotPasswordSchema";
+import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 
 const MailIcon = () => (
   <svg
@@ -37,6 +38,7 @@ const sendError = "No se pudo enviar el email. Inténtalo de nuevo.";
 // Un único paso con dos estados: el formulario y, solo cuando el backend
 // confirma el envío, «Revisa tu correo» (pantallas-y-flujos.md).
 const ForgotPasswordPage = () => {
+  useDocumentTitle("Recuperar contraseña");
   const navigate = useNavigate();
   const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
   const [sentTo, setSentTo] = useState<string | null>(null);
