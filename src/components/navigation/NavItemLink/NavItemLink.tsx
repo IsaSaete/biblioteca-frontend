@@ -30,6 +30,8 @@ const NavItemLink = ({ item, placement }: NavItemLinkProps) => (
       py: 2,
       color: "text.secondary",
       "& .nav-label": { color: "inherit" },
+      // La barra llega al borde de la pantalla: el contorno de foco va por dentro.
+      "&.Mui-focusVisible": { outlineOffset: -2 },
       "&.active": { color: "primary.main" },
       "&.active .nav-label": { color: "text.primary" },
       "&.active::before": {

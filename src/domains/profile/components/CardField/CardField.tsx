@@ -48,7 +48,19 @@ const CardField = ({
   const isPassword = type === "password";
 
   return (
-    <Box sx={{ px: 4, py: 3 }}>
+    <Box
+      sx={{
+        px: 4,
+        py: 3,
+        // El campo no tiene borde propio: el contorno de foco es el de la
+        // tarjeta, por dentro porque el grupo recorta lo que sobresale.
+        "&:focus-within": {
+          outline: "2px solid",
+          outlineColor: "primary.main",
+          outlineOffset: -2,
+        },
+      }}
+    >
       <Typography
         component="label"
         htmlFor={id}
