@@ -65,9 +65,15 @@ export const wishlistBooks: ShelfBook[] = [
   { title: "Los desposeídos", height: 268, width: 46, optional: true },
 ];
 
-// Montón tumbado: ancho de cada libro (px de escritorio) y su color.
-export const pileBooks: { width: number; color: SpineColor }[] = [
-  { width: 150, color: 5 },
-  { width: 128, color: 6 },
-  { width: 140, color: 3 },
+// Montón tumbado, de arriba abajo: ancho de cada libro (px de escritorio) y el
+// color de sus tapas. `darkColor` lo sustituye en modo oscuro, donde el lomo 3
+// es crema como las hojas y no se distinguiría.
+export const pileBooks: {
+  width: number;
+  color: SpineColor;
+  darkColor?: SpineColor;
+}[] = [
+  { width: 150, color: 1 },
+  { width: 140, color: 3, darkColor: 4 },
+  { width: 150, color: 2 },
 ];

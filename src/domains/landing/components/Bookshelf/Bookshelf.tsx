@@ -29,6 +29,22 @@ const paperBands = `
   linear-gradient(to top, transparent 16px, ${BAND_STRONG} 16px, ${BAND_STRONG} 18px, transparent 18px)
 `;
 
+// Libro tumbado: tapas de 5 px, lomo de 7 px y 3 px de tapa que sobresale por el
+// canto de las hojas (medidas de escritorio, escaladas con `--k`).
+const lyingBookBackground = (cover: string, pages: string) => {
+  const solid = `linear-gradient(${cover}, ${cover})`;
+  const pagesArea =
+    "calc(7px * var(--k)) calc(5px * var(--k)) / calc(100% - 10px * var(--k)) calc(100% - 10px * var(--k)) no-repeat";
+
+  return `
+    ${solid} top left / 100% calc(5px * var(--k)) no-repeat,
+    ${solid} bottom left / 100% calc(5px * var(--k)) no-repeat,
+    ${solid} left / calc(7px * var(--k)) 100% no-repeat,
+    repeating-linear-gradient(to bottom, transparent 0 2px, rgba(43,38,32,.14) 2px 3px) ${pagesArea},
+    linear-gradient(${pages}, ${pages}) ${pagesArea}
+  `;
+};
+
 interface SpineProps {
   book: ShelfBook;
   wished?: boolean;
@@ -181,14 +197,30 @@ const Bookshelf = () => (
           <Box
             key={`${pile.width}-${pile.color}`}
             component="span"
-            sx={(theme) => ({
-              display: "block",
-              height: "calc(34px * var(--k))",
-              width: `calc(${pile.width}px * var(--k))`,
-              borderRadius: "2px",
-              bgcolor: spineColor(theme, pile.color).background,
-              boxShadow: "inset 0 -3px 0 rgba(0,0,0,.14)",
-            })}
+            // Libro tumbado visto de frente: las dos tapas y el lomo (a la
+            // izquierda) en el color del libro, y entre ellos el canto de las
+            // hojas, que termina un poco antes que las tapas.
+            sx={(theme) => {
+              const { pages } = themeVars(theme).palette.landing;
+              const darkCover = pile.darkColor
+                ? spineColor(theme, pile.darkColor).background
+                : undefined;
+
+              return {
+                display: "block",
+                height: "calc(34px * var(--k))",
+                width: `calc(${pile.width}px * var(--k))`,
+                borderRadius: "2px",
+                background: lyingBookBackground(
+                  spineColor(theme, pile.color).background,
+                  pages,
+                ),
+                ...(darkCover &&
+                  theme.applyStyles("dark", {
+                    background: lyingBookBackground(darkCover, pages),
+                  })),
+              };
+            }}
           />
         ))}
       </Box>
