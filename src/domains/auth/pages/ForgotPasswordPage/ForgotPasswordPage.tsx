@@ -6,6 +6,7 @@ import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
+import ServerWakingNote from "../../../../components/ui/ServerWakingNote/ServerWakingNote";
 import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
 import Pill from "../../../../components/ui/Pill/Pill";
 import AuthLayout from "../../components/AuthLayout/AuthLayout";
@@ -147,6 +148,7 @@ const ForgotPasswordPage = () => {
         <Button type="submit" fullWidth disabled={isLoading}>
           {isLoading ? "Enviando…" : "Enviar enlace"}
         </Button>
+        <ServerWakingNote isLoading={isLoading} />
       </Box>
     </AuthLayout>
   );
