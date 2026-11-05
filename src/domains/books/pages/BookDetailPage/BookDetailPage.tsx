@@ -22,6 +22,7 @@ import BookCover from "../../components/BookCover/BookCover";
 import EditBookDialog from "../../components/EditBookDialog/EditBookDialog";
 import EjemplarDataSection from "../../components/EjemplarDataSection/EjemplarDataSection";
 import BookQuotesSection from "../../../quotes/components/BookQuotesSection/BookQuotesSection";
+import LoanSection from "../../components/LoanSection/LoanSection";
 import StatusSelector from "../../components/StatusSelector/StatusSelector";
 import { capitalizeWords } from "../../utils/capitalizeFirst";
 import { getTagSuggestions } from "../../utils/getTagSuggestions";
@@ -148,6 +149,21 @@ const BookDetailPage = () => {
   const [deleteBook, { isLoading: isDeleting, isError: hasDeleteFailed }] =
     useDeleteBookMutation();
 
+  // Prestar y devolver son un PATCH del ejemplar; la hoja se cierra solo si el
+  // servidor lo acepta.
+  const changeLoan = async (loan: { borrowerName: string } | null) => {
+    if (!book) {
+      return false;
+    }
+
+    const result = await updateEjemplar({
+      bookId: book.id,
+      changes: { loan },
+    });
+
+    return !result.error;
+  };
+
   const handleDelete = async () => {
     const result = await deleteBook(bookId);
 
@@ -261,6 +277,13 @@ const BookDetailPage = () => {
               onChange={(status) =>
                 void updateEjemplar({ bookId: book.id, changes: { status } })
               }
+            />
+            <LoanSection
+              loan={book.loan}
+              isPending={isUpdating}
+              hasFailed={hasUpdateFailed}
+              onSave={(borrowerName) => changeLoan({ borrowerName })}
+              onReturn={() => changeLoan(null)}
             />
             {book.tags && book.tags.length > 0 && (
               <Box

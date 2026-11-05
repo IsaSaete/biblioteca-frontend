@@ -741,3 +741,119 @@ describe("Given the book detail page", () => {
     });
   });
 });
+
+describe("Given the loan of a book on its detail page", () => {
+  const lentEntry = () => ({
+    ...entry(),
+    ejemplar: {
+      ...entry().ejemplar,
+      loan: { borrowerName: "María", lentAt: "2026-11-03T10:00:00.000Z" },
+    },
+  });
+
+  describe("When the book is not lent and the user lends it", () => {
+    it("Then it sends the name and shows who has it and since when", async () => {
+      let body: unknown;
+      let lent = false;
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () =>
+          HttpResponse.json(lent ? lentEntry() : entry()),
+        ),
+        http.patch(`${baseUrl}/books/book-1/ejemplar`, async ({ request }) => {
+          body = await request.json();
+          lent = true;
+          return HttpResponse.json({ ejemplar: lentEntry().ejemplar });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Prestar este libro" }),
+      );
+      await user.type(
+        await screen.findByLabelText("¿A quién se lo prestas?"),
+        "  María ",
+      );
+      await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+      expect(await screen.findByText("María")).toBeInTheDocument();
+      expect(
+        screen.getByText(/Desde el 3 de noviembre de 2026/),
+      ).toBeInTheDocument();
+      expect(body).toEqual({ loan: { borrowerName: "María" } });
+    });
+  });
+
+  describe("When the name is empty", () => {
+    it("Then it cannot be saved", async () => {
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Prestar este libro" }),
+      );
+      await screen.findByLabelText("¿A quién se lo prestas?");
+      await user.type(screen.getByLabelText("¿A quién se lo prestas?"), "   ");
+
+      expect(screen.getByRole("button", { name: "Guardar" })).toBeDisabled();
+    });
+  });
+
+  describe("When the book is lent and the user changes the name", () => {
+    it("Then the dialog starts with the current name and sends the new one", async () => {
+      let body: unknown;
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () =>
+          HttpResponse.json(lentEntry()),
+        ),
+        http.patch(`${baseUrl}/books/book-1/ejemplar`, async ({ request }) => {
+          body = await request.json();
+          return HttpResponse.json({ ejemplar: lentEntry().ejemplar });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Cambiar nombre" }),
+      );
+      const field = await screen.findByLabelText("¿A quién se lo prestas?");
+      expect(field).toHaveValue("María");
+      await user.clear(field);
+      await user.type(field, "Marta");
+      await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+      await waitFor(() =>
+        expect(body).toEqual({ loan: { borrowerName: "Marta" } }),
+      );
+    });
+  });
+
+  describe("When the book is lent and the user marks it as returned", () => {
+    it("Then it sends a null loan and offers to lend it again", async () => {
+      let body: unknown;
+      let lent = true;
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () =>
+          HttpResponse.json(lent ? lentEntry() : entry()),
+        ),
+        http.patch(`${baseUrl}/books/book-1/ejemplar`, async ({ request }) => {
+          body = await request.json();
+          lent = false;
+          return HttpResponse.json({ ejemplar: entry().ejemplar });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Ya me lo devolvió" }),
+      );
+
+      expect(
+        await screen.findByRole("button", { name: "Prestar este libro" }),
+      ).toBeInTheDocument();
+      expect(body).toEqual({ loan: null });
+    });
+  });
+});

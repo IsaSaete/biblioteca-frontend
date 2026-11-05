@@ -24,5 +24,6 @@ export const mapBookEntryToLibraryBook = ({
     acquisitionDate: ejemplar.acquisitionDate,
     notes: ejemplar.notes,
     tags: ejemplar.tags,
+    loan: ejemplar.loan,
   };
 };

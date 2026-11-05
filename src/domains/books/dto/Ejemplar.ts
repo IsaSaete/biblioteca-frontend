@@ -20,6 +20,12 @@ export type BookOverrides = Partial<
   >
 >;
 
+// Si el libro está prestado, a quién y desde cuándo (`lentAt` en ISO 8601).
+export interface Loan {
+  borrowerName: string;
+  lentAt: string;
+}
+
 // `favorite` siempre viene (`false` por defecto); el resto de campos personales
 // se omiten mientras estén vacíos (api-contract.md, `books`).
 export interface Ejemplar {
@@ -33,6 +39,7 @@ export interface Ejemplar {
   acquisitionDate?: string;
   notes?: string;
   tags?: string[];
+  loan?: Loan;
   overrides?: BookOverrides;
   createdAt: string;
 }
