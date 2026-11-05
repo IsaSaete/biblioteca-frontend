@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import type { Loan } from "../../dto/Ejemplar";
+import { capitalizeName } from "../../utils/capitalizeFirst";
 import LoanDialog from "../LoanDialog/LoanDialog";
 
 interface LoanSectionProps {
@@ -39,7 +40,7 @@ const LoanSection = ({
       {loan ? (
         <>
           <Typography>
-            Prestado a <strong>{loan.borrowerName}</strong>
+            Prestado a <strong>{capitalizeName(loan.borrowerName)}</strong>
           </Typography>
           <Typography
             color="text.secondary"

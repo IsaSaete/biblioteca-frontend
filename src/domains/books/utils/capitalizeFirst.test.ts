@@ -1,4 +1,8 @@
-import { capitalizeFirst, capitalizeWords } from "./capitalizeFirst";
+import {
+  capitalizeFirst,
+  capitalizeName,
+  capitalizeWords,
+} from "./capitalizeFirst";
 
 describe("Given a text to show", () => {
   describe("When it starts with a lowercase letter", () => {
@@ -27,6 +31,27 @@ describe("Given a tag to show", () => {
   describe("When it has one word", () => {
     it("Then only that word is capitalized", () => {
       expect(capitalizeWords("clásicos")).toBe("Clásicos");
+    });
+  });
+});
+
+describe("Given the name of a borrower to show", () => {
+  describe("When it is written in lowercase", () => {
+    it("Then every word starts in uppercase", () => {
+      expect(capitalizeName("maría lópez")).toBe("María López");
+    });
+  });
+
+  describe("When it has particles in the middle", () => {
+    it("Then the particles stay in lowercase", () => {
+      expect(capitalizeName("juan de la cruz")).toBe("Juan de la Cruz");
+      expect(capitalizeName("de la Fuente")).toBe("De la Fuente");
+    });
+  });
+
+  describe("When it is already capitalized", () => {
+    it("Then it does not change", () => {
+      expect(capitalizeName("Ana María")).toBe("Ana María");
     });
   });
 });

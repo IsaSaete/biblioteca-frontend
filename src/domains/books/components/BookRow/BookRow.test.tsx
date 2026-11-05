@@ -25,7 +25,7 @@ const renderRow = (loan?: LibraryBook["loan"]) =>
 describe("Given a book row", () => {
   describe("When the book is lent", () => {
     it("Then it shows who has it", () => {
-      renderRow({ borrowerName: "María", lentAt: "2026-11-03T10:00:00.000Z" });
+      renderRow({ borrowerName: "maría", lentAt: "2026-11-03T10:00:00.000Z" });
 
       expect(screen.getByText("Prestado a María")).toBeInTheDocument();
     });

@@ -6,6 +6,7 @@ import ButtonBase from "@mui/material/ButtonBase";
 import type { Loan } from "../../dto/Ejemplar";
 import type { SavedBook } from "../../dto/SavedBook";
 import { visuallyHidden } from "../../../../utils/visuallyHidden";
+import { capitalizeName } from "../../utils/capitalizeFirst";
 import BookCover from "../BookCover/BookCover";
 
 interface BookCardProps {
@@ -91,7 +92,7 @@ const BookCard = ({ book, onSelect }: BookCardProps) => {
         </Typography>
         {book.loan && (
           <Box component="span" sx={visuallyHidden}>
-            Prestado a {book.loan.borrowerName}
+            Prestado a {capitalizeName(book.loan.borrowerName)}
           </Box>
         )}
         <Typography
