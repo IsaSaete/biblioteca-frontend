@@ -69,13 +69,11 @@ export const quotesContent = {
   ],
   page: {
     book: "Una habitación propia",
-    location: "Página 83",
-    before:
-      "Cuando Olivia —este organismo que ha estado aproximadamente un millón de años bajo la sombra de la roca— queda expuesta a la luz y ve llegar hacia ella un extraño manjar: el conocimiento, la aventura, el arte. Y alarga la mano para cogerlo,",
+    location: "",
+    before: "Cerrad con llave vuestras bibliotecas si queréis,",
     highlighted:
-      "tiene que encontrar una combinación enteramente nueva de sus recursos, tan altamente desarrollados para otros fines, para incorporar lo nuevo a lo viejo",
-    after:
-      "sin perturbar el equilibrio infinitamente complejo y sabio del total.",
+      "no hay barrera, cerradura ni cerrojo que podáis imponer a la libertad de mi mente.",
+    after: "",
   },
 } as const;
 
@@ -83,8 +81,7 @@ export const quotesContent = {
 // cuenta): se pinta con la misma tarjeta que Citas.
 export const demoQuote: Quote = {
   id: "demo-quote",
-  text: "Tiene que encontrar una combinación enteramente nueva de sus recursos, tan altamente desarrollados para otros fines, para incorporar lo nuevo a lo viejo.",
-  page: 83,
+  text: "No hay barrera, cerradura ni cerrojo que podáis imponer a la libertad de mi mente.",
   createdAt: "2026-11-02T00:00:00.000Z",
   book: {
     id: "demo-book",

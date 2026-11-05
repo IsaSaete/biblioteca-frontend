@@ -76,7 +76,6 @@ const QuoteCardContent = ({
                 </svg>
               </Box>
               <Typography
-                title={origin}
                 sx={{
                   fontSize: "inherit",
                   fontWeight: 500,
