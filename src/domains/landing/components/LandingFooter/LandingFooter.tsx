@@ -5,9 +5,10 @@ import Link from "@mui/material/Link";
 import type { Theme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import { footerContent } from "../../content/landingContent";
+import { visuallyHidden } from "../../../../utils/visuallyHidden";
 import { themeVars } from "../../themeVars";
 
-// Pie mínimo: los enlaces legales deben poder alcanzarse desde cualquier
+// Pie mínimo: FAQ y los enlaces legales deben poder alcanzarse desde cualquier
 // dispositivo, también en móvil.
 interface LandingFooterProps {
   // Para saber cuándo se ve el pie (la barra fija de móvil se oculta).
@@ -32,43 +33,26 @@ const LandingFooter = ({ footerRef }: LandingFooterProps) => {
         boxShadow: `0 0 0 100vmax ${themeVars(theme).palette.landing.band}`,
         clipPath: "inset(0 -100vmax)",
         display: "flex",
-        // Móvil: todo en una sola línea. Desde 768 px puede pasar a otra.
-        flexWrap: { xs: "nowrap", sm: "wrap" },
+        // Enlaces a la izquierda y © a la derecha; si no caben, el © pasa abajo.
+        flexWrap: "wrap",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: { xs: 3, sm: "4px 28px" },
+        gap: { xs: "0 12px", sm: "4px 28px" },
         pt: { xs: 3, sm: 6 },
         pb: "calc(16px + env(safe-area-inset-bottom))",
       })}
     >
-      <Typography
-        variant="landingDisplay"
-        component="span"
-        sx={{
-          // En móvil el pie solo lleva los enlaces legales y el copyright.
-          display: { xs: "none", sm: "inline" },
-          fontSize: 26,
-          lineHeight: 1,
-        }}
-      >
-        {footerContent.brand}
-      </Typography>
       <Box
         component="nav"
-        aria-label="Legal"
+        aria-label="Información"
         sx={{ display: "flex", gap: { xs: 3, sm: 5 } }}
       >
-        {/* En móvil «Entrar» ya está en la cabecera y en la barra fija. */}
-        <Link
-          component={RouterLink}
-          to="/login"
-          underline="hover"
-          sx={(theme) => ({
-            ...linkSx(theme),
-            display: { xs: "none", sm: "inline-flex" },
-          })}
-        >
-          {footerContent.signIn}
+        <Link component={RouterLink} to="/faq" underline="hover" sx={linkSx}>
+          {footerContent.faq}
+          {/* Un lector de pantalla deletrearía «FAQ»: se completa sin cambiar lo visible. */}
+          <Box component="span" sx={visuallyHidden}>
+            {footerContent.faqSpoken}
+          </Box>
         </Link>
         <Link
           component={RouterLink}

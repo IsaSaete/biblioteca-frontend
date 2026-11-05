@@ -132,8 +132,8 @@ export const closingContent = {
 } as const;
 
 export const footerContent = {
-  brand: "Glosa",
-  signIn: "Entrar",
+  faq: "FAQ",
+  faqSpoken: ": preguntas frecuentes",
   privacy: "Privacidad",
   terms: "Términos",
   copyright: "© 2026 Glosa",

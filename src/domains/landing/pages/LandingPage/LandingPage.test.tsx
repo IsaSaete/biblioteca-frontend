@@ -52,12 +52,15 @@ describe("Given the public landing page", () => {
       expect(
         screen.getAllByRole("link", { name: "Crear cuenta" })[0],
       ).toHaveAttribute("href", "/register");
-      // «Entrar» está en la cabecera y en el pie (la barra de móvil queda oculta).
+      // «Entrar» está en la cabecera (la barra de móvil queda oculta).
       expect(
         screen
           .getAllByRole("link", { name: "Entrar" })
           .every((link) => link.getAttribute("href") === "/login"),
       ).toBe(true);
+      expect(
+        screen.getByRole("link", { name: /^FAQ.*preguntas frecuentes/ }),
+      ).toHaveAttribute("href", "/faq");
       expect(screen.getByRole("link", { name: "Privacidad" })).toHaveAttribute(
         "href",
         "/privacy",

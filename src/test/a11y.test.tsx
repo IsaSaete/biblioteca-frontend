@@ -2,6 +2,7 @@ import { screen } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import type { ReactElement } from "react";
 import { axe } from "vitest-axe";
+import FaqPage from "../domains/landing/pages/FaqPage/FaqPage";
 import ForgotPasswordPage from "../domains/auth/pages/ForgotPasswordPage/ForgotPasswordPage";
 import LoginPage from "../domains/auth/pages/LoginPage/LoginPage";
 import RegisterPage from "../domains/auth/pages/RegisterPage/RegisterPage";
@@ -77,6 +78,13 @@ const screens: Screen[] = [
     route: "/forgot-password",
     element: <ForgotPasswordPage />,
     ready: /contraseña/i,
+  },
+  {
+    name: "frequently asked questions",
+    path: "/faq",
+    route: "/faq",
+    element: <FaqPage />,
+    ready: "¿Es gratis?",
   },
   {
     name: "terms",
