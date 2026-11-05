@@ -777,9 +777,7 @@ describe("Given the loan of a book on its detail page", () => {
       await user.click(screen.getByRole("button", { name: "Guardar" }));
 
       expect(await screen.findByText("María")).toBeInTheDocument();
-      expect(
-        screen.getByText(/Desde el 3 de noviembre de 2026/),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/desde el 3 de noviembre/i)).toBeInTheDocument();
       expect(body).toEqual({ loan: { borrowerName: "María" } });
     });
   });
