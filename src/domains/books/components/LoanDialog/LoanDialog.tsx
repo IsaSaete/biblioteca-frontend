@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { MouseEvent } from "react";
 import Box from "@mui/material/Box";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
@@ -25,6 +26,12 @@ interface LoanDialogProps {
 interface LoanFormProps extends Omit<LoanDialogProps, "open" | "title"> {
   idPrefix: string;
 }
+
+// En el móvil, tocar un botón con el teclado abierto lo cierra y la hoja se
+// recoloca antes de que llegue el «click»: había que pulsar dos veces. Con el
+// campo sin perder el foco, el primer toque ya guarda o cancela.
+const keepKeyboardOpen = (event: MouseEvent<HTMLElement>) =>
+  event.preventDefault();
 
 // Un solo campo: a quién se le presta. Sin fecha de devolución (D-049).
 const LoanForm = ({
@@ -64,10 +71,19 @@ const LoanForm = ({
         autoFocus
       />
       <Box sx={{ display: "grid", gap: 2 }}>
-        <Button type="submit" disabled={!trimmed || isPending}>
+        <Button
+          type="submit"
+          disabled={!trimmed || isPending}
+          onMouseDown={keepKeyboardOpen}
+        >
           {isPending ? "Guardando…" : "Guardar"}
         </Button>
-        <Button variant="text" disabled={isPending} onClick={onCancel}>
+        <Button
+          variant="text"
+          disabled={isPending}
+          onMouseDown={keepKeyboardOpen}
+          onClick={onCancel}
+        >
           Cancelar
         </Button>
       </Box>
