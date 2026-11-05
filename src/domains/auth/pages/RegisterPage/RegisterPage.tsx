@@ -9,6 +9,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import FormHelperText from "@mui/material/FormHelperText";
 import Link from "@mui/material/Link";
 import Button from "../../../../components/ui/Button/Button";
+import ServerWakingNote from "../../../../components/ui/ServerWakingNote/ServerWakingNote";
 import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
 import PasswordStrengthChecklist from "../../../../components/ui/PasswordStrengthChecklist/PasswordStrengthChecklist";
 import AuthLayout from "../../components/AuthLayout/AuthLayout";
@@ -176,6 +177,7 @@ const RegisterPage = () => {
         >
           {isLoading ? "Creando cuenta…" : "Crear cuenta"}
         </Button>
+        <ServerWakingNote isLoading={isLoading} />
       </Box>
     </AuthLayout>
   );

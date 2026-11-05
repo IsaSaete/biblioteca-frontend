@@ -7,6 +7,7 @@ import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import Button from "../../../../components/ui/Button/Button";
+import ServerWakingNote from "../../../../components/ui/ServerWakingNote/ServerWakingNote";
 import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
 import AuthLayout from "../../components/AuthLayout/AuthLayout";
 import { resetListCaches } from "../../../../store/sessionCache";
@@ -141,6 +142,7 @@ const LoginPage = () => {
         >
           {isLoading ? "Iniciando sesión…" : "Iniciar sesión"}
         </Button>
+        <ServerWakingNote isLoading={isLoading} />
       </Box>
     </AuthLayout>
   );
