@@ -14,6 +14,8 @@ export interface UpdateEjemplarRequest {
   acquisitionDate?: string | null;
   notes?: string | null;
   tags?: string[];
+  // `{ borrowerName }` presta o cambia el nombre; `null` lo marca devuelto.
+  loan?: { borrowerName: string } | null;
   overrides?: {
     [Key in keyof BookOverrides]: BookOverrides[Key] | null;
   };

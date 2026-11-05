@@ -19,6 +19,14 @@ const ActiveFilters = ({ selection, onChange }: ActiveFiltersProps) => (
           onClick={() => onChange({ ...selection, favorite: false })}
         />
       )}
+      {selection.lent && (
+        <FilterChip
+          label="Prestados"
+          selected
+          removable
+          onClick={() => onChange({ ...selection, lent: false })}
+        />
+      )}
       {selection.untagged && (
         <FilterChip
           label="Sin catalogar"

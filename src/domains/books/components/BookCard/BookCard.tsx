@@ -3,11 +3,16 @@ import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import ButtonBase from "@mui/material/ButtonBase";
+import type { Loan } from "../../dto/Ejemplar";
 import type { SavedBook } from "../../dto/SavedBook";
+import { visuallyHidden } from "../../../../utils/visuallyHidden";
+import { capitalizeName } from "../../utils/capitalizeFirst";
 import BookCover from "../BookCover/BookCover";
 
 interface BookCardProps {
-  book: Pick<SavedBook, "id" | "title" | "authors" | "coverUrl">;
+  book: Pick<SavedBook, "id" | "title" | "authors" | "coverUrl"> & {
+    loan?: Loan;
+  };
   // Si se informa, la tarjeta es un botón que llama a esto en lugar de llevar a
   // la ficha (un deseado no tiene ficha).
   onSelect?: () => void;
@@ -45,13 +50,51 @@ const BookCard = ({ book, onSelect }: BookCardProps) => {
           textAlign: "left",
         }}
       >
-        <BookCover title={book.title} coverUrl={book.coverUrl} decorative />
+        <Box sx={{ position: "relative" }}>
+          <BookCover title={book.title} coverUrl={book.coverUrl} decorative />
+          {book.loan && (
+            <Box
+              aria-hidden="true"
+              sx={{
+                position: "absolute",
+                top: 6,
+                right: 6,
+                width: 24,
+                height: 24,
+                display: "grid",
+                placeItems: "center",
+                borderRadius: "50%",
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
+              }}
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M7 17 17 7" />
+                <path d="M8 7h9v9" />
+              </svg>
+            </Box>
+          )}
+        </Box>
         <Typography
           sx={{ mt: 2, fontWeight: 700, ...clampLines(2) }}
           title={book.title}
         >
           {book.title}
         </Typography>
+        {book.loan && (
+          <Box component="span" sx={visuallyHidden}>
+            Prestado a {capitalizeName(book.loan.borrowerName)}
+          </Box>
+        )}
         <Typography
           color="text.secondary"
           variant="caption"

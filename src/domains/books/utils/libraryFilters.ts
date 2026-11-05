@@ -2,11 +2,12 @@ import type { SortOption } from "../../../components/ui/SortSelector/SortSelecto
 import type { BooksSort, GetBooksParams } from "../dto/GetBooksParams";
 
 // Orden y filtros de Biblioteca. Viven en la URL
-// (`?sort=&favorite=&tag=&untagged=`) para que volver desde una ficha, o llegar
+// (`?sort=&favorite=&lent=&tag=&untagged=`) para que volver desde una ficha, o llegar
 // desde «Favoritos» de Inicio, los conserve.
 export interface LibraryFilters {
   sort: BooksSort;
   favorite: boolean;
+  lent: boolean;
   tag?: string;
   untagged: boolean;
 }
@@ -32,13 +33,14 @@ export const sortOptions: SortOption<BooksSort>[] = [
 // Lo que se puede cambiar desde la pantalla Filtros (el orden va aparte).
 export type LibraryFilterSelection = Pick<
   LibraryFilters,
-  "favorite" | "tag" | "untagged"
+  "favorite" | "lent" | "tag" | "untagged"
 >;
 
 // `tag` va explícito para que, al mezclarlo con los filtros actuales, también
 // quite la etiqueta.
 export const NO_FILTERS: LibraryFilterSelection = {
   favorite: false,
+  lent: false,
   tag: undefined,
   untagged: false,
 };
@@ -54,6 +56,7 @@ export const parseLibraryFilters = (
       sortOptions.find((option) => option.value === params.get("sort"))
         ?.value ?? DEFAULT_SORT,
     favorite: params.get("favorite") === "true",
+    lent: params.get("lent") === "true",
     untagged,
     // El contrato no combina «Sin catalogar» con una etiqueta.
     tag: !untagged && tag ? tag : undefined,
@@ -69,6 +72,9 @@ export const toSearchParams = (filters: LibraryFilters): URLSearchParams => {
   if (filters.favorite) {
     params.set("favorite", "true");
   }
+  if (filters.lent) {
+    params.set("lent", "true");
+  }
   if (filters.untagged) {
     params.set("untagged", "true");
   } else if (filters.tag) {
@@ -80,9 +86,11 @@ export const toSearchParams = (filters: LibraryFilters): URLSearchParams => {
 
 export const hasActiveFilters = ({
   favorite,
+  lent,
   tag,
   untagged,
-}: LibraryFilterSelection): boolean => favorite || untagged || Boolean(tag);
+}: LibraryFilterSelection): boolean =>
+  favorite || lent || untagged || Boolean(tag);
 
 // Sin nada que enviar devuelve `undefined`: así la consulta comparte caché con
 // la de Inicio (`useGetBooksQuery()`).
@@ -96,6 +104,9 @@ export const toBooksParams = (
   }
   if (filters.favorite) {
     params.favorite = true;
+  }
+  if (filters.lent) {
+    params.lent = true;
   }
   if (filters.untagged) {
     params.untagged = true;

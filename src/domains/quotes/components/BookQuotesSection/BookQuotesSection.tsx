@@ -79,7 +79,7 @@ const BookQuotesSection = ({
               borderTop: 1,
               borderColor: "divider",
               fontSize: "0.875rem",
-              color: "secondary.contrastText",
+              color: "primary.main",
             }}
           >
             Ver las {data.total} citas
@@ -125,7 +125,7 @@ const BookQuotesSection = ({
             // fuente que «Ver las n citas».
             font: "inherit",
             fontSize: "0.875rem",
-            color: "secondary.contrastText",
+            color: "primary.main",
           }}
         >
           Añadir cita

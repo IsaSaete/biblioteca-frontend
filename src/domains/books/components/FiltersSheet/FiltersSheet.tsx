@@ -181,6 +181,16 @@ const FiltersSheet = ({
           control={<Switch />}
           sx={{ m: 0, px: 2, minHeight: 48, justifyContent: "space-between" }}
         />
+        <FormControlLabel
+          label="Prestados"
+          labelPlacement="start"
+          checked={selection.lent}
+          onChange={(_event, checked) =>
+            onChange({ ...selection, lent: checked })
+          }
+          control={<Switch />}
+          sx={{ m: 0, px: 2, minHeight: 48, justifyContent: "space-between" }}
+        />
         <Box>
           <SectionTitle>Etiquetas</SectionTitle>
           {renderTags()}

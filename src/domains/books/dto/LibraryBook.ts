@@ -16,6 +16,7 @@ export interface LibraryBook
       | "acquisitionDate"
       | "notes"
       | "tags"
+      | "loan"
     > {
   ejemplarId: string;
   status: BookStatus;

@@ -5,6 +5,7 @@ import Typography from "@mui/material/Typography";
 import type { PillTone } from "../../../../components/ui/Pill/Pill";
 import type { LibraryBook } from "../../dto/LibraryBook";
 import { getStatusPresentation } from "../../utils/statusOptions";
+import { capitalizeName } from "../../utils/capitalizeFirst";
 import BookCover from "../BookCover/BookCover";
 
 interface BookRowProps {
@@ -98,6 +99,14 @@ const BookRow = ({ book }: BookRowProps) => {
             />
             {label}
           </Box>
+          {book.loan && (
+            <Typography
+              color="text.secondary"
+              sx={{ mt: 0.5, fontSize: "0.75rem", ...clampLines(1) }}
+            >
+              Prestado a {capitalizeName(book.loan.borrowerName)}
+            </Typography>
+          )}
         </Box>
       </Link>
     </Box>

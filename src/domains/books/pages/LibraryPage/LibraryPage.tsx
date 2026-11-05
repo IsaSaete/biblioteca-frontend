@@ -224,7 +224,7 @@ const LibraryGrid = ({
 
 // Biblioteca en grid de portadas (HU-09) con scroll infinito, estado vacío
 // (HU-14), y orden y filtros (HU-12, HU-13). Orden y filtros viven en la URL
-// (`?sort=&favorite=&tag=&untagged=`) para que volver desde una ficha, o llegar
+// (`?sort=&favorite=&lent=&tag=&untagged=`) para que volver desde una ficha, o llegar
 // desde «Favoritos» de Inicio, los conserve.
 const LibraryPage = () => {
   useDocumentTitle("Biblioteca");
@@ -240,7 +240,9 @@ const LibraryPage = () => {
     isFiltered || (data !== undefined && data.items.length > 0);
   const total = currentData?.total;
   const activeCount =
-    Number(filters.favorite) + Number(filters.untagged || Boolean(filters.tag));
+    Number(filters.favorite) +
+    Number(filters.lent) +
+    Number(filters.untagged || Boolean(filters.tag));
 
   const update = (next: Partial<LibraryFilters>) =>
     setSearchParams(toSearchParams({ ...filters, ...next }), { replace: true });
