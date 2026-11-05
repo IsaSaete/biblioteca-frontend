@@ -8,10 +8,8 @@ import ClosingSection from "../../components/ClosingSection/ClosingSection";
 import DataSection from "../../components/DataSection/DataSection";
 import DictionaryBand from "../../components/DictionaryBand/DictionaryBand";
 import LandingFooter from "../../components/LandingFooter/LandingFooter";
-import MobileCtaBar from "../../components/MobileCtaBar/MobileCtaBar";
 import LandingHeader from "../../components/LandingHeader/LandingHeader";
 import LandingIntro from "../../components/LandingIntro/LandingIntro";
-import { useInView } from "../../hooks/useInView";
 import { useRedirectWhenSignedIn } from "../../hooks/useRedirectWhenSignedIn";
 import "../../../../styles/landingFonts.css";
 
@@ -34,12 +32,6 @@ const LandingPage = () => {
 
   useRedirectWhenSignedIn();
 
-  // La barra fija de móvil sale cuando el botón de la portada ya no se ve y
-  // ni el del cierre ni el pie están a la vista.
-  const heroCta = useInView<HTMLDivElement>(true);
-  const closingCta = useInView<HTMLDivElement>(false);
-  const footer = useInView<HTMLElement>(false);
-
   return (
     <Box
       sx={(theme) => ({
@@ -54,19 +46,16 @@ const LandingPage = () => {
         <LandingHeader />
         <Box component="main">
           <Bookshelf />
-          <LandingIntro ctaRef={heroCta.ref} />
+          <LandingIntro />
           <AddBookMethods />
           <TagsDemo />
           <QuotesSection />
           <DataSection />
           <DictionaryBand />
-          <ClosingSection ctaRef={closingCta.ref} />
+          <ClosingSection />
         </Box>
-        <LandingFooter footerRef={footer.ref} />
+        <LandingFooter />
       </Box>
-      <MobileCtaBar
-        visible={!heroCta.inView && !closingCta.inView && !footer.inView}
-      />
     </Box>
   );
 };

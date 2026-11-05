@@ -1,4 +1,3 @@
-import type { Ref } from "react";
 import { Link as RouterLink } from "react-router";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
@@ -10,12 +9,7 @@ import { themeVars } from "../../themeVars";
 
 // Pie mínimo: FAQ y los enlaces legales deben poder alcanzarse desde cualquier
 // dispositivo, también en móvil.
-interface LandingFooterProps {
-  // Para saber cuándo se ve el pie (la barra fija de móvil se oculta).
-  footerRef?: Ref<HTMLElement>;
-}
-
-const LandingFooter = ({ footerRef }: LandingFooterProps) => {
+const LandingFooter = () => {
   const linkSx = (theme: Theme) => ({
     ...theme.typography.landingUi,
     color: themeVars(theme).palette.landing.onBandMuted,
@@ -25,7 +19,6 @@ const LandingFooter = ({ footerRef }: LandingFooterProps) => {
   return (
     <Box
       component="footer"
-      ref={footerRef}
       sx={(theme) => ({
         // Banda oscura a todo el ancho que cierra la página.
         bgcolor: themeVars(theme).palette.landing.band,
