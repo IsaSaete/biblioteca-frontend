@@ -98,6 +98,14 @@ const BookRow = ({ book }: BookRowProps) => {
             />
             {label}
           </Box>
+          {book.loan && (
+            <Typography
+              color="text.secondary"
+              sx={{ mt: 0.5, fontSize: "0.75rem", ...clampLines(1) }}
+            >
+              Prestado a {book.loan.borrowerName}
+            </Typography>
+          )}
         </Box>
       </Link>
     </Box>
