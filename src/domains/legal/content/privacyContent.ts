@@ -21,7 +21,7 @@ export const privacyContent: LegalContent = {
       items: [
         "Tu cuenta: nombre, correo electrónico, contraseña (se guarda cifrada, nadie puede leerla), la fecha en que aceptaste los Términos y la Política de Privacidad y si has verificado tu correo.",
         "Tu foto de perfil, si decides añadirla (256 × 256 píxeles, guardada en nuestra base de datos) y tus preferencias, como la vista de la biblioteca.",
-        "Lo que guardas: los libros de tu biblioteca y lo que apuntas sobre ellos (estado de lectura, etiquetas, favoritos…), tus citas con su página y tu lista de deseos.",
+        "Lo que guardas: los libros de tu biblioteca y lo que apuntas sobre ellos (estado de lectura, etiquetas, favoritos…), tus citas con su página, tu lista de deseos y, si prestas un libro, el nombre de la persona a quien se lo has prestado (lo escribes tú y no se comparte con nadie).",
         "Datos técnicos: la dirección IP y la hora de las peticiones, que quedan en los registros del servidor y sirven para proteger la cuenta y limitar abusos.",
       ],
     },
