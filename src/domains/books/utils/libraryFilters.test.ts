@@ -13,6 +13,7 @@ describe("Given the library filters in the URL", () => {
       expect(filters).toEqual({
         sort: "recent",
         favorite: false,
+        lent: false,
         untagged: false,
         tag: undefined,
       });
@@ -75,6 +76,28 @@ describe("Given the library filters in the URL", () => {
       expect(filters.untagged).toBe(true);
       expect(filters.tag).toBeUndefined();
       expect(toBooksParams(filters)).toEqual({ untagged: true });
+    });
+  });
+});
+
+describe("Given the lent filter in the URL", () => {
+  describe("When the URL has lent=true", () => {
+    it("Then it is read, counts as an active filter, goes to the API and back to the URL", () => {
+      const filters = parseLibraryFilters(new URLSearchParams("lent=true"));
+
+      expect(filters.lent).toBe(true);
+      expect(hasActiveFilters(filters)).toBe(true);
+      expect(toBooksParams(filters)).toEqual({ lent: true });
+      expect(toSearchParams(filters).toString()).toBe("lent=true");
+    });
+  });
+
+  describe("When the URL has lent=false or a wrong value", () => {
+    it.each(["lent=false", "lent=sí"])("Then %s does not filter", (query) => {
+      const filters = parseLibraryFilters(new URLSearchParams(query));
+
+      expect(filters.lent).toBe(false);
+      expect(toBooksParams(filters)).toBeUndefined();
     });
   });
 });

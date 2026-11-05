@@ -43,7 +43,9 @@ const mockLibrary = (tags: Record<string, unknown> = tagsResponse) => {
       requests.push(params);
       const total = params.get("tag")
         ? 2
-        : params.get("favorite") === "true" || params.get("untagged") === "true"
+        : params.get("favorite") === "true" ||
+            params.get("untagged") === "true" ||
+            params.get("lent") === "true"
           ? 1
           : 3;
       return HttpResponse.json({
@@ -470,6 +472,36 @@ describe("Given the library page with order and filters", () => {
       ).toBeInTheDocument();
 
       await user.click(screen.getByRole("button", { name: "Quitar filtros" }));
+
+      expect(router.state.location.search).toBe("");
+    });
+  });
+});
+
+describe("Given the lent filter of the library", () => {
+  describe("When the user turns on «Prestados»", () => {
+    it("Then it goes to the URL and the request, and a removable chip shows", async () => {
+      const requests = mockLibrary();
+
+      const { user, router } = renderRoutes(routes, ["/library"]);
+      const sheet = await openFilters(user);
+      await user.click(
+        within(sheet).getByRole("switch", { name: "Prestados" }),
+      );
+
+      expect(router.state.location.search).toBe("?lent=true");
+      await waitFor(() =>
+        expect(requests.some((p) => p.get("lent") === "true")).toBe(true),
+      );
+
+      await user.click(
+        within(sheet).getByRole("button", { name: "Ver 1 libro" }),
+      );
+      await user.click(
+        await screen.findByRole("button", {
+          name: "Quitar el filtro Prestados",
+        }),
+      );
 
       expect(router.state.location.search).toBe("");
     });

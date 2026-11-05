@@ -9,6 +9,8 @@ export interface GetBooksParams {
   search?: string;
   // Solo `true` filtra: `false` o ausente es no filtrar.
   favorite?: boolean;
+  // Solo los libros prestados; `false` o ausente es no filtrar.
+  lent?: boolean;
   // Una sola etiqueta, sin distinguir mayúsculas.
   tag?: string;
   // Libros sin ninguna etiqueta («Sin catalogar»).
