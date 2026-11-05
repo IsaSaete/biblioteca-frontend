@@ -14,7 +14,7 @@ const LandingHeader = () => (
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
-      gap: 4,
+      gap: { xs: 3, sm: 4 },
       pt: 7,
       pb: 6,
     }}
@@ -29,7 +29,7 @@ const LandingHeader = () => (
       <Box
         component="nav"
         aria-label="Principal"
-        sx={{ display: "flex", alignItems: "center", gap: { xs: 3, sm: 5 } }}
+        sx={{ display: "flex", alignItems: "center", gap: { xs: 2, sm: 5 } }}
       >
         <Link
           component={RouterLink}
@@ -56,7 +56,7 @@ const LandingHeader = () => (
             display: "inline-flex",
             alignItems: "center",
             minHeight: 44,
-            px: { xs: 4, sm: 5 },
+            px: { xs: 3, sm: 5 },
             borderRadius: "999px",
             bgcolor: "primary.main",
             color: "primary.contrastText",
