@@ -163,6 +163,13 @@ export const routes = [
     }),
   },
   {
+    path: "/faq",
+    lazy: async () => ({
+      Component: (await import("../domains/landing/pages/FaqPage/FaqPage"))
+        .default,
+    }),
+  },
+  {
     path: "*",
     lazy: async () => ({
       Component: (await import("../pages/NotFoundPage/NotFoundPage")).default,

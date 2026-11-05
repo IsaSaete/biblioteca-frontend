@@ -1,4 +1,3 @@
-import type { Ref } from "react";
 import { Link as RouterLink } from "react-router";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
@@ -8,12 +7,7 @@ import { landingContent } from "../../content/landingContent";
 
 const { intro } = landingContent;
 
-interface LandingIntroProps {
-  // Para saber cuándo se ve el botón (la barra fija de móvil se oculta).
-  ctaRef?: Ref<HTMLDivElement>;
-}
-
-const LandingIntro = ({ ctaRef }: LandingIntroProps) => (
+const LandingIntro = () => (
   <Box
     sx={{
       display: "grid",
@@ -41,7 +35,6 @@ const LandingIntro = ({ ctaRef }: LandingIntroProps) => (
         {intro.title}
       </Typography>
       <Box
-        ref={ctaRef}
         sx={{
           mt: 8,
           display: "flex",

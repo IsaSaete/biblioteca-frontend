@@ -1,4 +1,3 @@
-import type { Ref } from "react";
 import { Link as RouterLink } from "react-router";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
@@ -7,12 +6,7 @@ import { closingContent } from "../../content/landingContent";
 import LandingSection from "../LandingSection/LandingSection";
 import SectionTitle from "../SectionTitle/SectionTitle";
 
-interface ClosingSectionProps {
-  // Para saber cuándo se ve este botón (la barra fija de móvil se oculta).
-  ctaRef?: Ref<HTMLDivElement>;
-}
-
-const ClosingSection = ({ ctaRef }: ClosingSectionProps) => (
+const ClosingSection = () => (
   <LandingSection tone="surface">
     <SectionTitle>{closingContent.title}</SectionTitle>
     <Typography
@@ -23,7 +17,6 @@ const ClosingSection = ({ ctaRef }: ClosingSectionProps) => (
       {closingContent.text}
     </Typography>
     <Box
-      ref={ctaRef}
       sx={{
         mt: 6,
         display: "flex",

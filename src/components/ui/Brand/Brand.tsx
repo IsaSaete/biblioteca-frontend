@@ -41,6 +41,9 @@ const Brand = ({
         color: accent ? "primary.main" : undefined,
         lineHeight: 0.95,
         letterSpacing: "-0.015em",
+        // En pantallas de 320 px la cabecera de la landing no cabe con el
+        // tamaño grande: se usa el compacto.
+        "@media (max-width: 339px)": { fontSize: "40px" },
       }}
     >
       Glosa
