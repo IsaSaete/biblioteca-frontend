@@ -11,6 +11,8 @@ export interface ShelfBook {
   label?: boolean;
   // Se oculta en móvil para que la balda no se desborde.
   optional?: boolean;
+  // Se oculta además en pantallas de menos de 440 px.
+  tiny?: boolean;
   // Apoyado en el siguiente.
   leaning?: boolean;
 }
@@ -20,9 +22,15 @@ export interface ShelfBook {
 export const ownedBooks: ShelfBook[] = [
   { title: "Loops", height: 276, width: 50, color: 1, label: true },
   { title: "Un mundo feliz", height: 300, width: 44, color: 3 },
-  { title: "La mujer habitada", height: 262, width: 56, color: 2 },
+  {
+    title: "La mujer habitada",
+    height: 262,
+    width: 56,
+    color: 2,
+    optional: true,
+  },
   { title: "La conejera", height: 230, width: 42, color: 6, optional: true },
-  { title: "1984", height: 206, width: 34, color: 5, label: true },
+  { title: "1984", height: 206, width: 34, color: 5, label: true, tiny: true },
   { title: "La Odisea", height: 292, width: 50, color: 4 },
   { title: "Cara de pan", height: 238, width: 44, color: 1, optional: true },
   {
@@ -61,7 +69,7 @@ export const ownedBooks: ShelfBook[] = [
 export const wishlistBooks: ShelfBook[] = [
   { title: "Solaris", height: 250, width: 42 },
   { title: "Kindred", height: 290, width: 50 },
-  { title: "Orlando", height: 222, width: 38 },
+  { title: "Orlando", height: 222, width: 38, tiny: true },
   { title: "Los desposeídos", height: 268, width: 46, optional: true },
 ];
 

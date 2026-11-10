@@ -8,6 +8,7 @@ import type { SavedBook } from "../../dto/SavedBook";
 import { visuallyHidden } from "../../../../utils/visuallyHidden";
 import { capitalizeName } from "../../utils/capitalizeFirst";
 import BookCover from "../BookCover/BookCover";
+import LentBadge from "../LentBadge/LentBadge";
 
 interface BookCardProps {
   book: Pick<SavedBook, "id" | "title" | "authors" | "coverUrl"> & {
@@ -53,35 +54,10 @@ const BookCard = ({ book, onSelect }: BookCardProps) => {
         <Box sx={{ position: "relative" }}>
           <BookCover title={book.title} coverUrl={book.coverUrl} decorative />
           {book.loan && (
-            <Box
-              aria-hidden="true"
-              sx={{
-                position: "absolute",
-                top: 6,
-                right: 6,
-                width: 24,
-                height: 24,
-                display: "grid",
-                placeItems: "center",
-                borderRadius: "50%",
-                bgcolor: "primary.main",
-                color: "primary.contrastText",
-              }}
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M7 17 17 7" />
-                <path d="M8 7h9v9" />
-              </svg>
-            </Box>
+            <LentBadge
+              size={24}
+              sx={{ position: "absolute", top: 6, right: 6 }}
+            />
           )}
         </Box>
         <Typography
