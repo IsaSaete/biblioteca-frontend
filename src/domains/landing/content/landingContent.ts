@@ -69,7 +69,7 @@ export const quotesContent = {
   ],
   page: {
     book: "Una habitación propia",
-    location: "",
+    location: "Página 98",
     before: "Cerrad con llave vuestras bibliotecas si queréis,",
     highlighted:
       "no hay barrera, cerradura ni cerrojo que podáis imponer a la libertad de mi mente.",
@@ -82,6 +82,7 @@ export const quotesContent = {
 export const demoQuote: Quote = {
   id: "demo-quote",
   text: "No hay barrera, cerradura ni cerrojo que podáis imponer a la libertad de mi mente.",
+  page: 98,
   createdAt: "2026-11-02T00:00:00.000Z",
   book: {
     id: "demo-book",
