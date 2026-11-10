@@ -8,8 +8,13 @@ import { themeVars } from "../../themeVars";
 
 const { shelf } = landingContent;
 
-// En pantallas pequeñas la balda se escala y los lomos opcionales se ocultan.
+// En pantallas pequeñas la balda se escala y los lomos opcionales se ocultan
+// (el montón tumbado se queda a cambio de algún lomo).
 const COMPACT_QUERY = "@media (max-width: 559.95px)";
+// Menos de 360 px: la balda pierde también la lista de deseos.
+const NARROW_QUERY = "@media (max-width: 359.95px)";
+// Menos de 440 px: se esconden dos lomos más para que quepa el montón.
+const TINY_QUERY = "@media (max-width: 439.95px)";
 // Pantallas de 360 px o menos de 400: un poco más pequeña para que quepa.
 const SMALL_QUERY = "@media (max-width: 399.95px)";
 
@@ -72,6 +77,7 @@ const Spine = ({ book, wished = false }: SpineProps) => {
         mr: "calc(10px * var(--k))",
       }),
       ...(book.optional && { [COMPACT_QUERY]: { display: "none" } }),
+      ...(book.tiny && { [TINY_QUERY]: { display: "none" } }),
       ...(wished
         ? {
             color: themeVars(theme).palette.text.secondary,
@@ -190,7 +196,6 @@ const Bookshelf = () => (
           gap: 0.5,
           alignSelf: "flex-end",
           ml: 2,
-          [COMPACT_QUERY]: { display: "none" },
         }}
       >
         {pileBooks.map((pile) => (
@@ -235,6 +240,9 @@ const Bookshelf = () => (
           // Móvil: los de la lista de deseos se van al otro extremo de la balda,
           // y la estantería queda repartida de lado a lado.
           [COMPACT_QUERY]: { ml: "auto" },
+          // 320 px: sin sitio para los libros de la lista de deseos y su nota,
+          // que se quedan en pantallas algo mayores.
+          [NARROW_QUERY]: { display: "none" },
         }}
       >
         <Box
