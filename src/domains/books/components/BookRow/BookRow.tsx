@@ -7,6 +7,7 @@ import type { LibraryBook } from "../../dto/LibraryBook";
 import { getStatusPresentation } from "../../utils/statusOptions";
 import { capitalizeName } from "../../utils/capitalizeFirst";
 import BookCover from "../BookCover/BookCover";
+import LentBadge from "../LentBadge/LentBadge";
 
 interface BookRowProps {
   book: LibraryBook;
@@ -62,13 +63,16 @@ const BookRow = ({ book }: BookRowProps) => {
             decorative
           />
         </Box>
-        <Box sx={{ minWidth: 0, alignSelf: "center" }}>
-          <Typography
-            sx={{ fontWeight: 700, ...clampLines(2) }}
-            title={book.title}
-          >
-            {book.title}
-          </Typography>
+        <Box sx={{ minWidth: 0, flex: 1, alignSelf: "center" }}>
+          <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+            <Typography
+              sx={{ fontWeight: 700, flex: 1, minWidth: 0, ...clampLines(2) }}
+              title={book.title}
+            >
+              {book.title}
+            </Typography>
+            {book.loan && <LentBadge size={20} sx={{ mt: "1px" }} />}
+          </Box>
           <Typography
             color="text.secondary"
             variant="caption"
