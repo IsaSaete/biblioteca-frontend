@@ -1,3 +1,5 @@
+import { normalizeOcrText } from "./normalizeOcrText";
+
 // Todo el OCR corre en el dispositivo (HU-24): la foto nunca sale de él. Los
 // ficheros de Tesseract se sirven desde nuestro propio origen y no desde el CDN
 // por defecto, porque la CSP solo admite `'self'`. `workerBlobURL: false` hace
@@ -16,12 +18,15 @@ export const recognizeText = async (
   image: HTMLCanvasElement,
   { onProgress }: RecognizeOptions = {},
 ): Promise<string> => {
-  const [{ createWorker }, { default: workerPath }, { default: corePath }] =
-    await Promise.all([
-      import("tesseract.js"),
-      import("tesseract.js/dist/worker.min.js?url"),
-      import("tesseract.js-core/tesseract-core-simd-lstm.wasm.js?url"),
-    ]);
+  const [
+    { createWorker, PSM },
+    { default: workerPath },
+    { default: corePath },
+  ] = await Promise.all([
+    import("tesseract.js"),
+    import("tesseract.js/dist/worker.min.js?url"),
+    import("tesseract.js-core/tesseract-core-simd-lstm.wasm.js?url"),
+  ]);
 
   const worker = await createWorker("spa", 1, {
     workerPath,
@@ -36,9 +41,18 @@ export const recognizeText = async (
   });
 
   try {
+    await worker.setParameters({
+      // Un único bloque de texto: sin esto Tesseract intenta detectar columnas,
+      // cabeceras y márgenes y mete líneas y símbolos que no existen.
+      tessedit_pageseg_mode: PSM.SINGLE_BLOCK,
+      preserve_interword_spaces: "1",
+      // La foto ya se reduce a ~1500 px; decirle una densidad razonable evita
+      // que estime una errónea.
+      user_defined_dpi: "300",
+    });
     const { data } = await worker.recognize(image);
 
-    return data.text.trim();
+    return normalizeOcrText(data.text);
   } finally {
     await worker.terminate();
   }

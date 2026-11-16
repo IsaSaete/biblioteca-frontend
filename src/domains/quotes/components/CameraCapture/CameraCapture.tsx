@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import { useCameraStream } from "../../../../hooks/useCameraStream";
-import { getScaledSize } from "../../ocr/imageSize";
+import { getScaledSize, getVisibleRegion } from "../../ocr/imageSize";
 
 interface CameraCaptureProps {
   // Foto ya reducida para el OCR. Es transitoria: no se guarda en ninguna parte.
@@ -20,7 +20,14 @@ const CameraCapture = ({ onCapture, onWrite }: CameraCaptureProps) => {
 
   const capture = () => {
     const video = videoRef.current;
-    const size = getScaledSize(video?.videoWidth ?? 0, video?.videoHeight ?? 0);
+    // Solo se lee lo que el visor deja ver, no el fotograma entero.
+    const region = getVisibleRegion(
+      video?.videoWidth ?? 0,
+      video?.videoHeight ?? 0,
+      video?.clientWidth ?? 0,
+      video?.clientHeight ?? 0,
+    );
+    const size = getScaledSize(region.width, region.height);
     const canvas = document.createElement("canvas");
     canvas.width = size.width;
     canvas.height = size.height;
@@ -30,7 +37,17 @@ const CameraCapture = ({ onCapture, onWrite }: CameraCaptureProps) => {
       return;
     }
 
-    context.drawImage(video, 0, 0, size.width, size.height);
+    context.drawImage(
+      video,
+      region.x,
+      region.y,
+      region.width,
+      region.height,
+      0,
+      0,
+      size.width,
+      size.height,
+    );
     onCapture(canvas);
   };
 

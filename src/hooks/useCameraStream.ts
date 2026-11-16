@@ -27,7 +27,13 @@ export const useCameraStream = () => {
 
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: "environment" } },
+          // Resolución alta: con 640×480 (lo que da el móvil por defecto) las
+          // letras de un libro llegan al OCR con muy pocos píxeles.
+          video: {
+            facingMode: { ideal: "environment" },
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+          },
           audio: false,
         });
       } catch (error) {
