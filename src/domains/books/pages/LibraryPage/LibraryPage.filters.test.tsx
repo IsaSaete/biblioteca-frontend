@@ -227,6 +227,36 @@ describe("Given the library page with order and filters", () => {
     });
   });
 
+  describe("When a tag was saved in lowercase", () => {
+    it("Then the sheet and the active chip show it capitalized without changing the filter", async () => {
+      mockLibrary({
+        items: [{ tag: "club de lectura", count: 2 }],
+        untaggedCount: 0,
+      });
+
+      const { user, router } = renderRoutes(routes, ["/library"]);
+      const sheet = await openFilters(user);
+
+      await user.click(
+        await within(sheet).findByRole("button", {
+          name: "Club De Lectura 2",
+        }),
+      );
+
+      expect(new URLSearchParams(router.state.location.search).get("tag")).toBe(
+        "club de lectura",
+      );
+      await user.click(
+        await within(sheet).findByRole("button", { name: /^Ver / }),
+      );
+      expect(
+        await screen.findByRole("button", {
+          name: "Quitar el filtro Club De Lectura",
+        }),
+      ).toBeInTheDocument();
+    });
+  });
+
   describe("When the user taps a second tag", () => {
     it("Then it replaces the first one, as the API takes a single tag", async () => {
       mockLibrary();

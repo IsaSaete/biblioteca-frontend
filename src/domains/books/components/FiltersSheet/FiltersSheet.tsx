@@ -10,6 +10,7 @@ import InlineError from "../../../../components/ui/InlineError/InlineError";
 import SheetOption from "../../../../components/ui/SheetOption/SheetOption";
 import { normalizeText } from "../../../../utils/normalizeText";
 import { useGetBookTagsQuery } from "../../booksApi";
+import { capitalizeWords } from "../../utils/capitalizeFirst";
 import { getShowLabel } from "../../utils/getShowLabel";
 import { hasActiveFilters, NO_FILTERS } from "../../utils/libraryFilters";
 import type { LibraryFilterSelection } from "../../utils/libraryFilters";
@@ -118,7 +119,7 @@ const FiltersSheet = ({
             return (
               <SheetOption
                 key={item.tag}
-                label={item.tag}
+                label={capitalizeWords(item.tag)}
                 count={item.count}
                 selected={isSelected}
                 onClick={() => toggleTag(item.tag, isSelected)}
