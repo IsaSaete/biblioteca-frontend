@@ -70,6 +70,9 @@ describe("Given the public landing page", () => {
         "href",
         "/terms",
       );
+      expect(
+        screen.getByRole("list", { name: "Garantías de Glosa" }),
+      ).toHaveTextContent("Tus fotos no salen de tu dispositivo");
       expect(screen.getByRole("link", { name: "Contacto" })).toHaveAttribute(
         "href",
         `mailto:${legalContact.email}`,

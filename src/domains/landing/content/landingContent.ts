@@ -20,6 +20,17 @@ export const landingContent = {
   },
 } as const;
 
+// Garantías bajo la portada: todas ciertas hoy (sin «funciona sin conexión»
+// hasta que haya service worker).
+export const trustContent = {
+  label: "Garantías de Glosa",
+  points: [
+    "Tus datos, siempre descargables",
+    "Tus fotos no salen de tu dispositivo",
+    "Se instala en tu móvil desde el navegador",
+  ],
+} as const;
+
 export const addBookContent = {
   note: "Sin cámara, sin problema: escribe el ISBN.",
   title: "Cuatro maneras de añadir un libro.",
