@@ -9,6 +9,7 @@ import OptionList from "../../../../components/ui/OptionList/OptionList";
 import { visuallyHidden } from "../../../../utils/visuallyHidden";
 import { useHasCamera } from "../../../books/hooks/useHasCamera";
 import type { Quote } from "../../dto/Quote";
+import { fileToCanvas } from "../../ocr/fileToCanvas";
 import { recognizeText } from "../../ocr/recognizeText";
 import CameraCapture from "../CameraCapture/CameraCapture";
 import ImageCropper from "../ImageCropper/ImageCropper";
@@ -24,16 +25,25 @@ interface QuoteFormDialogProps {
 }
 
 type Step =
-  | { name: "choose" }
+  | { name: "choose"; notice?: string }
   | { name: "scan"; notice?: string }
-  | { name: "crop"; image: HTMLCanvasElement }
-  | { name: "reading"; image: HTMLCanvasElement }
+  // `source`: de dónde viene la foto, que decide a dónde se vuelve al repetirla.
+  | { name: "crop"; image: HTMLCanvasElement; source: "camera" | "file" }
+  | {
+      name: "reading";
+      image: HTMLCanvasElement;
+      source: "camera" | "file";
+    }
   | { name: "review"; text: string; origin: "manual" | "ocr" };
 
 const TITLE_ID = "quote-form-title";
 
 const NO_TEXT_NOTICE =
   "No hemos encontrado texto en la foto. Prueba con más luz y más cerca del texto.";
+const NO_TEXT_IN_FILE_NOTICE =
+  "No hemos encontrado texto en la foto. Prueba con otra o recorta solo el texto.";
+const FILE_FAILED_NOTICE =
+  "No pudimos abrir esa foto. Prueba con otra o escribe la cita a mano.";
 const READ_FAILED_NOTICE =
   "No se pudo leer el texto. Inténtalo de nuevo o escribe la cita a mano.";
 
@@ -133,6 +143,24 @@ const CameraIcon = () => (
   </svg>
 );
 
+const UploadIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <path d="M17 8l-5-5-5 5" />
+    <path d="M12 3v12" />
+  </svg>
+);
+
 const PencilIcon = () => (
   <svg
     width="20"
@@ -160,6 +188,7 @@ const QuoteFormDialog = ({
   onClose,
 }: QuoteFormDialogProps) => {
   const hasCamera = useHasCamera();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<Step>(
     quote
       ? { name: "review", text: quote.text, origin: "manual" }
@@ -170,7 +199,10 @@ const QuoteFormDialog = ({
     step.name === "scan" || (step.name === "review" && !quote)
       ? () => setStep({ name: "choose" })
       : step.name === "crop"
-        ? () => setStep({ name: "scan" })
+        ? () =>
+            setStep(
+              step.source === "file" ? { name: "choose" } : { name: "scan" },
+            )
         : undefined;
 
   const heading = quote
@@ -182,36 +214,61 @@ const QuoteFormDialog = ({
         }
       : headings[step.name];
 
+  // La foto elegida se lee, se recorta y se descarta: nunca sale del dispositivo.
+  const handleFile = (file: File | undefined) => {
+    if (!file) {
+      return;
+    }
+
+    fileToCanvas(file).then(
+      (image) => setStep({ name: "crop", image, source: "file" }),
+      () => setStep({ name: "choose", notice: FILE_FAILED_NOTICE }),
+    );
+  };
+
   const renderStep = () => {
     switch (step.name) {
       case "choose":
         return (
-          <OptionList
-            options={[
-              ...(hasCamera
-                ? [
-                    {
-                      icon: <CameraIcon />,
-                      label: "Escanear con la cámara",
-                      onClick: () => setStep({ name: "scan" }),
-                    },
-                  ]
-                : []),
-              {
-                icon: <PencilIcon />,
-                label: "Escribir manualmente",
-                onClick: () =>
-                  setStep({ name: "review", text: "", origin: "manual" }),
-              },
-            ]}
-          />
+          <Box sx={{ display: "grid", gap: 4 }}>
+            {step.notice && <Alert severity="warning">{step.notice}</Alert>}
+            <OptionList
+              options={[
+                // La cámara solo si la hay; «Subir una foto» siempre: sirve en
+                // escritorio y también en el móvil (galería, o sin permiso de
+                // cámara).
+                ...(hasCamera
+                  ? [
+                      {
+                        icon: <CameraIcon />,
+                        label: "Escanear con la cámara",
+                        onClick: () => setStep({ name: "scan" }),
+                      },
+                    ]
+                  : []),
+                {
+                  icon: <UploadIcon />,
+                  label: "Subir una foto",
+                  onClick: () => fileInputRef.current?.click(),
+                },
+                {
+                  icon: <PencilIcon />,
+                  label: "Escribir manualmente",
+                  onClick: () =>
+                    setStep({ name: "review", text: "", origin: "manual" }),
+                },
+              ]}
+            />
+          </Box>
         );
       case "scan":
         return (
           <Box sx={{ display: "grid", gap: 4 }}>
             {step.notice && <Alert severity="warning">{step.notice}</Alert>}
             <CameraCapture
-              onCapture={(image) => setStep({ name: "crop", image })}
+              onCapture={(image) =>
+                setStep({ name: "crop", image, source: "camera" })
+              }
               onWrite={() =>
                 setStep({ name: "review", text: "", origin: "manual" })
               }
@@ -222,8 +279,17 @@ const QuoteFormDialog = ({
         return (
           <ImageCropper
             image={step.image}
-            onConfirm={(image) => setStep({ name: "reading", image })}
-            onRetake={() => setStep({ name: "scan" })}
+            onConfirm={(image) =>
+              setStep({ name: "reading", image, source: step.source })
+            }
+            onRetake={() =>
+              setStep(
+                step.source === "file" ? { name: "choose" } : { name: "scan" },
+              )
+            }
+            retakeLabel={
+              step.source === "file" ? "Elegir otra foto" : undefined
+            }
           />
         );
       case "reading":
@@ -231,8 +297,24 @@ const QuoteFormDialog = ({
           <ReadingStep
             image={step.image}
             onRead={(text) => setStep({ name: "review", text, origin: "ocr" })}
-            onFail={(notice) => setStep({ name: "scan", notice })}
-            onCancel={() => setStep({ name: "scan" })}
+            onFail={(notice) =>
+              setStep(
+                step.source === "file"
+                  ? {
+                      name: "choose",
+                      notice:
+                        notice === NO_TEXT_NOTICE
+                          ? NO_TEXT_IN_FILE_NOTICE
+                          : notice,
+                    }
+                  : { name: "scan", notice },
+              )
+            }
+            onCancel={() =>
+              setStep(
+                step.source === "file" ? { name: "choose" } : { name: "scan" },
+              )
+            }
           />
         );
       case "review":
@@ -274,6 +356,18 @@ const QuoteFormDialog = ({
           )}
         </Box>
         {renderStep()}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          hidden
+          aria-label="Elegir una foto"
+          onChange={(event) => {
+            handleFile(event.target.files?.[0]);
+            // Permite volver a elegir el mismo archivo.
+            event.target.value = "";
+          }}
+        />
       </Box>
     </FullScreenModal>
   );

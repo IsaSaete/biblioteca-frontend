@@ -11,6 +11,12 @@ vi.mock("../../ocr/recognizeText", () => ({
   recognizeText: (...args: unknown[]) => recognizeText(...args),
 }));
 
+const fileToCanvas = vi.fn();
+
+vi.mock("../../ocr/fileToCanvas", () => ({
+  fileToCanvas: (...args: unknown[]) => fileToCanvas(...args),
+}));
+
 const stopTrack = vi.fn();
 const getUserMedia = vi.fn();
 
@@ -63,6 +69,22 @@ describe("Given the add quote dialog on a device with a camera", () => {
       configurable: true,
     }),
   );
+
+  describe("When the dialog opens", () => {
+    it("Then it offers the camera, uploading a photo and writing it by hand", async () => {
+      renderRoutes(routes, ["/"]);
+
+      expect(
+        await screen.findByRole("button", { name: "Escanear con la cámara" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Subir una foto" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Escribir manualmente" }),
+      ).toBeInTheDocument();
+    });
+  });
 
   describe("When the user scans a quote and it is read", () => {
     it("Then the text is shown to review and it is saved as ocr only after confirming", async () => {
@@ -237,16 +259,122 @@ describe("Given the add quote dialog on a device with a camera", () => {
 });
 
 describe("Given the add quote dialog on a device without a camera", () => {
+  const photo = () => new File(["x"], "page.jpg", { type: "image/jpeg" });
+
+  beforeEach(() => {
+    recognizeText.mockReset();
+    fileToCanvas.mockReset();
+    HTMLCanvasElement.prototype.getContext = vi
+      .fn()
+      .mockReturnValue({ drawImage: vi.fn() });
+  });
+
   describe("When it opens", () => {
-    it("Then it only offers to write the quote", async () => {
+    it("Then it offers to upload a photo or write the quote, but not the camera", async () => {
       renderRoutes(routes, ["/"]);
 
       expect(
         await screen.findByRole("button", { name: "Escribir manualmente" }),
       ).toBeInTheDocument();
       expect(
+        screen.getByRole("button", { name: "Subir una foto" }),
+      ).toBeInTheDocument();
+      expect(
         screen.queryByRole("button", { name: "Escanear con la cámara" }),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("When the user uploads a photo and it is read", () => {
+    it("Then it is cropped, read and saved as ocr after reviewing it", async () => {
+      let body: unknown;
+      const canvas = document.createElement("canvas");
+      canvas.width = 1000;
+      canvas.height = 2000;
+      fileToCanvas.mockResolvedValue(canvas);
+      recognizeText.mockResolvedValue("Muchos años después");
+      server.use(
+        http.post(`${baseUrl}/quotes`, async ({ request }) => {
+          body = await request.json();
+          return HttpResponse.json({ quote: {} }, { status: 201 });
+        }),
+      );
+
+      const { user } = renderRoutes(routes, ["/"]);
+      await screen.findByRole("button", { name: "Subir una foto" });
+      await user.upload(screen.getByLabelText("Elegir una foto"), photo());
+
+      expect(
+        await screen.findByRole("heading", { name: "Recorta el texto" }),
+      ).toBeInTheDocument();
+      await user.click(screen.getByRole("button", { name: "Leer texto" }));
+      expect(await screen.findByLabelText("Cita")).toHaveValue(
+        "Muchos años después",
+      );
+      await user.click(screen.getByRole("button", { name: "Guardar cita" }));
+
+      await waitFor(() =>
+        expect(body).toEqual({
+          ejemplarId: "ejemplar-1",
+          text: "Muchos años después",
+          origin: "ocr",
+        }),
+      );
+    });
+  });
+
+  describe("When the user wants another photo while cropping", () => {
+    it("Then it goes back to the options, not to the camera", async () => {
+      fileToCanvas.mockResolvedValue(document.createElement("canvas"));
+
+      const { user } = renderRoutes(routes, ["/"]);
+      await screen.findByRole("button", { name: "Subir una foto" });
+      await user.upload(screen.getByLabelText("Elegir una foto"), photo());
+      await user.click(
+        await screen.findByRole("button", { name: "Elegir otra foto" }),
+      );
+
+      expect(
+        await screen.findByRole("button", { name: "Subir una foto" }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the chosen file cannot be opened", () => {
+    it("Then it says so and keeps the options", async () => {
+      fileToCanvas.mockRejectedValue(new Error("not an image"));
+
+      const { user } = renderRoutes(routes, ["/"]);
+      await screen.findByRole("button", { name: "Subir una foto" });
+      await user.upload(screen.getByLabelText("Elegir una foto"), photo());
+
+      expect(
+        await screen.findByText(/No pudimos abrir esa foto/),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Escribir manualmente" }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("When no text is found in the uploaded photo", () => {
+    it("Then it goes back to the options with a notice", async () => {
+      fileToCanvas.mockResolvedValue(document.createElement("canvas"));
+      recognizeText.mockResolvedValue("");
+
+      const { user } = renderRoutes(routes, ["/"]);
+      await screen.findByRole("button", { name: "Subir una foto" });
+      await user.upload(screen.getByLabelText("Elegir una foto"), photo());
+      await user.click(
+        await screen.findByRole("button", { name: "Leer texto" }),
+      );
+
+      expect(
+        await screen.findByText(/No hemos encontrado texto en la foto/),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Subir una foto" }),
+      ).toBeInTheDocument();
     });
   });
 });
