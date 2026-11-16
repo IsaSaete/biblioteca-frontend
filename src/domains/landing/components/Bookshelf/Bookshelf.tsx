@@ -125,6 +125,10 @@ const Spine = ({ book, wished = false }: SpineProps) => {
             height: "calc(26px * var(--k))",
             borderRadius: "1px",
             bgcolor: "#F7F5F1",
+            // Marco finísimo con el color del texto del lomo: sobre un lomo claro
+            // (en oscuro) el cuadrado blanco se perdía.
+            boxShadow:
+              "0 0 0 1px color-mix(in srgb, currentColor 55%, transparent)",
             backgroundImage: "linear-gradient(#2B2620, #2B2620)",
             backgroundPosition: "50% 32%",
             backgroundSize: "60% 1.5px",
