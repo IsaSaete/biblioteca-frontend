@@ -6,12 +6,12 @@ export const faqContent = {
     {
       question: "¿Es gratis?",
       answer:
-        "Sí. Glosa es gratis, no tiene anuncios y no pide tarjeta. Si algún día eso cambia, tus datos seguirán siendo descargables.",
+        "Sí. Glosa es gratis y no tiene anuncios. Y pase lo que pase, siempre podrás descargar tus datos.",
     },
     {
       question: "¿En qué dispositivos funciona?",
       answer:
-        "En el navegador del móvil, de la tableta y del ordenador, sin instalar nada. En el móvil puedes añadirla a la pantalla de inicio, como una app. Escanear códigos de barras y fotografiar citas solo se ofrece si el dispositivo tiene cámara.",
+        "En el navegador del móvil, de la tableta y del ordenador, sin instalar nada. En el móvil puedes añadirla a la pantalla de inicio, como una app. Escanear códigos de barras y fotografiar citas con la cámara solo se ofrece si el dispositivo tiene cámara; si no, puedes escribir el ISBN y subir una foto de la cita.",
     },
     {
       question: "¿Necesito conexión?",
@@ -21,7 +21,7 @@ export const faqContent = {
     {
       question: "¿Qué pasa con mis datos?",
       answer:
-        "La foto de una cita no se sube: el texto se lee en tu móvil y solo se guarda el texto. Puedes descargar en un archivo tus libros, tus citas y tu lista de deseos, o borrar tu cuenta y todo lo que contiene.",
+        "La foto de una cita nunca sale de tu dispositivo: solo se guarda el texto de la cita. Puedes llevarte tus datos cuando quieras: descarga tus libros, tus citas y tu lista de deseos en un archivo, o borra tu cuenta y todo lo que contiene.",
     },
   ],
 } as const;
