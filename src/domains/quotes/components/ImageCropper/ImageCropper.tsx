@@ -17,6 +17,9 @@ interface ImageCropperProps {
   // Zona recortada y ya reducida para el OCR. Es transitoria: no se guarda.
   onConfirm: (image: HTMLCanvasElement) => void;
   onRetake: () => void;
+  // Por defecto «Repetir foto»; con una foto elegida del ordenador no se
+  // «repite», se elige otra.
+  retakeLabel?: string;
 }
 
 const KEY_STEP = 0.02;
@@ -117,7 +120,12 @@ const KEY_DIRECTION: Record<string, number> = {
 // bordes de la página, así que la usuaria deja solo el texto de la cita. Se
 // ajusta arrastrando un borde, una esquina o todo el recuadro; con teclado, los
 // bordes se mueven con las flechas.
-const ImageCropper = ({ image, onConfirm, onRetake }: ImageCropperProps) => {
+const ImageCropper = ({
+  image,
+  onConfirm,
+  onRetake,
+  retakeLabel = "Repetir foto",
+}: ImageCropperProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [drag, setDrag] = useState<Drag | null>(null);
   const [rect, setRect] = useState<CropRect>(DEFAULT_CROP);
@@ -381,7 +389,7 @@ const ImageCropper = ({ image, onConfirm, onRetake }: ImageCropperProps) => {
           Leer texto
         </Button>
         <Button variant="text" fullWidth onClick={onRetake}>
-          Repetir foto
+          {retakeLabel}
         </Button>
       </Box>
     </Box>
