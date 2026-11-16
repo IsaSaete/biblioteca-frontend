@@ -3,10 +3,11 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import { useCameraStream } from "../../../../hooks/useCameraStream";
-import { getScaledSize, getVisibleRegion } from "../../ocr/imageSize";
+import { getVisibleRegion } from "../../ocr/imageSize";
 
 interface CameraCaptureProps {
-  // Foto ya reducida para el OCR. Es transitoria: no se guarda en ninguna parte.
+  // Foto del encuadre, a la resolución de la cámara (se recorta y se reduce
+  // después). Es transitoria: no se guarda en ninguna parte.
   onCapture: (image: HTMLCanvasElement) => void;
   onWrite: () => void;
 }
@@ -27,13 +28,12 @@ const CameraCapture = ({ onCapture, onWrite }: CameraCaptureProps) => {
       video?.clientWidth ?? 0,
       video?.clientHeight ?? 0,
     );
-    const size = getScaledSize(region.width, region.height);
     const canvas = document.createElement("canvas");
-    canvas.width = size.width;
-    canvas.height = size.height;
+    canvas.width = region.width;
+    canvas.height = region.height;
     const context = canvas.getContext("2d");
 
-    if (!video || !context || size.width === 0) {
+    if (!video || !context || region.width === 0) {
       return;
     }
 
@@ -45,8 +45,8 @@ const CameraCapture = ({ onCapture, onWrite }: CameraCaptureProps) => {
       region.height,
       0,
       0,
-      size.width,
-      size.height,
+      region.width,
+      region.height,
     );
     onCapture(canvas);
   };

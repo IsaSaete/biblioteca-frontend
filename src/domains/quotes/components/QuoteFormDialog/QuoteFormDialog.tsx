@@ -11,6 +11,7 @@ import { useHasCamera } from "../../../books/hooks/useHasCamera";
 import type { Quote } from "../../dto/Quote";
 import { recognizeText } from "../../ocr/recognizeText";
 import CameraCapture from "../CameraCapture/CameraCapture";
+import ImageCropper from "../ImageCropper/ImageCropper";
 import QuoteForm from "../QuoteForm/QuoteForm";
 
 interface QuoteFormDialogProps {
@@ -25,6 +26,7 @@ interface QuoteFormDialogProps {
 type Step =
   | { name: "choose" }
   | { name: "scan"; notice?: string }
+  | { name: "crop"; image: HTMLCanvasElement }
   | { name: "reading"; image: HTMLCanvasElement }
   | { name: "review"; text: string; origin: "manual" | "ocr" };
 
@@ -106,6 +108,10 @@ const headings: Record<Step["name"], { title: string; subtitle?: string }> = {
     title: "Escanea la cita",
     subtitle: "La foto se lee en tu dispositivo y no se guarda.",
   },
+  crop: {
+    title: "Recorta el texto",
+    subtitle: "La foto se lee en tu dispositivo y no se guarda.",
+  },
   reading: { title: "Leyendo la foto" },
   review: { title: "Escribe una cita" },
 };
@@ -163,7 +169,9 @@ const QuoteFormDialog = ({
   const goBack =
     step.name === "scan" || (step.name === "review" && !quote)
       ? () => setStep({ name: "choose" })
-      : undefined;
+      : step.name === "crop"
+        ? () => setStep({ name: "scan" })
+        : undefined;
 
   const heading = quote
     ? { title: "Edita la cita" }
@@ -203,12 +211,20 @@ const QuoteFormDialog = ({
           <Box sx={{ display: "grid", gap: 4 }}>
             {step.notice && <Alert severity="warning">{step.notice}</Alert>}
             <CameraCapture
-              onCapture={(image) => setStep({ name: "reading", image })}
+              onCapture={(image) => setStep({ name: "crop", image })}
               onWrite={() =>
                 setStep({ name: "review", text: "", origin: "manual" })
               }
             />
           </Box>
+        );
+      case "crop":
+        return (
+          <ImageCropper
+            image={step.image}
+            onConfirm={(image) => setStep({ name: "reading", image })}
+            onRetake={() => setStep({ name: "scan" })}
+          />
         );
       case "reading":
         return (

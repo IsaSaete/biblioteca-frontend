@@ -1,3 +1,4 @@
+import { enhanceForOcr } from "./flattenBackground";
 import { normalizeOcrText } from "./normalizeOcrText";
 
 // Todo el OCR corre en el dispositivo (HU-24): la foto nunca sale de él. Los
@@ -50,6 +51,7 @@ export const recognizeText = async (
       // que estime una errónea.
       user_defined_dpi: "300",
     });
+    enhanceForOcr(image);
     const { data } = await worker.recognize(image);
 
     return normalizeOcrText(data.text);

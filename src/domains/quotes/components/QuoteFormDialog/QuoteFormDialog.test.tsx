@@ -83,6 +83,9 @@ describe("Given the add quote dialog on a device with a camera", () => {
         expect(screen.getByRole("button", { name: "Capturar" })).toBeEnabled(),
       );
       await user.click(screen.getByRole("button", { name: "Capturar" }));
+      await user.click(
+        await screen.findByRole("button", { name: "Leer texto" }),
+      );
 
       const text = await screen.findByLabelText("Cita");
       expect(text).toHaveValue("Muchos años después");
@@ -120,8 +123,32 @@ describe("Given the add quote dialog on a device with a camera", () => {
     });
   });
 
-  describe("When the photo is reduced for the reading", () => {
-    it("Then the canvas handed to the OCR respects the size limit", async () => {
+  describe("When the photo is captured", () => {
+    it("Then it can be cropped or retaken before it is read", async () => {
+      const { user } = renderRoutes(routes, ["/"]);
+      await user.click(
+        await screen.findByRole("button", { name: "Escanear con la cámara" }),
+      );
+      await waitFor(() =>
+        expect(screen.getByRole("button", { name: "Capturar" })).toBeEnabled(),
+      );
+      await user.click(screen.getByRole("button", { name: "Capturar" }));
+
+      expect(
+        await screen.findByRole("heading", { name: "Recorta el texto" }),
+      ).toBeInTheDocument();
+      expect(recognizeText).not.toHaveBeenCalled();
+
+      await user.click(screen.getByRole("button", { name: "Repetir foto" }));
+
+      expect(
+        await screen.findByRole("button", { name: "Capturar" }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("When the cropped photo is reduced for the reading", () => {
+    it("Then the canvas handed to the OCR is the cropped zone within the size limit", async () => {
       recognizeText.mockResolvedValue("Texto");
 
       const { user } = renderRoutes(routes, ["/"]);
@@ -132,10 +159,13 @@ describe("Given the add quote dialog on a device with a camera", () => {
         expect(screen.getByRole("button", { name: "Capturar" })).toBeEnabled(),
       );
       await user.click(screen.getByRole("button", { name: "Capturar" }));
+      await user.click(
+        await screen.findByRole("button", { name: "Leer texto" }),
+      );
       await screen.findByLabelText("Cita");
 
       const canvas = recognizeText.mock.calls[0]?.[0] as HTMLCanvasElement;
-      expect(canvas.width).toBe(1125);
+      expect(canvas.width).toBe(1350);
       expect(canvas.height).toBe(1500);
     });
   });
@@ -152,6 +182,9 @@ describe("Given the add quote dialog on a device with a camera", () => {
         expect(screen.getByRole("button", { name: "Capturar" })).toBeEnabled(),
       );
       await user.click(screen.getByRole("button", { name: "Capturar" }));
+      await user.click(
+        await screen.findByRole("button", { name: "Leer texto" }),
+      );
 
       expect(
         await screen.findByText(/No hemos encontrado texto en la foto/),
@@ -174,6 +207,9 @@ describe("Given the add quote dialog on a device with a camera", () => {
         expect(screen.getByRole("button", { name: "Capturar" })).toBeEnabled(),
       );
       await user.click(screen.getByRole("button", { name: "Capturar" }));
+      await user.click(
+        await screen.findByRole("button", { name: "Leer texto" }),
+      );
 
       expect(
         await screen.findByText(/No se pudo leer el texto/),
