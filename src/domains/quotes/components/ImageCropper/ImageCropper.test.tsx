@@ -11,6 +11,17 @@ const buildImage = () => {
   return canvas;
 };
 
+// La foto mide 200×400 px en pantalla (jsdom no hace maquetación).
+const stubArea = (area: HTMLElement) => {
+  area.getBoundingClientRect = () =>
+    ({ left: 0, top: 0, width: 200, height: 400 }) as DOMRect;
+};
+
+const stubCapture = (element: HTMLElement) => {
+  element.setPointerCapture = vi.fn();
+  element.hasPointerCapture = vi.fn().mockReturnValue(true);
+};
+
 describe("Given the crop step of a captured photo", () => {
   beforeEach(() => {
     drawImage.mockReset();
@@ -80,7 +91,7 @@ describe("Given the crop step of a captured photo", () => {
   });
 
   describe("When the user drags an edge", () => {
-    it("Then it follows the pointer", () => {
+    it("Then it keeps its distance to the finger instead of jumping to it", () => {
       render(
         <ImageCropper
           image={buildImage()}
@@ -89,16 +100,75 @@ describe("Given the crop step of a captured photo", () => {
         />,
       );
       const handle = screen.getByRole("slider", { name: "Borde izquierdo" });
-      const area = handle.parentElement as HTMLElement;
-      area.getBoundingClientRect = () =>
-        ({ left: 0, top: 0, width: 200, height: 400 }) as DOMRect;
-      handle.setPointerCapture = vi.fn();
-      handle.hasPointerCapture = vi.fn().mockReturnValue(true);
+      stubArea(handle.parentElement as HTMLElement);
+      stubCapture(handle);
 
-      fireEvent.pointerDown(handle, { pointerId: 1 });
+      // El borde está en el 8 %: se agarra un poco a su derecha (15 %) y se
+      // mueve 10 puntos más allá.
+      fireEvent.pointerDown(handle, { pointerId: 1, clientX: 30, clientY: 0 });
       fireEvent.pointerMove(handle, { pointerId: 1, clientX: 50, clientY: 0 });
 
-      expect(handle).toHaveAttribute("aria-valuenow", "25");
+      expect(handle).toHaveAttribute("aria-valuenow", "18");
+    });
+  });
+
+  describe("When the user drags a corner", () => {
+    it("Then the two edges that meet there move together", () => {
+      render(
+        <ImageCropper
+          image={buildImage()}
+          onConfirm={vi.fn()}
+          onRetake={vi.fn()}
+        />,
+      );
+      const corner = screen.getByTestId("crop-corner-topLeft");
+      stubArea(corner.parentElement as HTMLElement);
+      stubCapture(corner);
+
+      fireEvent.pointerDown(corner, { pointerId: 1, clientX: 16, clientY: 60 });
+      fireEvent.pointerMove(corner, {
+        pointerId: 1,
+        clientX: 36,
+        clientY: 100,
+      });
+
+      expect(
+        screen.getByRole("slider", { name: "Borde izquierdo" }),
+      ).toHaveAttribute("aria-valuenow", "18");
+      expect(
+        screen.getByRole("slider", { name: "Borde superior" }),
+      ).toHaveAttribute("aria-valuenow", "25");
+    });
+  });
+
+  describe("When the user drags the inside of the frame", () => {
+    it("Then the whole frame moves and keeps its size", () => {
+      render(
+        <ImageCropper
+          image={buildImage()}
+          onConfirm={vi.fn()}
+          onRetake={vi.fn()}
+        />,
+      );
+      const body = screen.getByTestId("crop-body");
+      stubArea(body.parentElement as HTMLElement);
+      stubCapture(body);
+
+      fireEvent.pointerDown(body, { pointerId: 1, clientX: 100, clientY: 200 });
+      fireEvent.pointerMove(body, { pointerId: 1, clientX: 110, clientY: 240 });
+
+      expect(
+        screen.getByRole("slider", { name: "Borde izquierdo" }),
+      ).toHaveAttribute("aria-valuenow", "13");
+      expect(
+        screen.getByRole("slider", { name: "Borde derecho" }),
+      ).toHaveAttribute("aria-valuenow", "97");
+      expect(
+        screen.getByRole("slider", { name: "Borde superior" }),
+      ).toHaveAttribute("aria-valuenow", "25");
+      expect(
+        screen.getByRole("slider", { name: "Borde inferior" }),
+      ).toHaveAttribute("aria-valuenow", "95");
     });
   });
 
