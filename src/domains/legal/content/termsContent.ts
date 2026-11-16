@@ -5,7 +5,7 @@ import { legalContact } from "./legalContact";
 // su titular: no es asesoramiento jurídico.
 export const termsContent: LegalContent = {
   title: "Términos de uso",
-  lastUpdated: "3 de noviembre de 2026",
+  lastUpdated: "16 de noviembre de 2026",
   sections: [
     {
       heading: "Qué es Glosa y quién la ofrece",
@@ -51,7 +51,7 @@ export const termsContent: LegalContent = {
     {
       heading: "Gratuidad",
       paragraphs: [
-        "Glosa es gratis y no tiene anuncios. Si algún día eso cambia, te avisaremos con antelación y tus datos seguirán siendo descargables.",
+        "Glosa es gratis y no tiene anuncios. Y pase lo que pase, siempre podrás descargar tus datos. Si algún día eso cambiara, te avisaremos con antelación.",
       ],
     },
     {

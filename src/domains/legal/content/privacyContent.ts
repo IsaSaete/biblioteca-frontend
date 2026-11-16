@@ -6,7 +6,7 @@ import { legalContact } from "./legalContact";
 // asesoramiento jurídico.
 export const privacyContent: LegalContent = {
   title: "Política de privacidad",
-  lastUpdated: "3 de noviembre de 2026",
+  lastUpdated: "16 de noviembre de 2026",
   sections: [
     {
       heading: "Quién es el responsable",
@@ -28,7 +28,7 @@ export const privacyContent: LegalContent = {
     {
       heading: "Lo que no hacemos",
       paragraphs: [
-        "Las fotos que haces para guardar una cita no se suben: el texto se lee en tu móvil y solo se guarda el texto.",
+        "Las fotos que haces o eliges para guardar una cita nunca salen de tu dispositivo: el texto se lee en él y solo se guarda el texto de la cita.",
         "No hay publicidad ni analítica, no vendemos ni cedemos tus datos y no los usamos para hacer perfiles ni para tomar decisiones automatizadas.",
       ],
     },
