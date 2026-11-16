@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import type { Theme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
+import { legalContact } from "../../../legal/content/legalContact";
 import { footerContent } from "../../content/landingContent";
 import { visuallyHidden } from "../../../../utils/visuallyHidden";
 import { themeVars } from "../../themeVars";
@@ -57,6 +58,13 @@ const LandingFooter = () => {
         </Link>
         <Link component={RouterLink} to="/terms" underline="hover" sx={linkSx}>
           {footerContent.terms}
+        </Link>
+        <Link
+          href={`mailto:${legalContact.email}`}
+          underline="hover"
+          sx={linkSx}
+        >
+          {footerContent.contact}
         </Link>
       </Box>
       <Typography
