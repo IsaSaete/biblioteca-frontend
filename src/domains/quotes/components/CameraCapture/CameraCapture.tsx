@@ -65,7 +65,12 @@ const CameraCapture = ({ onCapture, onWrite }: CameraCaptureProps) => {
         sx={{
           aspectRatio: "3 / 4",
           // El botón «Capturar» debe verse sin hacer scroll en pantallas bajas.
-          maxHeight: "55dvh",
+          // El alto máximo se pasa al ancho (3/4 del alto) para que la caja
+          // conserve su proporción, ocupe todo el ancho posible y quede
+          // centrada, en vez de encogerse hacia un lado.
+          width: "100%",
+          maxWidth: "calc(55dvh * 3 / 4)",
+          mx: "auto",
           borderRadius: 1.5,
           overflow: "hidden",
           bgcolor: "common.black",
