@@ -78,6 +78,21 @@ export const quotesContent = {
     "Estás leyendo y encuentras un párrafo que no quieres perder. Lo encuadras con la cámara, ajustas el recuadro al texto que quieres y Glosa lo lee en tu dispositivo. Antes de guardarlo, lo revisas y lo corriges si hace falta. También puedes elegir una foto que ya tengas o escribirlo tú.",
     "Todas tus citas están juntas en su propia sección, Citas, donde puedes filtrarlas por libro. Puedes enlazar cada una a un libro de tu biblioteca o guardarla suelta, de un libro prestado o de cualquier texto que hayas leído en otro sitio.",
   ],
+  stepsLabel: "Cómo guardar una cita",
+  steps: [
+    {
+      title: "Haz la foto",
+      hint: "Con la cámara, o elige una que ya tengas",
+    },
+    {
+      title: "Recorta el texto",
+      hint: "Deja solo lo que quieres y corrígelo si hace falta",
+    },
+    {
+      title: "Queda guardada",
+      hint: "Con su libro y su página",
+    },
+  ],
   page: {
     book: "Una habitación propia",
     location: "Pág. 98",

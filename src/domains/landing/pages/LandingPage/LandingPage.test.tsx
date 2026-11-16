@@ -1,5 +1,5 @@
 import { ThemeProvider } from "@mui/material/styles";
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import { delay, http, HttpResponse } from "msw";
 import theme from "../../../../theme/theme";
 import { renderRoutes } from "../../../../test/renderRoutes";
@@ -117,6 +117,25 @@ describe("Given the public landing page", () => {
         "Organiza tus libros a tu manera.",
         "glosaf.",
         "Empieza por el libro que tienes más cerca.",
+      ]);
+    });
+  });
+
+  describe("When the visitor reads the quotes section", () => {
+    it("Then it explains the three steps to save a quote", async () => {
+      server.use(http.get(meUrl, () => HttpResponse.error()));
+
+      renderLanding();
+
+      const steps = screen.getByRole("list", { name: "Cómo guardar una cita" });
+      expect(
+        within(steps)
+          .getAllByRole("listitem")
+          .map((item) => item.textContent),
+      ).toEqual([
+        "Haz la fotoCon la cámara, o elige una que ya tengas",
+        "Recorta el textoDeja solo lo que quieres y corrígelo si hace falta",
+        "Queda guardadaCon su libro y su página",
       ]);
     });
   });
