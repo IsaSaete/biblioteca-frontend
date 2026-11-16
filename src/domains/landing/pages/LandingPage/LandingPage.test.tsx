@@ -4,6 +4,7 @@ import { delay, http, HttpResponse } from "msw";
 import theme from "../../../../theme/theme";
 import { renderRoutes } from "../../../../test/renderRoutes";
 import { server } from "../../../../test/server";
+import { legalContact } from "../../../legal/content/legalContact";
 import LandingPage from "./LandingPage";
 
 const meUrl = `${import.meta.env.VITE_API_URL}/auth/me`;
@@ -69,12 +70,14 @@ describe("Given the public landing page", () => {
         "href",
         "/terms",
       );
+      expect(screen.getByRole("link", { name: "Contacto" })).toHaveAttribute(
+        "href",
+        `mailto:${legalContact.email}`,
+      );
       expect(
         screen.getByRole("img", { name: /estantería con libros/i }),
       ).toBeInTheDocument();
-      expect(
-        screen.getAllByText("Gratis, sin anuncios y sin tarjeta.")[0],
-      ).toBeVisible();
+      expect(screen.getAllByText("Gratis y sin anuncios.")[0]).toBeVisible();
     });
   });
 

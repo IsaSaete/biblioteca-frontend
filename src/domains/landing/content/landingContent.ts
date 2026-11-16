@@ -13,40 +13,40 @@ export const landingContent = {
   intro: {
     title: "Todos tus libros, a un toque.",
     signUp: "Crear cuenta",
-    fine: "Gratis, sin anuncios y sin tarjeta.",
-    lede: "Glosa es tu estantería en digital: guarda en el móvil y en el ordenador los libros que tienes en casa. Los añades escaneando el código de barras, los organizas con tus propias etiquetas y los encuentras cuando quieras.",
+    fine: "Gratis y sin anuncios.",
+    lede: "Glosa es tu estantería digital: los libros que tienes en casa y las frases que no quieres olvidar, en el móvil y en el ordenador. Añades cada libro escaneando su código de barras, lo organizas con tus etiquetas y lo encuentras cuando quieras.",
     ledeAfter:
-      "¿Estás en una librería y no recuerdas si ya lo tienes? Lo miras en Glosa y, si no está, lo apuntas en tu lista de deseos.",
+      "¿Estás en una librería y no recuerdas si ya lo tienes? Lo consultas en Glosa y, si no está, lo apuntas en tu lista de deseos.",
   },
 } as const;
 
 export const addBookContent = {
-  note: "Sin cámara, sin problema: se escribe el ISBN.",
+  note: "Sin cámara, sin problema: escribe el ISBN.",
   title: "Cuatro maneras de añadir un libro.",
   methods: [
     {
       icon: "scan",
       color: 1,
       name: "Escaneando el código de barras",
-      hint: "Apuntas con la cámara y listo",
+      hint: "La más rápida",
     },
     {
       icon: "isbn",
       color: 2,
       name: "Escribiendo el ISBN",
-      hint: "Si prefieres teclear",
+      hint: "Si tienes el ISBN",
     },
     {
       icon: "search",
       color: 6,
       name: "Buscando por título o autor",
-      hint: "Cuando no tienes el código a mano",
+      hint: "Si no tienes código de barras ni ISBN",
     },
     {
       icon: "manual",
       color: 5,
-      name: "A mano",
-      hint: "Si no aparece en ningún sitio",
+      name: "Manualmente",
+      hint: "Si no aparece en la búsqueda",
     },
   ],
   sources:
@@ -55,21 +55,21 @@ export const addBookContent = {
 
 export const tagsContent = {
   note: "Prueba: toca una etiqueta.",
-  title: "Ponles las etiquetas que quieras.",
-  text: "Cada libro puede llevar tus propias etiquetas, como «club de lectura» o «música», y luego las usas de filtro para encontrar justo lo que buscas. Marcas tus favoritos y si lo estás leyendo, ya lo leíste o lo tienes pendiente.",
+  title: "Organiza tus libros a tu manera.",
+  text: "Cada libro puede llevar las etiquetas que quieras, como «club de lectura» o «música». Marca tus favoritos, apunta a quién has prestado cada libro y usa todo eso para filtrar tu biblioteca y encontrar justo lo que buscas.",
   groupLabel: "Probar un filtro",
 } as const;
 
 export const quotesContent = {
-  note: "Aunque no tengas el libro.",
+  note: "Sea de un libro tuyo, prestado o de cualquier sitio.",
   title: "Cuando una frase te llama la atención, guárdala.",
   paragraphs: [
-    "Estás leyendo y hay un párrafo que te gusta y no quieres perder. Lo encuadras con la cámara, el texto se lee en tu móvil y queda guardado dentro de ese libro. También puedes escribirlo tú, o subir una foto desde el ordenador.",
-    "Todas tus citas tienen además su propia sección, Citas, donde las ves juntas y las filtras por libro.",
+    "Estás leyendo y encuentras un párrafo que no quieres perder. Lo encuadras con la cámara, ajustas el recuadro al texto que quieres y Glosa lo lee en tu dispositivo. Antes de guardarlo, lo revisas y lo corriges si hace falta. También puedes elegir una foto que ya tengas o escribirlo tú.",
+    "Todas tus citas están juntas en su propia sección, Citas, donde puedes filtrarlas por libro. Puedes enlazar cada una a un libro de tu biblioteca o guardarla suelta, de un libro prestado o de cualquier texto que hayas leído en otro sitio.",
   ],
   page: {
     book: "Una habitación propia",
-    location: "Página 98",
+    location: "Pág. 98",
     before: "Cerrad con llave vuestras bibliotecas si queréis,",
     highlighted:
       "no hay barrera, cerradura ni cerrojo que podáis imponer a la libertad de mi mente.",
@@ -95,16 +95,16 @@ export const dataContent = {
   title: "Tus datos son tuyos.",
   points: [
     {
-      lead: "La foto no se sube.",
-      text: "El texto se lee en tu móvil y solo se guarda el texto.",
+      lead: "La foto nunca sale de tu dispositivo.",
+      text: "Solo se guarda el texto de la cita.",
     },
     {
-      lead: "Puedes llevártelos.",
+      lead: "Puedes llevártelos cuando quieras.",
       text: "Descarga en un archivo tus libros, tus citas y tu lista de deseos, o borra tu cuenta y todo lo que contiene.",
     },
     {
       lead: "Es gratis y no hay anuncios.",
-      text: "Si algún día eso cambia, tus datos seguirán siendo descargables.",
+      text: "Y pase lo que pase, siempre podrás descargar tus datos.",
     },
   ],
 } as const;
@@ -118,18 +118,18 @@ export const dictionaryContent = {
   partOfSpeech: "f.",
   etymology: "Viene del latín glossa, y este del griego γλῶσσα, «lengua».",
   meanings: [
-    "Explicación breve que se añade a un texto para aclarar su significado.",
-    "Anotación que se escribe en el margen o sobre las líneas de un texto, junto a la palabra o el pasaje que aclara.",
+    "Nota breve que aclara el significado de un texto.",
+    "Anotación escrita en el margen o entre las líneas de un texto, junto a lo que explica.",
   ],
   origin:
-    "Hace unos mil años, en el monasterio de San Millán de la Cogolla, alguien añadió a un manuscrito escrito en latín anotaciones en romance y en euskera. Aquellas notas, conocidas como Glosas Emilianenses, constituyen un testimonio fundamental para conocer los primeros romances peninsulares y el euskera escrito. En el Valle de la Lengua nació una forma de acercar las palabras a quien las leía. Glosa recoge ese espíritu: guardar tus libros y las palabras que merecen permanecer en ellos. Porque algunas lecturas merecen quedarse con nosotros.",
+    "Hace unos mil años, en el monasterio de San Millán de la Cogolla, alguien añadió a un manuscrito escrito en latín anotaciones en romance y en euskera. Aquellas notas, conocidas como Glosas Emilianenses, constituyen un testimonio fundamental para conocer los primeros romances peninsulares y el euskera escrito. En el Valle de la Lengua nació una forma de acercar las palabras a quien las leía. Glosa recoge ese espíritu: guardar tus libros y las palabras que merecen permanecer en ellos. Porque algunas lecturas merecen quedarse contigo.",
 } as const;
 
 export const closingContent = {
   title: "Empieza por el libro que tienes más cerca.",
   text: "Crea tu cuenta, escanea su código de barras y ya está en tu estantería.",
-  signUp: "Crear cuenta",
-  fine: "Gratis, sin anuncios y sin tarjeta.",
+  signUp: "Crear mi biblioteca",
+  fine: "Gratis y sin anuncios.",
 } as const;
 
 export const footerContent = {
@@ -137,5 +137,6 @@ export const footerContent = {
   faqSpoken: ": preguntas frecuentes",
   privacy: "Privacidad",
   terms: "Términos",
+  contact: "Contacto",
   copyright: "© 2026 Glosa",
 } as const;
