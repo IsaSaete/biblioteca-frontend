@@ -250,27 +250,24 @@ const Bookshelf = () => (
           sx={(theme) => ({
             ...theme.typography.landingNote,
             position: "absolute",
-            left: 0,
+            // Anclada a la derecha del grupo: la leyenda es más ancha que los
+            // libros y, anclada a la izquierda, sobresalía y el borde de la
+            // balda la cortaba.
+            right: "-2px",
             bottom: "calc(100% + 26px)",
             color: themeVars(theme).palette.landing.note,
             transform: "rotate(-2deg)",
-            transformOrigin: "left bottom",
+            transformOrigin: "right bottom",
             whiteSpace: "nowrap",
             "&::after": {
               content: '""',
               position: "absolute",
-              left: "14px",
+              right: "22px",
               top: "calc(100% + 4px)",
               width: "1px",
               height: "14px",
               bgcolor: themeVars(theme).palette.landing.note,
               opacity: 0.7,
-            },
-            [theme.breakpoints.down("md")]: {
-              left: "auto",
-              right: "-2px",
-              transformOrigin: "right bottom",
-              "&::after": { left: "auto", right: "22px" },
             },
           })}
         >
