@@ -1,5 +1,6 @@
 import Box from "@mui/material/Box";
 import FilterChip from "../../../../components/ui/FilterChip/FilterChip";
+import { capitalizeWords } from "../../utils/capitalizeFirst";
 import type { LibraryFilterSelection } from "../../utils/libraryFilters";
 
 interface ActiveFiltersProps {
@@ -37,7 +38,7 @@ const ActiveFilters = ({ selection, onChange }: ActiveFiltersProps) => (
       )}
       {!selection.untagged && selection.tag && (
         <FilterChip
-          label={selection.tag}
+          label={capitalizeWords(selection.tag)}
           selected
           removable
           onClick={() => onChange({ ...selection, tag: undefined })}
