@@ -56,6 +56,29 @@ export const moveEdge = (
   }
 };
 
+export type CropCorner = "topLeft" | "topRight" | "bottomLeft" | "bottomRight";
+
+// Mueve una esquina a (`x`, `y`): son los dos bordes que se cruzan en ella.
+export const moveCorner = (
+  rect: CropRect,
+  corner: CropCorner,
+  x: number,
+  y: number,
+): CropRect => {
+  const horizontal = corner.endsWith("Left") ? "left" : "right";
+  const vertical = corner.startsWith("top") ? "top" : "bottom";
+
+  return moveEdge(moveEdge(rect, horizontal, x), vertical, y);
+};
+
+// Desplaza todo el recuadro `dx`, `dy` sin cambiar su tamaño, y sin sacarlo de
+// la foto.
+export const moveRect = (rect: CropRect, dx: number, dy: number): CropRect => ({
+  ...rect,
+  x: clamp(rect.x + dx, 0, 1 - rect.width),
+  y: clamp(rect.y + dy, 0, 1 - rect.height),
+});
+
 // Copia a un canvas nuevo solo la zona recortada, ya reducida para el OCR (el
 // recorte conserva la resolución original: se reduce una sola vez, aquí).
 export const cropCanvas = (

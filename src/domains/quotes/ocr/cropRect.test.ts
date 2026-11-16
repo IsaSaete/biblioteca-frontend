@@ -1,4 +1,10 @@
-import { cropCanvas, MIN_CROP_SIDE, moveEdge } from "./cropRect";
+import {
+  cropCanvas,
+  MIN_CROP_SIDE,
+  moveCorner,
+  moveEdge,
+  moveRect,
+} from "./cropRect";
 import type { CropRect } from "./cropRect";
 
 const rect: CropRect = { x: 0.2, y: 0.2, width: 0.6, height: 0.6 };
@@ -36,6 +42,50 @@ describe("Given a crop rectangle", () => {
       const bottom = moveEdge(rect, "bottom", 0);
       expect(bottom.height).toBeCloseTo(MIN_CROP_SIDE);
       expect(bottom.y).toBeCloseTo(0.2);
+    });
+  });
+});
+
+describe("Given a corner of the crop rectangle", () => {
+  describe("When it is moved", () => {
+    it("Then the two edges that meet there follow it", () => {
+      const result = moveCorner(rect, "topLeft", 0.1, 0.3);
+
+      expect(result.x).toBeCloseTo(0.1);
+      expect(result.y).toBeCloseTo(0.3);
+      expect(result.x + result.width).toBeCloseTo(0.8);
+      expect(result.y + result.height).toBeCloseTo(0.8);
+    });
+
+    it("Then the opposite corner stays put even when dragged past it", () => {
+      const result = moveCorner(rect, "bottomRight", 0, 0);
+
+      expect(result.x).toBeCloseTo(0.2);
+      expect(result.y).toBeCloseTo(0.2);
+      expect(result.width).toBeCloseTo(MIN_CROP_SIDE);
+      expect(result.height).toBeCloseTo(MIN_CROP_SIDE);
+    });
+  });
+});
+
+describe("Given the whole crop rectangle", () => {
+  describe("When it is moved", () => {
+    it("Then it keeps its size", () => {
+      const result = moveRect(rect, 0.1, -0.1);
+
+      expect(result.x).toBeCloseTo(0.3);
+      expect(result.y).toBeCloseTo(0.1);
+      expect(result.width).toBe(rect.width);
+      expect(result.height).toBe(rect.height);
+    });
+
+    it("Then it stops at the photo border without shrinking", () => {
+      const result = moveRect(rect, 5, -5);
+
+      expect(result.x).toBeCloseTo(0.4);
+      expect(result.y).toBe(0);
+      expect(result.width).toBe(rect.width);
+      expect(result.height).toBe(rect.height);
     });
   });
 });
