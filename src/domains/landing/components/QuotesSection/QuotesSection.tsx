@@ -7,6 +7,7 @@ import { themeVars } from "../../themeVars";
 import QuoteCardContent from "../../../quotes/components/QuoteCard/QuoteCardContent";
 import { quoteCardSx } from "../../../quotes/components/QuoteCard/quoteCardSx";
 import LandingSection from "../LandingSection/LandingSection";
+import StepsList from "../StepsList/StepsList";
 import SectionTitle from "../SectionTitle/SectionTitle";
 
 const draw = keyframes`
@@ -69,6 +70,7 @@ const QuotesSection = () => {
           {text}
         </Typography>
       ))}
+      <StepsList label={quotesContent.stepsLabel} steps={quotesContent.steps} />
       <Box
         ref={ref}
         sx={(theme) => ({

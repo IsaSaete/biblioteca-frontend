@@ -1,9 +1,10 @@
 import { ThemeProvider } from "@mui/material/styles";
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import { delay, http, HttpResponse } from "msw";
 import theme from "../../../../theme/theme";
 import { renderRoutes } from "../../../../test/renderRoutes";
 import { server } from "../../../../test/server";
+import { legalContact } from "../../../legal/content/legalContact";
 import LandingPage from "./LandingPage";
 
 const meUrl = `${import.meta.env.VITE_API_URL}/auth/me`;
@@ -70,11 +71,16 @@ describe("Given the public landing page", () => {
         "/terms",
       );
       expect(
+        screen.getByRole("list", { name: "Garantías de Glosa" }),
+      ).toHaveTextContent("Tus fotos no salen de tu dispositivo");
+      expect(screen.getByRole("link", { name: "Contacto" })).toHaveAttribute(
+        "href",
+        `mailto:${legalContact.email}`,
+      );
+      expect(
         screen.getByRole("img", { name: /estantería con libros/i }),
       ).toBeInTheDocument();
-      expect(
-        screen.getAllByText("Gratis, sin anuncios y sin tarjeta.")[0],
-      ).toBeVisible();
+      expect(screen.getAllByText("Gratis y sin anuncios.")[0]).toBeVisible();
     });
   });
 
@@ -92,6 +98,45 @@ describe("Given the public landing page", () => {
       expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
       expect(screen.queryByRole("status")).not.toBeInTheDocument();
       expect(screen.queryByText("Pantalla de Home")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("When the landing is read from top to bottom", () => {
+    it("Then the quotes and the data come before the filters", async () => {
+      server.use(http.get(meUrl, () => HttpResponse.error()));
+
+      renderLanding();
+
+      const titles = screen
+        .getAllByRole("heading", { level: 2 })
+        .map((heading) => heading.textContent);
+      expect(titles).toEqual([
+        "Cuatro maneras de añadir un libro.",
+        "Cuando una frase te llama la atención, guárdala.",
+        "Tus datos son tuyos.",
+        "Encuentra el libro que buscas.",
+        "glosaf.",
+        "Empieza por el libro que tienes más cerca.",
+      ]);
+    });
+  });
+
+  describe("When the visitor reads the quotes section", () => {
+    it("Then it explains the three steps to save a quote", async () => {
+      server.use(http.get(meUrl, () => HttpResponse.error()));
+
+      renderLanding();
+
+      const steps = screen.getByRole("list", { name: "Cómo guardar una cita" });
+      expect(
+        within(steps)
+          .getAllByRole("listitem")
+          .map((item) => item.textContent),
+      ).toEqual([
+        "Haz la fotoCon la cámara, o elige una que ya tengas",
+        "Recorta el textoDeja solo lo que quieres guardar",
+        "Revisa y guardaCorrige lo que haga falta",
+      ]);
     });
   });
 

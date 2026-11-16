@@ -1,24 +1,33 @@
 import { useState } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { demoBooks, demoFilters } from "../../content/demoLibrary";
-import type { DemoFilterId } from "../../content/demoLibrary";
+import { demoBooks } from "../../content/demoLibrary";
 import { tagsContent } from "../../content/landingContent";
-import { themeVars } from "../../themeVars";
-import { countBooks, matchesFilter } from "../../utils/demoFilters";
+import {
+  countBooks,
+  describeSelection,
+  matchesSelection,
+  NO_DEMO_FILTERS,
+} from "../../utils/demoFilters";
+import type { DemoSelection } from "../../utils/demoFilters";
 import LandingSection from "../LandingSection/LandingSection";
 import PhoneMockup from "../PhoneMockup/PhoneMockup";
 import SectionTitle from "../SectionTitle/SectionTitle";
 
 // El estado de la demostración es local: no es del servidor ni de la app.
 const TagsDemo = () => {
-  // `null` hasta el primer toque: así no se anuncia nada al cargar la página.
-  const [touched, setTouched] = useState<DemoFilterId | null>(null);
-  const filter = touched ?? "todos";
-  const shown = demoBooks.filter((book) => matchesFilter(book, filter)).length;
-  const announcement = demoFilters.find(
-    ({ id }) => id === filter,
-  )?.announcement;
+  const [selection, setSelection] = useState<DemoSelection>(NO_DEMO_FILTERS);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  // `false` hasta el primer cambio: así no se anuncia nada al cargar la página.
+  const [hasChanged, setHasChanged] = useState(false);
+  const shown = demoBooks.filter((book) =>
+    matchesSelection(book, selection),
+  ).length;
+
+  const changeSelection = (next: DemoSelection) => {
+    setSelection(next);
+    setHasChanged(true);
+  };
 
   return (
     <LandingSection note={tagsContent.note}>
@@ -44,45 +53,6 @@ const TagsDemo = () => {
           >
             {tagsContent.text}
           </Typography>
-          <Box
-            role="group"
-            aria-label={tagsContent.groupLabel}
-            sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 6 }}
-          >
-            {demoFilters.map(({ id, label }) => {
-              const selected = id === filter;
-
-              return (
-                <Box
-                  key={id}
-                  component="button"
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() => setTouched(id)}
-                  sx={(theme) => ({
-                    ...theme.typography.landingUi,
-                    minHeight: 44,
-                    px: 4,
-                    cursor: "pointer",
-                    borderRadius: "999px",
-                    border: `1.5px solid ${selected ? themeVars(theme).palette.primary.main : themeVars(theme).palette.landing.lineStrong}`,
-                    bgcolor: selected ? "primary.main" : "transparent",
-                    color: selected ? "primary.contrastText" : "text.primary",
-                    transition:
-                      "background-color 140ms, border-color 140ms, color 140ms",
-                    "@media (prefers-reduced-motion: reduce)": {
-                      transition: "none",
-                    },
-                    "&:hover": {
-                      borderColor: themeVars(theme).palette.primary.main,
-                    },
-                  })}
-                >
-                  {label}
-                </Box>
-              );
-            })}
-          </Box>
           <Typography
             variant="landingUi"
             component="p"
@@ -107,12 +77,18 @@ const TagsDemo = () => {
               },
             })}
           >
-            {touched === null
-              ? ""
-              : `Mostrando ${announcement}: ${countBooks(shown)}.`}
+            {hasChanged
+              ? `Mostrando ${describeSelection(selection)}: ${countBooks(shown)}.`
+              : ""}
           </Typography>
         </Box>
-        <PhoneMockup books={demoBooks} filter={filter} />
+        <PhoneMockup
+          books={demoBooks}
+          selection={selection}
+          isSheetOpen={isSheetOpen}
+          onSelectionChange={changeSelection}
+          onSheetOpenChange={setIsSheetOpen}
+        />
       </Box>
     </LandingSection>
   );

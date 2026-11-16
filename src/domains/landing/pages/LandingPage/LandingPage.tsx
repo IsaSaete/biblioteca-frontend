@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import AddBookMethods from "../../components/AddBookMethods/AddBookMethods";
 import Bookshelf from "../../components/Bookshelf/Bookshelf";
 import QuotesSection from "../../components/QuotesSection/QuotesSection";
+import TrustStrip from "../../components/TrustStrip/TrustStrip";
 import TagsDemo from "../../components/TagsDemo/TagsDemo";
 import ClosingSection from "../../components/ClosingSection/ClosingSection";
 import DataSection from "../../components/DataSection/DataSection";
@@ -47,10 +48,11 @@ const LandingPage = () => {
         <Box component="main">
           <Bookshelf />
           <LandingIntro />
+          <TrustStrip />
           <AddBookMethods />
-          <TagsDemo />
           <QuotesSection />
           <DataSection />
+          <TagsDemo />
           <DictionaryBand />
           <ClosingSection />
         </Box>
