@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import Box from "@mui/material/Box";
+import { capitalizeWords } from "../../../books/utils/capitalizeFirst";
 import type { DemoBook } from "../../content/demoLibrary";
 import {
   countBooks,
@@ -102,7 +103,7 @@ const PhoneMockup = ({
     ...(selection.tag
       ? [
           {
-            label: getTagLabel(selection.tag),
+            label: capitalizeWords(getTagLabel(selection.tag)),
             remove: () => onSelectionChange({ ...selection, tag: undefined }),
           },
         ]
@@ -135,17 +136,6 @@ const PhoneMockup = ({
         fontFamily: APP_FONT,
         lineHeight: 1.35,
         boxShadow: { xs: "none", md: "0 30px 50px -34px rgba(43,38,32,.55)" },
-        "&::after": {
-          content: '""',
-          position: "absolute",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: 90,
-          display: { xs: "block", md: "none" },
-          pointerEvents: "none",
-          background: `linear-gradient(to bottom, transparent, ${themeVars(theme).palette.background.paper})`,
-        },
       })}
     >
       <Box
@@ -156,6 +146,8 @@ const PhoneMockup = ({
           overflow: "hidden",
           px: 3.5,
           pt: { xs: 4, md: 3 },
+          // En móvil la tarjeta enseña todos los libros: nada queda cortado.
+          pb: { xs: 4, md: 0 },
           "&::before": {
             display: { xs: "none", md: "block" },
             content: '""',
@@ -313,8 +305,6 @@ const PhoneMockup = ({
             listStyle: "none",
             m: 0,
             p: 0,
-            height: { xs: 330, md: "auto" },
-            overflow: { xs: "hidden", md: "visible" },
           }}
         >
           {visible.map((book) => {

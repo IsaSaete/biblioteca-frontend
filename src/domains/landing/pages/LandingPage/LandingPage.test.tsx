@@ -114,7 +114,7 @@ describe("Given the public landing page", () => {
         "Cuatro maneras de añadir un libro.",
         "Cuando una frase te llama la atención, guárdala.",
         "Tus datos son tuyos.",
-        "Organiza tus libros a tu manera.",
+        "Encuentra el libro que buscas.",
         "glosaf.",
         "Empieza por el libro que tienes más cerca.",
       ]);
@@ -134,8 +134,8 @@ describe("Given the public landing page", () => {
           .map((item) => item.textContent),
       ).toEqual([
         "Haz la fotoCon la cámara, o elige una que ya tengas",
-        "Recorta el textoDeja solo lo que quieres y corrígelo si hace falta",
-        "Queda guardadaCon su libro y su página",
+        "Recorta el textoDeja solo lo que quieres guardar",
+        "Revisa y guardaCorrige lo que haga falta",
       ]);
     });
   });

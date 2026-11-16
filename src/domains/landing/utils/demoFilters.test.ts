@@ -19,7 +19,7 @@ const titles = (selection: Partial<DemoSelection>) =>
 describe("Given the demo library of the landing", () => {
   describe("When no filter is applied", () => {
     it("Then every book matches and no filter is reported", () => {
-      expect(titles({})).toHaveLength(9);
+      expect(titles({})).toHaveLength(6);
       expect(hasDemoFilters(NO_DEMO_FILTERS)).toBe(false);
     });
   });
@@ -29,7 +29,6 @@ describe("Given the demo library of the landing", () => {
       expect(titles({ favorite: true })).toEqual([
         "1984",
         "La mujer habitada",
-        "Una habitación propia",
         "Por favor, mátame",
       ]);
     });
@@ -85,7 +84,7 @@ describe("Given the tags of the demo", () => {
     it("Then the number matches the books that carry the tag", () => {
       expect(countWithTag(demoBooks, "club")).toBe(3);
       expect(countWithTag(demoBooks, "musica")).toBe(2);
-      expect(countWithTag(demoBooks, "heredados")).toBe(4);
+      expect(countWithTag(demoBooks, "heredados")).toBe(2);
     });
   });
 });
@@ -95,7 +94,7 @@ describe("Given a number of books", () => {
     it("Then it is singular for one and plural otherwise", () => {
       expect(countBooks(1)).toBe("1 libro");
       expect(countBooks(0)).toBe("0 libros");
-      expect(countBooks(9)).toBe("9 libros");
+      expect(countBooks(6)).toBe("6 libros");
     });
   });
 });

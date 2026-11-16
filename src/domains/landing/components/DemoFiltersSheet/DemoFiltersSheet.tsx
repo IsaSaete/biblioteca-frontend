@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
 import type { KeyboardEvent, ReactNode } from "react";
 import Box from "@mui/material/Box";
+import { capitalizeWords } from "../../../books/utils/capitalizeFirst";
 import { getShowLabel } from "../../../books/utils/getShowLabel";
 import { demoBooks, demoTags } from "../../content/demoLibrary";
 import {
@@ -215,7 +216,7 @@ const DemoFiltersSheet = forwardRef<HTMLButtonElement, DemoFiltersSheetProps>(
               >
                 <span>
                   {selected && <span aria-hidden="true">✓ </span>}
-                  {label}
+                  {capitalizeWords(label)}
                 </span>
                 <Box component="span" sx={{ color: "text.secondary" }}>
                   {countWithTag(demoBooks, id)}

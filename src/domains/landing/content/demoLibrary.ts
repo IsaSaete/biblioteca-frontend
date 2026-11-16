@@ -19,9 +19,9 @@ export const demoTags: { id: DemoTag; label: string }[] = [
 ];
 
 // Biblioteca de ejemplo del móvil. Son libros reales con etiquetas, favoritos y
-// préstamos inventados, no de ninguna cuenta. Cada filtro deja al menos un libro
-// (también los combinados que se ofrecen: favoritos o prestados con una
-// etiqueta) y ningún estado de lectura, que la app no filtra.
+// préstamos inventados, no de ninguna cuenta. Son pocos a propósito: el móvil
+// los enseña todos, así que el número de «Ver N libros» es siempre lo que se ve.
+// Ningún estado de lectura, que la app no filtra.
 export const demoBooks: DemoBook[] = [
   {
     title: "1984",
@@ -56,14 +56,6 @@ export const demoBooks: DemoBook[] = [
     lent: false,
   },
   {
-    title: "Una habitación propia",
-    author: "Virginia Woolf",
-    color: 6,
-    tags: [],
-    favorite: true,
-    lent: false,
-  },
-  {
     title: "Cara de pan",
     author: "Sara Mesa",
     color: 4,
@@ -77,22 +69,6 @@ export const demoBooks: DemoBook[] = [
     color: 1,
     tags: ["musica"],
     favorite: true,
-    lent: false,
-  },
-  {
-    title: "Crónicas marcianas",
-    author: "Ray Bradbury",
-    color: 2,
-    tags: ["heredados"],
-    favorite: false,
-    lent: false,
-  },
-  {
-    title: "Calibán y la bruja",
-    author: "Silvia Federici",
-    color: 3,
-    tags: ["heredados"],
-    favorite: false,
     lent: false,
   },
 ];

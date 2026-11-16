@@ -25,13 +25,15 @@ describe("Given the filters demo of the landing", () => {
     it("Then every book is visible, the sheet is closed and nothing is announced yet", () => {
       renderDemo();
 
-      expect(screen.getByText("Prueba: pulsa Filtros.")).toBeInTheDocument();
+      expect(
+        screen.getByText("Cada estantería, a su manera. Pulsa Filtros."),
+      ).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "Filtros" })).toHaveAttribute(
         "aria-expanded",
         "false",
       );
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-      expect(screen.getByText("9 libros")).toBeInTheDocument();
+      expect(screen.getByText("6 libros")).toBeInTheDocument();
       expect(screen.queryByText(/Mostrando/)).not.toBeInTheDocument();
     });
   });
@@ -49,13 +51,13 @@ describe("Given the filters demo of the landing", () => {
         within(sheet).getByRole("switch", { name: "Prestados" }),
       ).toBeInTheDocument();
       expect(
-        within(sheet).getByRole("button", { name: /club de lectura/ }),
+        within(sheet).getByRole("button", { name: /Club De Lectura/ }),
       ).toHaveTextContent("3");
       expect(
-        within(sheet).getByRole("button", { name: /heredados/ }),
-      ).toHaveTextContent("4");
+        within(sheet).getByRole("button", { name: /Heredados/ }),
+      ).toHaveTextContent("2");
       expect(
-        within(sheet).getByRole("button", { name: "Ver 9 libros" }),
+        within(sheet).getByRole("button", { name: "Ver 6 libros" }),
       ).toBeInTheDocument();
       expect(
         within(sheet).getByRole("button", { name: "Limpiar" }),
@@ -79,10 +81,10 @@ describe("Given the filters demo of the landing", () => {
         within(sheet).getByRole("switch", { name: "Favoritos" }),
       ).toHaveAttribute("aria-checked", "true");
       expect(
-        within(sheet).getByRole("button", { name: "Ver 4 libros" }),
+        within(sheet).getByRole("button", { name: "Ver 3 libros" }),
       ).toBeInTheDocument();
       expect(
-        screen.getByText("Mostrando los favoritos: 4 libros."),
+        screen.getByText("Mostrando los favoritos: 3 libros."),
       ).toBeInTheDocument();
       expect(screen.queryByText("Energy Flash")).not.toBeInTheDocument();
       expect(screen.getAllByText("1984").length).toBeGreaterThan(0);
@@ -98,7 +100,7 @@ describe("Given the filters demo of the landing", () => {
         within(sheet).getByRole("switch", { name: "Prestados" }),
       );
       await user.click(
-        within(sheet).getByRole("button", { name: /club de lectura/ }),
+        within(sheet).getByRole("button", { name: /Club De Lectura/ }),
       );
 
       expect(
@@ -107,7 +109,7 @@ describe("Given the filters demo of the landing", () => {
         ),
       ).toBeInTheDocument();
       expect(
-        within(sheet).getByRole("button", { name: /club de lectura/ }),
+        within(sheet).getByRole("button", { name: /Club De Lectura/ }),
       ).toHaveAttribute("aria-pressed", "true");
     });
 
@@ -116,12 +118,12 @@ describe("Given the filters demo of the landing", () => {
       const sheet = await openFilters(user);
 
       await user.click(
-        within(sheet).getByRole("button", { name: /club de lectura/ }),
+        within(sheet).getByRole("button", { name: /Club De Lectura/ }),
       );
-      await user.click(within(sheet).getByRole("button", { name: /música/ }));
+      await user.click(within(sheet).getByRole("button", { name: /Música/ }));
 
       expect(
-        within(sheet).getByRole("button", { name: /club de lectura/ }),
+        within(sheet).getByRole("button", { name: /Club De Lectura/ }),
       ).toHaveAttribute("aria-pressed", "false");
       expect(
         screen.getByText("Mostrando los de la etiqueta música: 2 libros."),
@@ -161,7 +163,7 @@ describe("Given the filters demo of the landing", () => {
         within(sheet).getByRole("switch", { name: "Favoritos" }),
       ).toHaveAttribute("aria-checked", "false");
       expect(
-        screen.getByText("Mostrando todos los libros: 9 libros."),
+        screen.getByText("Mostrando todos los libros: 6 libros."),
       ).toBeInTheDocument();
     });
   });
@@ -175,7 +177,7 @@ describe("Given the filters demo of the landing", () => {
       );
 
       await user.click(
-        within(sheet).getByRole("button", { name: "Ver 4 libros" }),
+        within(sheet).getByRole("button", { name: "Ver 3 libros" }),
       );
 
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -188,7 +190,7 @@ describe("Given the filters demo of the landing", () => {
       expect(
         screen.queryByRole("button", { name: "Quitar el filtro Favoritos" }),
       ).not.toBeInTheDocument();
-      expect(screen.getByText("9 libros")).toBeInTheDocument();
+      expect(screen.getByText("6 libros")).toBeInTheDocument();
     });
   });
 

@@ -32,7 +32,7 @@ export const trustContent = {
 } as const;
 
 export const addBookContent = {
-  note: "Sin cámara, sin problema: escribe el ISBN.",
+  note: "Aunque no tenga código de barras.",
   title: "Cuatro maneras de añadir un libro.",
   methods: [
     {
@@ -45,7 +45,7 @@ export const addBookContent = {
       icon: "isbn",
       color: 2,
       name: "Escribiendo el ISBN",
-      hint: "Si tienes el ISBN",
+      hint: "Si no puedes usar la cámara",
     },
     {
       icon: "search",
@@ -65,9 +65,9 @@ export const addBookContent = {
 } as const;
 
 export const tagsContent = {
-  note: "Prueba: pulsa Filtros.",
-  title: "Organiza tus libros a tu manera.",
-  text: "Cada libro puede llevar las etiquetas que quieras, como «club de lectura» o «música». Marca tus favoritos, apunta a quién has prestado cada libro y usa todo eso para filtrar tu biblioteca y encontrar justo lo que buscas.",
+  note: "Cada estantería, a su manera. Pulsa Filtros.",
+  title: "Encuentra el libro que buscas.",
+  text: "Añade a cada libro las etiquetas que quieras, como «club de lectura» o «música». También puedes marcarlo como favorito y, si se lo prestas a alguien, anotar a quién. Después, filtra tu biblioteca y localiza al instante el que necesitas.",
 } as const;
 
 export const quotesContent = {
@@ -75,7 +75,7 @@ export const quotesContent = {
   title: "Cuando una frase te llama la atención, guárdala.",
   paragraphs: [
     "Estás leyendo y encuentras un párrafo que no quieres perder. Lo encuadras con la cámara, ajustas el recuadro al texto que quieres y Glosa lo lee en tu dispositivo. Antes de guardarlo, lo revisas y lo corriges si hace falta. También puedes elegir una foto que ya tengas o escribirlo tú.",
-    "Todas tus citas están juntas en su propia sección, Citas, donde puedes filtrarlas por libro. Puedes enlazar cada una a un libro de tu biblioteca o guardarla suelta, de un libro prestado o de cualquier texto que hayas leído en otro sitio.",
+    "Todas tus citas están juntas en su propia sección, «Citas», donde puedes filtrarlas por libro. Puedes enlazar cada una a un libro de tu biblioteca o guardarla suelta, de un libro prestado o de cualquier texto que hayas leído en otro sitio.",
   ],
   stepsLabel: "Cómo guardar una cita",
   steps: [
@@ -85,11 +85,11 @@ export const quotesContent = {
     },
     {
       title: "Recorta el texto",
-      hint: "Deja solo lo que quieres y corrígelo si hace falta",
+      hint: "Deja solo lo que quieres guardar",
     },
     {
-      title: "Queda guardada",
-      hint: "Con su libro y su página",
+      title: "Revisa y guarda",
+      hint: "Corrige lo que haga falta",
     },
   ],
   page: {
