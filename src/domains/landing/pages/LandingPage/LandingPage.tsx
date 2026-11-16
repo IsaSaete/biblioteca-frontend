@@ -50,9 +50,9 @@ const LandingPage = () => {
           <LandingIntro />
           <TrustStrip />
           <AddBookMethods />
-          <TagsDemo />
           <QuotesSection />
           <DataSection />
+          <TagsDemo />
           <DictionaryBand />
           <ClosingSection />
         </Box>

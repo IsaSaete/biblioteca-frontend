@@ -101,6 +101,26 @@ describe("Given the public landing page", () => {
     });
   });
 
+  describe("When the landing is read from top to bottom", () => {
+    it("Then the quotes and the data come before the filters", async () => {
+      server.use(http.get(meUrl, () => HttpResponse.error()));
+
+      renderLanding();
+
+      const titles = screen
+        .getAllByRole("heading", { level: 2 })
+        .map((heading) => heading.textContent);
+      expect(titles).toEqual([
+        "Cuatro maneras de añadir un libro.",
+        "Cuando una frase te llama la atención, guárdala.",
+        "Tus datos son tuyos.",
+        "Organiza tus libros a tu manera.",
+        "glosaf.",
+        "Empieza por el libro que tienes más cerca.",
+      ]);
+    });
+  });
+
   describe("When the session check fails", () => {
     it("Then the landing stays", async () => {
       server.use(http.get(meUrl, () => HttpResponse.error()));
