@@ -70,6 +70,22 @@ describe("Given the add quote dialog on a device with a camera", () => {
     }),
   );
 
+  describe("When the dialog opens", () => {
+    it("Then it offers the camera, uploading a photo and writing it by hand", async () => {
+      renderRoutes(routes, ["/"]);
+
+      expect(
+        await screen.findByRole("button", { name: "Escanear con la cámara" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Subir una foto" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Escribir manualmente" }),
+      ).toBeInTheDocument();
+    });
+  });
+
   describe("When the user scans a quote and it is read", () => {
     it("Then the text is shown to review and it is saved as ocr only after confirming", async () => {
       let body: unknown;

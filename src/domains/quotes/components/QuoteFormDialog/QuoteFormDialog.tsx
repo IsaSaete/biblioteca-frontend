@@ -234,19 +234,23 @@ const QuoteFormDialog = ({
             {step.notice && <Alert severity="warning">{step.notice}</Alert>}
             <OptionList
               options={[
-                // Sin cámara (escritorio), la misma lectura con una foto ya
-                // hecha: pantallas-y-flujos.md, «adaptación a escritorio».
-                hasCamera
-                  ? {
-                      icon: <CameraIcon />,
-                      label: "Escanear con la cámara",
-                      onClick: () => setStep({ name: "scan" }),
-                    }
-                  : {
-                      icon: <UploadIcon />,
-                      label: "Subir una foto",
-                      onClick: () => fileInputRef.current?.click(),
-                    },
+                // La cámara solo si la hay; «Subir una foto» siempre: sirve en
+                // escritorio y también en el móvil (galería, o sin permiso de
+                // cámara).
+                ...(hasCamera
+                  ? [
+                      {
+                        icon: <CameraIcon />,
+                        label: "Escanear con la cámara",
+                        onClick: () => setStep({ name: "scan" }),
+                      },
+                    ]
+                  : []),
+                {
+                  icon: <UploadIcon />,
+                  label: "Subir una foto",
+                  onClick: () => fileInputRef.current?.click(),
+                },
                 {
                   icon: <PencilIcon />,
                   label: "Escribir manualmente",
