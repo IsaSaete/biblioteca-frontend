@@ -65,10 +65,9 @@ export const addBookContent = {
 } as const;
 
 export const tagsContent = {
-  note: "Prueba: toca una etiqueta.",
+  note: "Prueba: pulsa Filtros.",
   title: "Organiza tus libros a tu manera.",
   text: "Cada libro puede llevar las etiquetas que quieras, como «club de lectura» o «música». Marca tus favoritos, apunta a quién has prestado cada libro y usa todo eso para filtrar tu biblioteca y encontrar justo lo que buscas.",
-  groupLabel: "Probar un filtro",
 } as const;
 
 export const quotesContent = {
