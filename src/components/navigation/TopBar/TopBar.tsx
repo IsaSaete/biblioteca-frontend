@@ -55,10 +55,19 @@ const ScanIcon = () => (
   </svg>
 );
 
-const matches = (book: LibraryBook, query: string): boolean =>
-  normalizeText(`${book.title} ${book.authors.join(" ")}`).includes(
-    normalizeText(query),
+// Como en el servidor (HU-11): cada palabra escrita debe aparecer en el título,
+// los autores o las etiquetas, sin distinguir mayúsculas ni tildes y en
+// cualquier orden.
+const matches = (book: LibraryBook, query: string): boolean => {
+  const text = normalizeText(
+    [book.title, ...book.authors, ...(book.tags ?? [])].join(" "),
   );
+
+  return normalizeText(query)
+    .split(/\s+/)
+    .filter((word) => word !== "")
+    .every((word) => text.includes(word));
+};
 
 // Barra superior de contenido: buscador de tu propia biblioteca (nunca un
 // catálogo externo) con sugerencias mientras escribes, y escaneo de código de
