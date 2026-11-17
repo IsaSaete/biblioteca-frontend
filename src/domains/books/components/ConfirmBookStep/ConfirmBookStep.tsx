@@ -1,26 +1,21 @@
 import { useState } from "react";
+import { FormProvider, useWatch } from "react-hook-form";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import Accordion from "../../../../components/ui/Accordion/Accordion";
-import Button from "../../../../components/ui/Button/Button";
-import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
-import Pill from "../../../../components/ui/Pill/Pill";
-import { parseApiError } from "../../../auth/utils/parseApiError";
-import { getFormErrorMessage } from "../../../auth/utils/getFormErrorMessage";
-import { useFieldValidation } from "../../../auth/hooks/useFieldValidation";
-import { useAddToWishlistMutation } from "../../../wishlist/wishlistApi";
-import { useCreateBookMutation } from "../../booksApi";
 import type { BookStatus } from "../../dto/BookStatus";
 import type { ExternalBook } from "../../dto/ExternalBook";
-import { buildCreateBookRequest } from "../../utils/buildCreateBookRequest";
-import { statusOptions } from "../../utils/statusOptions";
-import { confirmBookSchema } from "../../utils/confirmBookSchema";
 import type { ConfirmBookFormValues } from "../../utils/confirmBookSchema";
 import BookCover from "../BookCover/BookCover";
+import BookDataSection from "./BookDataSection";
+import BookDetailsAccordion from "./BookDetailsAccordion";
+import { getConfirmBookVariant } from "./confirmBookVariant";
+import type { ConfirmBookMode } from "./confirmBookVariant";
+import ReadingStatusPicker from "./ReadingStatusPicker";
+import SaveActions from "./SaveActions";
+import type { SaveResult } from "./useBookSaver";
+import { useBookSaver } from "./useBookSaver";
+import { useConfirmBookForm } from "./useConfirmBookForm";
+import WishlistNoteField from "./WishlistNoteField";
 
 interface ConfirmBookStepProps {
   book: ExternalBook;
@@ -29,296 +24,113 @@ interface ConfirmBookStepProps {
   isManual?: boolean;
   // Añadir el libro a la «Lista de deseos»: sin estado de lectura, con nota opcional
   // y de solo lectura si viene del catálogo (un deseado no tiene correcciones).
-  mode?: "wishlist";
+  mode?: ConfirmBookMode;
   onSaved: () => void;
 }
-
-const detailFields = ["publishedYear", "language", "pageCount"] as const;
-const requiredFields = ["title", "authors", "publisher"] as const;
-
-const PencilIcon = () => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <path d="M12 20h9" />
-    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
-  </svg>
-);
-
-const getDefaultValues = (book: ExternalBook): ConfirmBookFormValues => ({
-  title: book.title,
-  authors: book.authors.join(", "),
-  publisher: book.publisher ?? "",
-  publishedYear: book.publishedYear?.toString() ?? "",
-  language: book.language ?? "",
-  pageCount: book.pageCount?.toString() ?? "",
-});
 
 // «Confirma los datos» (HU-18) y estado de lectura (HU-19): los datos se ven
 // como texto y un único lápiz los abre a edición. La editorial es obligatoria
 // al guardar y los proveedores a menudo no la dan, así que sin ella se pide ya
 // en modo edición.
+//
+// Solo compone: qué se enseña en cada modo lo decide `getConfirmBookVariant`,
+// el formulario y qué está abierto, `useConfirmBookForm`, y cómo se guarda,
+// `useBookSaver`.
 const ConfirmBookStep = ({
   book,
   isManual = false,
   mode,
   onSaved,
 }: ConfirmBookStepProps) => {
-  const isWishlist = mode === "wishlist";
-  const form = useForm<ConfirmBookFormValues>({
-    resolver: zodResolver(confirmBookSchema),
-    defaultValues: getDefaultValues(book),
-  });
+  const variant = getConfirmBookVariant(mode, isManual);
   const {
-    register: field,
-    handleSubmit,
-    getValues,
-    setError,
-    formState: { errors },
-  } = form;
-  const validationHandlers = useFieldValidation(form);
-  const [isEditing, setIsEditing] = useState(isManual || !book.publisher);
-  const [areDetailsExpanded, setAreDetailsExpanded] = useState(false);
+    form,
+    isEditing,
+    toggleEditing,
+    areDetailsExpanded,
+    setAreDetailsExpanded,
+    showFieldError,
+    revealInvalidFields,
+  } = useConfirmBookForm(book, { startsEditing: isManual || !book.publisher });
+  const { saveToLibrary, saveToWishlist, isCreating, isAdding } =
+    useBookSaver(book);
   const [status, setStatus] = useState<BookStatus>("pending");
   const [note, setNote] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
-  const [createBook, { isLoading: isCreating }] = useCreateBookMutation();
-  const [addToWishlist, { isLoading: isAdding }] = useAddToWishlistMutation();
-  const isLoading = isCreating || isAdding;
+  const title = useWatch({ control: form.control, name: "title" });
 
-  // Errores de ambas altas: los del libro ya guardado, los de un campo (se abre
-  // lo que lo contiene) y cualquier otro como mensaje general.
-  const showError = (error: unknown) => {
-    const apiError = parseApiError(error);
-
-    if (apiError?.code === "BOOK_ALREADY_IN_LIBRARY") {
-      setFormError("Este libro ya está en tu biblioteca.");
-      return;
+  const finish = (result: SaveResult) => {
+    if (result.ok) {
+      onSaved();
+    } else if (result.failure.kind === "field") {
+      showFieldError(result.failure.field, result.failure.message);
+    } else {
+      setFormError(result.failure.message);
     }
+  };
 
-    if (apiError?.code === "BOOK_ALREADY_IN_WISHLIST") {
-      setFormError("Este libro ya está en tu lista de deseos.");
-      return;
-    }
+  const submitToLibrary = async (values: ConfirmBookFormValues) => {
+    setFormError(null);
+    finish(await saveToLibrary(values, status));
+  };
 
-    const apiField = apiError?.field;
-
-    if (
-      apiError?.code === "VALIDATION_ERROR" &&
-      apiField !== undefined &&
-      [...requiredFields, ...detailFields].some((name) => name === apiField)
-    ) {
-      const name = apiField as keyof ConfirmBookFormValues;
-      setError(name, { message: apiError.message });
-      setIsEditing(true);
-      setAreDetailsExpanded(
-        (expanded) => expanded || detailFields.some((d) => d === name),
-      );
-      return;
-    }
-
-    setFormError(
-      getFormErrorMessage(
-        error,
-        "No se pudo guardar el libro. Inténtalo de nuevo.",
-      ),
+  // La nota solo se pide en el modo «Lista de deseos»; en la biblioteca, el
+  // acceso directo no la envía.
+  const submitToWishlist = async (values: ConfirmBookFormValues) => {
+    setFormError(null);
+    finish(
+      await saveToWishlist(values, variant.extra === "note" ? note : undefined),
     );
   };
 
-  const saveToLibrary = async (values: ConfirmBookFormValues) => {
-    setFormError(null);
-    const result = await createBook(
-      buildCreateBookRequest(book, values, status),
-    );
-
-    if (result.error) {
-      showError(result.error);
-      return;
-    }
-
-    onSaved();
-  };
-
-  // Sin estado de lectura; la nota solo se pide en el modo «Lista de deseos».
-  const saveToWishlist = async (values: ConfirmBookFormValues) => {
-    setFormError(null);
-    const trimmedNote = note.trim();
-    const result = await addToWishlist({
-      ...buildCreateBookRequest(book, values),
-      ...(isWishlist && trimmedNote && { note: trimmedNote }),
-    });
-
-    if (result.error) {
-      showError(result.error);
-      return;
-    }
-
-    onSaved();
-  };
-
-  // Un error en un campo oculto (edición cerrada o detalles plegados) se
-  // enseña abriendo lo que lo contiene.
-  const onInvalid = () => {
-    const failed = Object.keys(form.formState.errors);
-    if (requiredFields.some((name) => failed.includes(name))) {
-      setIsEditing(true);
-    }
-    if (detailFields.some((name) => failed.includes(name))) {
-      setAreDetailsExpanded(true);
-    }
-  };
-
-  const values = getValues();
+  const submit =
+    variant.submitsTo === "wishlist" ? submitToWishlist : submitToLibrary;
 
   return (
-    <Box
-      component="form"
-      noValidate
-      onSubmit={handleSubmit(
-        isWishlist ? saveToWishlist : saveToLibrary,
-        onInvalid,
-      )}
-      sx={{ display: "grid", gap: 5 }}
-    >
-      {formError && <Alert severity="error">{formError}</Alert>}
+    <FormProvider {...form}>
+      <Box
+        component="form"
+        noValidate
+        onSubmit={form.handleSubmit(submit, revealInvalidFields)}
+        sx={{ display: "grid", gap: 5 }}
+      >
+        {formError && <Alert severity="error">{formError}</Alert>}
 
-      {!isManual && (
-        <Box sx={{ width: 120, justifySelf: "center" }}>
-          <BookCover title={values.title} coverUrl={book.coverUrl} />
-        </Box>
-      )}
-
-      <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
-        {isEditing ? (
-          <Box sx={{ flex: 1, display: "grid", gap: 5 }}>
-            <FloatingLabelInput
-              label="Título"
-              error={!!errors.title}
-              helperText={errors.title?.message}
-              {...field("title", validationHandlers("title"))}
-            />
-            <FloatingLabelInput
-              label="Autores"
-              error={!!errors.authors}
-              helperText={
-                errors.authors?.message ?? "Separa varios autores con comas."
-              }
-              {...field("authors", validationHandlers("authors"))}
-            />
-            <FloatingLabelInput
-              label="Editorial"
-              error={!!errors.publisher}
-              helperText={errors.publisher?.message}
-              {...field("publisher", validationHandlers("publisher"))}
-            />
-          </Box>
-        ) : (
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="h6" component="p">
-              {values.title}
-            </Typography>
-            <Typography color="text.secondary">{values.authors}</Typography>
-            <Typography color="text.secondary">{values.publisher}</Typography>
+        {variant.showsCover && (
+          <Box sx={{ width: 120, justifySelf: "center" }}>
+            <BookCover title={title} coverUrl={book.coverUrl} />
           </Box>
         )}
-        {!isManual && !isWishlist && (
-          <IconButton
-            aria-label="Editar datos del libro"
-            aria-pressed={isEditing}
-            onClick={() => setIsEditing((editing) => !editing)}
-            sx={{ width: 44, height: 44 }}
-          >
-            <PencilIcon />
-          </IconButton>
-        )}
-      </Box>
 
-      {isWishlist ? (
-        <FloatingLabelInput
-          label="Nota (opcional)"
-          multiline
-          minRows={2}
-          fullWidth
-          value={note}
-          onChange={(event) => setNote(event.target.value)}
-          helperText={`${note.length}/500`}
-          slotProps={{ htmlInput: { maxLength: 500 } }}
+        <BookDataSection
+          isEditing={isEditing}
+          canToggleEditing={variant.canToggleEditing}
+          onToggleEditing={toggleEditing}
         />
-      ) : (
-        <Box
-          role="group"
-          aria-label="Estado de lectura"
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 2,
-          }}
-        >
-          {statusOptions.map(({ value, label, tone }) => (
-            <Pill
-              key={value}
-              label={label}
-              tone={tone}
-              fullWidth
-              selected={status === value}
-              onClick={() => setStatus(value)}
-            />
-          ))}
-        </Box>
-      )}
 
-      {(!isWishlist || isManual) && (
-        <Accordion
-          title="Más detalles"
-          expanded={areDetailsExpanded}
-          onChange={setAreDetailsExpanded}
-        >
-          <FloatingLabelInput
-            label="Año de publicación"
-            error={!!errors.publishedYear}
-            helperText={errors.publishedYear?.message}
-            slotProps={{ htmlInput: { inputMode: "numeric" } }}
-            {...field("publishedYear", validationHandlers("publishedYear"))}
-          />
-          <FloatingLabelInput label="Idioma" {...field("language")} />
-          <FloatingLabelInput
-            label="Páginas"
-            error={!!errors.pageCount}
-            helperText={errors.pageCount?.message}
-            slotProps={{ htmlInput: { inputMode: "numeric" } }}
-            {...field("pageCount", validationHandlers("pageCount"))}
-          />
-        </Accordion>
-      )}
+        {variant.extra === "note" ? (
+          <WishlistNoteField value={note} onChange={setNote} />
+        ) : (
+          <ReadingStatusPicker value={status} onChange={setStatus} />
+        )}
 
-      {isWishlist ? (
-        <Button type="submit" fullWidth disabled={isLoading}>
-          {isAdding ? "Añadiendo…" : "Añadir a la lista de deseos"}
-        </Button>
-      ) : (
-        <Box sx={{ display: "grid", gap: 2 }}>
-          <Button type="submit" fullWidth disabled={isLoading}>
-            {isCreating ? "Añadiendo…" : "Añadir a mi biblioteca"}
-          </Button>
-          <Button
-            variant="neutral"
-            fullWidth
-            disabled={isLoading}
-            onClick={() => void handleSubmit(saveToWishlist, onInvalid)()}
-          >
-            {isAdding ? "Añadiendo…" : "Añadir a la lista de deseos"}
-          </Button>
-        </Box>
-      )}
-    </Box>
+        {variant.showsDetails && (
+          <BookDetailsAccordion
+            expanded={areDetailsExpanded}
+            onChange={setAreDetailsExpanded}
+          />
+        )}
+
+        <SaveActions
+          submitsTo={variant.submitsTo}
+          isCreating={isCreating}
+          isAdding={isAdding}
+          onSaveToWishlist={() =>
+            void form.handleSubmit(submitToWishlist, revealInvalidFields)()
+          }
+        />
+      </Box>
+    </FormProvider>
   );
 };
 
