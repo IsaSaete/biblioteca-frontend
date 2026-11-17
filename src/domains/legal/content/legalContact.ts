@@ -2,5 +2,5 @@
 // El correo debe existir y revisarse: es el medio para ejercer derechos.
 export const legalContact = {
   owner: "Isabel Sáenz",
-  email: "infoglosa@gmail.com",
+  email: "contacto@glosaapp.com",
 } as const;
