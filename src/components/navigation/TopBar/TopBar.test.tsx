@@ -10,12 +10,18 @@ const routes = [
   { path: "/library/:bookId", element: <p>Ficha del libro</p> },
 ];
 
-const entry = (id: string, title: string, author: string) => ({
+const entry = (
+  id: string,
+  title: string,
+  author: string,
+  tags: string[] = [],
+) => ({
   book: { id, title, authors: [author], publisher: "Editorial" },
   ejemplar: {
     id: `ejemplar-${id}`,
     bookId: id,
     status: "pending",
+    tags,
     createdAt: "2026-10-20T10:00:00.000Z",
   },
 });
@@ -27,8 +33,10 @@ const mockLibrary = () => {
       searches.push(new URL(request.url).searchParams.get("search"));
       return HttpResponse.json({
         items: [
-          entry("book-1", "1984", "George Orwell"),
-          entry("book-2", "El principito", "Antoine de Saint-Exupéry"),
+          entry("book-1", "1984", "George Orwell", ["Distopía"]),
+          entry("book-2", "El principito", "Antoine de Saint-Exupéry", [
+            "club de lectura",
+          ]),
         ],
         nextCursor: null,
       });
@@ -88,6 +96,44 @@ describe("Given the top bar", () => {
       await user.click(option);
 
       expect(await screen.findByText("Ficha del libro")).toBeInTheDocument();
+    });
+  });
+
+  describe("When the user searches by tag", () => {
+    it("Then the books with that tag are suggested, ignoring case and accents", async () => {
+      mockLibrary();
+
+      const { user } = renderRoutes(routes, ["/"]);
+      await user.type(
+        screen.getByRole("combobox", { name: "Buscar en tu biblioteca" }),
+        "distopia",
+      );
+
+      expect(
+        await screen.findByRole("option", { name: /1984/ }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("option", { name: /El principito/ }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("When the user types several words that are spread over the title, the author and the tags", () => {
+    it("Then the books that contain all of them are suggested, in any order", async () => {
+      mockLibrary();
+
+      const { user } = renderRoutes(routes, ["/"]);
+      await user.type(
+        screen.getByRole("combobox", { name: "Buscar en tu biblioteca" }),
+        "distopia orwell",
+      );
+
+      expect(
+        await screen.findByRole("option", { name: /1984/ }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("option", { name: /El principito/ }),
+      ).not.toBeInTheDocument();
     });
   });
 
