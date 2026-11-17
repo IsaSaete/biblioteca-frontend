@@ -34,5 +34,11 @@ jobs:
       - name: 🔍 ESLint validation
         run: npx eslint src --max-warnings 0
 
+      # Los tests no dependen de ningún .env: vitest fija VITE_API_URL en
+      # vite.config.ts. Sin este paso, una PR con tests rotos podía mergearse en
+      # verde.
+      - name: 🧪 Tests
+        run: npm test
+
       - name: 🏗️ Build (incluye type check)
         run: npm run build
