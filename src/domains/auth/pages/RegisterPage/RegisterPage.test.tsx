@@ -23,6 +23,7 @@ const fillForm = async (
 ) => {
   await user.type(screen.getByLabelText("Nombre"), "Isa");
   await user.type(screen.getByLabelText("Email"), "isa@example.com");
+  await user.type(screen.getByLabelText("Repite tu email"), "isa@example.com");
   await user.type(screen.getByLabelText("Contraseña"), validPassword);
   if (acceptTerms) {
     await user.click(screen.getByRole("checkbox"));
@@ -57,6 +58,91 @@ describe("Given the register page", () => {
 
       expect(invalidAfterBlur).toBe("true");
       expect(email).toBeValid();
+    });
+  });
+
+  describe("When the repeated email does not match", () => {
+    it("Then it is flagged and nothing is sent", async () => {
+      let requestSent = false;
+      server.use(
+        http.post(registerUrl, () => {
+          requestSent = true;
+          return HttpResponse.json({}, { status: 201 });
+        }),
+      );
+      const user = renderPage();
+      await user.type(screen.getByLabelText("Nombre"), "Isa");
+      await user.type(screen.getByLabelText("Email"), "isa@example.com");
+      await user.type(
+        screen.getByLabelText("Repite tu email"),
+        "isa@exmple.com",
+      );
+      await user.type(screen.getByLabelText("Contraseña"), validPassword);
+      await user.click(screen.getByRole("checkbox"));
+
+      await submit(user);
+
+      expect(
+        await screen.findByText("Los emails no coinciden"),
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText("Repite tu email")).toBeInvalid();
+      expect(requestSent).toBe(false);
+    });
+  });
+
+  describe("When the user leaves the email field with a typo in a common domain", () => {
+    it("Then it asks if they meant the right one and fixes both fields on accepting", async () => {
+      const user = renderPage();
+      await user.type(screen.getByLabelText("Email"), "isa@gmial.com");
+      await user.type(
+        screen.getByLabelText("Repite tu email"),
+        "isa@gmial.com",
+      );
+
+      const hint = await screen.findByRole("status");
+      expect(hint).toHaveTextContent("¿Querías escribir isa@gmail.com?");
+      await user.click(screen.getByRole("button", { name: "Usar este" }));
+
+      expect(screen.getByLabelText("Email")).toHaveValue("isa@gmail.com");
+      expect(screen.getByLabelText("Repite tu email")).toHaveValue(
+        "isa@gmail.com",
+      );
+      expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    });
+
+    it("Then it does not interrupt while the email is still being typed", async () => {
+      const user = renderPage();
+
+      await user.type(screen.getByLabelText("Email"), "isa@gmail.co");
+
+      expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    });
+
+    it("Then it can be ignored and the account is created with what was typed", async () => {
+      let body: unknown;
+      server.use(
+        http.post(registerUrl, async ({ request }) => {
+          body = await request.json();
+          return HttpResponse.json(
+            { user: { id: "1", name: "Isa", email: "isa@gmial.com" } },
+            { status: 201 },
+          );
+        }),
+      );
+      const user = renderPage();
+      await user.type(screen.getByLabelText("Nombre"), "Isa");
+      await user.type(screen.getByLabelText("Email"), "isa@gmial.com");
+      await user.type(
+        screen.getByLabelText("Repite tu email"),
+        "isa@gmial.com",
+      );
+      await user.type(screen.getByLabelText("Contraseña"), validPassword);
+      await user.click(screen.getByRole("checkbox"));
+
+      await submit(user);
+
+      expect(await screen.findByText("Onboarding")).toBeInTheDocument();
+      expect(body).toMatchObject({ email: "isa@gmial.com" });
     });
   });
 
@@ -156,6 +242,10 @@ describe("Given the register page", () => {
       const user = renderPage();
       await user.type(screen.getByLabelText("Nombre"), "Isa");
       await user.type(screen.getByLabelText("Email"), "isa@example.com");
+      await user.type(
+        screen.getByLabelText("Repite tu email"),
+        "isa@example.com",
+      );
       await user.type(screen.getByLabelText("Contraseña"), "abc");
       await user.click(screen.getByRole("checkbox"));
 

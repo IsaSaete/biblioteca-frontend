@@ -5,6 +5,7 @@ import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { useLogoutMutation, useMeQuery } from "../../../auth/authApi";
+import EmailVerificationNotice from "../../components/EmailVerificationNotice/EmailVerificationNotice";
 import ExportDataRow from "../../components/ExportDataRow/ExportDataRow";
 import ProfileAvatar from "../../components/ProfileAvatar/ProfileAvatar";
 import SettingsGroup from "../../components/SettingsGroup/SettingsGroup";
@@ -113,6 +114,8 @@ const ProfilePage = () => {
           </Typography>
         </Box>
       </Box>
+
+      <EmailVerificationNotice />
 
       <SettingsGroup title="Preferencias">
         <LibraryViewSelector />

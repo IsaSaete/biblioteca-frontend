@@ -35,6 +35,20 @@ export const authApi = createApi({
     // con el mismo token falla, así que el resultado se queda en caché.
     verifyEmail: builder.query<void, string>({
       query: (token) => ({ url: "/auth/verify-email", params: { token } }),
+      // Con sesión abierta, el aviso de «correo sin verificar» de Perfil debe
+      // desaparecer sin recargar.
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(authApi.util.invalidateTags(["Session"]));
+        } catch {
+          // Un enlace inválido o un fallo de red no cambia la sesión.
+        }
+      },
+    }),
+    // Vuelve a enviar el enlace de verificación; el anterior deja de valer.
+    resendVerificationEmail: builder.mutation<void, void>({
+      query: () => ({ url: "/auth/me/verification-email", method: "POST" }),
     }),
     forgotPassword: builder.mutation<void, ForgotPasswordRequest>({
       query: (body) => ({ url: "/auth/forgot-password", method: "POST", body }),
@@ -188,6 +202,7 @@ export const {
   useLoginMutation,
   useMeQuery,
   useLogoutMutation,
+  useResendVerificationEmailMutation,
   useVerifyEmailQuery,
   useCompleteOnboardingMutation,
   useUpdatePreferencesMutation,
