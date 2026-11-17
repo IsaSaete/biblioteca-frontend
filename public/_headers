@@ -6,3 +6,18 @@
   Strict-Transport-Security: max-age=31536000; includeSubDomains
 /manifest.webmanifest
   Content-Type: application/manifest+json
+
+# Caché (D-056). Los archivos de /assets/ los genera Vite con un código en el
+# nombre (index-DC9EfqcE.js) que cambia con cada versión: pueden guardarse un
+# año sin preguntar al servidor. index.html NO lleva regla: debe seguir
+# revalidándose para que cada despliegue llegue a todo el mundo.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Archivos con nombre fijo (sin código en el nombre): un mes, no para siempre,
+# por si alguno cambia. Si cambia, se renombra.
+/fonts/*
+  Cache-Control: public, max-age=2592000
+/tesseract/*
+  Cache-Control: public, max-age=2592000
+
