@@ -40,6 +40,32 @@ describe("Given the profile page of a user with a session", () => {
     });
   });
 
+  describe("When the email of the user is not verified", () => {
+    it("Then the profile warns about it and offers to resend the email", async () => {
+      server.use(
+        http.get(`${baseUrl}/auth/me`, () =>
+          HttpResponse.json({
+            user: {
+              id: "1",
+              name: "Isa",
+              email: "isa@example.com",
+              emailVerified: false,
+            },
+          }),
+        ),
+      );
+
+      renderRoutes(routes, ["/profile"]);
+
+      expect(await screen.findByRole("status")).toHaveTextContent(
+        "Tu correo aún no está verificado",
+      );
+      expect(
+        screen.getByRole("button", { name: "Reenviar correo" }),
+      ).toBeInTheDocument();
+    });
+  });
+
   describe("When it is shown", () => {
     it("Then it links to the privacy policy and the terms of use", async () => {
       useSession();

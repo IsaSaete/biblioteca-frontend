@@ -8,6 +8,7 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormHelperText from "@mui/material/FormHelperText";
 import Link from "@mui/material/Link";
+import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import ServerWakingNote from "../../../../components/ui/ServerWakingNote/ServerWakingNote";
 import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
@@ -15,6 +16,7 @@ import PasswordStrengthChecklist from "../../../../components/ui/PasswordStrengt
 import AuthLayout from "../../components/AuthLayout/AuthLayout";
 import { useRegisterMutation } from "../../authApi";
 import { useFieldValidation } from "../../hooks/useFieldValidation";
+import { suggestEmailFix } from "../../utils/suggestEmailFix";
 import { getFormErrorMessage } from "../../utils/getFormErrorMessage";
 import { parseApiError } from "../../utils/parseApiError";
 import { registerSchema } from "./registerSchema";
@@ -22,6 +24,8 @@ import type { RegisterFormValues } from "./registerSchema";
 import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 
 const formFields = ["name", "email", "password", "acceptedTerms"] as const;
+
+const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
 const isFormField = (field: string): field is (typeof formFields)[number] =>
   (formFields as readonly string[]).includes(field);
@@ -32,26 +36,56 @@ const RegisterPage = () => {
   const [register, { isLoading }] = useRegisterMutation();
   const [formError, setFormError] = useState<string | null>(null);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  // La sugerencia de dominio solo aparece al salir del campo: mientras se
+  // escribe, «gmail.co» sería una errata aunque vaya a ser «gmail.com».
+  const [hasLeftEmail, setHasLeftEmail] = useState(false);
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     mode: "onSubmit",
-    defaultValues: { name: "", email: "", password: "", acceptedTerms: false },
+    defaultValues: {
+      name: "",
+      email: "",
+      emailConfirmation: "",
+      password: "",
+      acceptedTerms: false,
+    },
   });
   const {
     register: field,
     control,
     handleSubmit,
     setError,
+    setValue,
+    getValues,
     formState: { errors },
   } = form;
   const validationHandlers = useFieldValidation(form);
 
   const password = useWatch({ control, name: "password" });
+  const email = useWatch({ control, name: "email" });
+  const emailFix =
+    hasLeftEmail && !errors.email ? suggestEmailFix(email) : null;
+
+  const applyEmailFix = (fix: string) => {
+    const confirmation = getValues("emailConfirmation");
+
+    // Si la repetición llevaba la misma errata, se corrige a la vez.
+    if (normalizeEmail(confirmation) === normalizeEmail(email)) {
+      setValue("emailConfirmation", fix, { shouldValidate: true });
+    }
+    setValue("email", fix, { shouldValidate: true });
+    setHasLeftEmail(false);
+  };
 
   const onSubmit = async (values: RegisterFormValues) => {
     setFormError(null);
-    const result = await register(values);
+    const result = await register({
+      name: values.name,
+      email: values.email,
+      password: values.password,
+      acceptedTerms: values.acceptedTerms,
+    });
 
     if (!result.error) {
       await navigate("/onboarding");
@@ -74,6 +108,7 @@ const RegisterPage = () => {
   };
 
   const passwordHandlers = validationHandlers("password");
+  const emailHandlers = validationHandlers("email");
 
   return (
     <AuthLayout
@@ -110,7 +145,45 @@ const RegisterPage = () => {
           autoComplete="email"
           error={!!errors.email}
           helperText={errors.email?.message}
-          {...field("email", validationHandlers("email"))}
+          {...field("email", {
+            ...emailHandlers,
+            onChange: async () => {
+              setHasLeftEmail(false);
+              await emailHandlers.onChange();
+            },
+            onBlur: async () => {
+              setHasLeftEmail(true);
+              await emailHandlers.onBlur();
+            },
+          })}
+        />
+        {emailFix && (
+          <Typography
+            role="status"
+            color="text.secondary"
+            sx={{ mt: -3, fontSize: "0.875rem" }}
+          >
+            ¿Querías escribir <strong>{emailFix}</strong>?{" "}
+            <Link
+              component="button"
+              type="button"
+              onClick={() => applyEmailFix(emailFix)}
+              sx={{ verticalAlign: "baseline" }}
+            >
+              Usar este
+            </Link>
+          </Typography>
+        )}
+        <FloatingLabelInput
+          label="Repite tu email"
+          type="email"
+          autoComplete="off"
+          error={!!errors.emailConfirmation}
+          helperText={errors.emailConfirmation?.message}
+          {...field(
+            "emailConfirmation",
+            validationHandlers("emailConfirmation"),
+          )}
         />
         <FloatingLabelInput
           label="Contraseña"

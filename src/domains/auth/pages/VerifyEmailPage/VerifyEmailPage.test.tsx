@@ -4,13 +4,34 @@ import { renderRoutes } from "../../../../test/renderRoutes";
 import { server } from "../../../../test/server";
 import VerifyEmailPage from "./VerifyEmailPage";
 
-const verifyUrl = `${import.meta.env.VITE_API_URL}/auth/verify-email`;
+const baseUrl = import.meta.env.VITE_API_URL;
+const verifyUrl = `${baseUrl}/auth/verify-email`;
+
+const useSession = () =>
+  server.use(
+    http.get(`${baseUrl}/auth/me`, () =>
+      HttpResponse.json({
+        user: { id: "1", name: "Isa", email: "isa@example.com" },
+      }),
+    ),
+  );
+
+const withoutSession = () =>
+  server.use(
+    http.get(`${baseUrl}/auth/me`, () =>
+      HttpResponse.json(
+        { error: { code: "AUTH_UNAUTHENTICATED", message: "Sin sesión" } },
+        { status: 401 },
+      ),
+    ),
+  );
 
 const renderPage = (entry = "/verify-email?token=abc123") =>
   renderRoutes(
     [
       { path: "/verify-email", element: <VerifyEmailPage /> },
       { path: "/home", element: <p>Inicio</p> },
+      { path: "/login", element: <p>Acceso</p> },
     ],
     [entry],
   );
@@ -50,7 +71,8 @@ describe("Given the page opened from the verification email link", () => {
       expect(token).toBe("abc123");
     });
 
-    it("Then the user can continue to the app", async () => {
+    it("Then a user with a session can continue to the app", async () => {
+      useSession();
       server.use(
         http.get(verifyUrl, () => new HttpResponse(null, { status: 200 })),
       );
@@ -61,6 +83,23 @@ describe("Given the page opened from the verification email link", () => {
       );
 
       expect(await screen.findByText("Inicio")).toBeInTheDocument();
+    });
+
+    it("Then a user without a session is taken to log in, not shown a continue button that fails", async () => {
+      withoutSession();
+      server.use(
+        http.get(verifyUrl, () => new HttpResponse(null, { status: 200 })),
+      );
+      const { user } = renderPage();
+
+      await user.click(
+        await screen.findByRole("button", { name: "Iniciar sesión" }),
+      );
+
+      expect(await screen.findByText("Acceso")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Continuar" }),
+      ).not.toBeInTheDocument();
     });
   });
 

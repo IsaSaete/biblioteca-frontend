@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import InlineError from "../../../../components/ui/InlineError/InlineError";
 import AuthLayout from "../../components/AuthLayout/AuthLayout";
-import { useVerifyEmailQuery } from "../../authApi";
+import { useMeQuery, useVerifyEmailQuery } from "../../authApi";
 import { parseApiError } from "../../utils/parseApiError";
 import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 
@@ -21,7 +21,14 @@ const VerifyEmailPage = () => {
     { skip: !token },
   );
 
+  // El enlace puede abrirse en otro navegador o dispositivo, sin sesión: abrir
+  // una sesión solo por tener el correo sería un enlace mágico. Con sesión se
+  // sigue a la app; sin ella, a iniciar sesión.
+  const { data: session, isLoading: isSessionLoading } = useMeQuery();
+  const hasSession = Boolean(session);
+
   const goToApp = () => void navigate("/home");
+  const goToLogin = () => void navigate("/login");
 
   if (isLoading) {
     return (
@@ -44,10 +51,18 @@ const VerifyEmailPage = () => {
     return (
       <AuthLayout
         title="Correo verificado"
-        subtitle="Gracias por confirmar tu email"
+        subtitle={
+          hasSession || isSessionLoading
+            ? "Gracias por confirmar tu email"
+            : "Gracias por confirmar tu email. Inicia sesión para continuar."
+        }
       >
-        <Button fullWidth onClick={goToApp}>
-          Continuar
+        <Button
+          fullWidth
+          disabled={isSessionLoading}
+          onClick={hasSession ? goToApp : goToLogin}
+        >
+          {hasSession || isSessionLoading ? "Continuar" : "Iniciar sesión"}
         </Button>
       </AuthLayout>
     );
