@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
 import Button from "../../../../components/ui/Button/Button";
 import {
   useMeQuery,
@@ -54,25 +55,34 @@ const EmailVerificationNotice = () => {
     });
   };
 
+  // El botón va debajo del mensaje, en una sola línea: a la derecha del texto
+  // se partía en dos en pantallas estrechas.
   return (
     <Alert
       severity={outcome?.severity ?? "info"}
       // Informa sin interrumpir: es un aviso, no un error.
       role="status"
-      action={
+      sx={{ "& .MuiAlert-message": { width: "100%" } }}
+    >
+      {outcome?.text ??
+        "Tu correo aún no está verificado. Confírmalo para poder recuperar tu contraseña si la olvidas."}
+      <Box sx={{ mt: 4 }}>
         <Button
-          variant="text"
           size="small"
           disabled={isLoading}
           aria-busy={isLoading}
           onClick={handleResend}
+          sx={{
+            borderRadius: "999px",
+            minHeight: 34,
+            py: 0,
+            px: 4,
+            whiteSpace: "nowrap",
+          }}
         >
           {isLoading ? "Enviando…" : "Reenviar correo"}
         </Button>
-      }
-    >
-      {outcome?.text ??
-        "Tu correo aún no está verificado. Confírmalo para poder recuperar tu contraseña si la olvidas."}
+      </Box>
     </Alert>
   );
 };
