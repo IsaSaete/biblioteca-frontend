@@ -8,6 +8,7 @@ import HomePage from "../domains/home/pages/HomePage/HomePage";
 import LibraryPage from "../domains/books/pages/LibraryPage/LibraryPage";
 import QuotesPage from "../domains/quotes/pages/QuotesPage/QuotesPage";
 import ProfilePage from "../domains/profile/pages/ProfilePage/ProfilePage";
+import ErrorPage from "../pages/ErrorPage/ErrorPage";
 import RequireAuth from "./RequireAuth/RequireAuth";
 
 // Login y registro son las páginas de entrada y van en el bundle principal; el
@@ -177,4 +178,9 @@ export const routes = [
   },
 ];
 
-export const router = createBrowserRouter(routes);
+// Una ruta raíz sin ruta propia: su `errorElement` recoge los fallos de cualquier
+// pantalla (al pintarla o al descargarla) y enseña la pantalla de error en lugar
+// de una en blanco. `routes` se mantiene tal cual para los tests de cada pantalla.
+export const appRoutes = [{ errorElement: <ErrorPage />, children: routes }];
+
+export const router = createBrowserRouter(appRoutes);
