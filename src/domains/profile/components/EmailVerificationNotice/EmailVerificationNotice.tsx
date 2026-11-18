@@ -66,13 +66,19 @@ const EmailVerificationNotice = () => {
     >
       {outcome?.text ??
         "Tu correo aún no está verificado. Confírmalo para poder recuperar tu contraseña si la olvidas."}
-      <Box sx={{ mt: 2 }}>
+      <Box sx={{ mt: 4 }}>
         <Button
           size="small"
           disabled={isLoading}
           aria-busy={isLoading}
           onClick={handleResend}
-          sx={{ borderRadius: "999px", px: 4, whiteSpace: "nowrap" }}
+          sx={{
+            borderRadius: "999px",
+            minHeight: 34,
+            py: 0,
+            px: 4,
+            whiteSpace: "nowrap",
+          }}
         >
           {isLoading ? "Enviando…" : "Reenviar correo"}
         </Button>
