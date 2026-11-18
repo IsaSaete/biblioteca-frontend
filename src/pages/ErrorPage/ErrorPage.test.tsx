@@ -126,6 +126,19 @@ describe("Given a screen of the app that fails while it is shown", () => {
 });
 
 describe("Given the routes of the app", () => {
+  describe("When the first screen is the landing", () => {
+    it("Then it is part of the main bundle, not downloaded after it, so nothing is painted late", () => {
+      const landing = routes.find((route) => route.path === "/");
+
+      expect(landing?.element).toBeDefined();
+      expect(landing).not.toHaveProperty("lazy");
+    });
+
+    it("Then the root route shows the loading screen if the first screen is still being downloaded", () => {
+      expect(appRoutes[0]?.HydrateFallback).toBeDefined();
+    });
+  });
+
   describe("When the router is built", () => {
     it("Then every screen hangs from a root route with the error screen", () => {
       expect(appRoutes).toHaveLength(1);
