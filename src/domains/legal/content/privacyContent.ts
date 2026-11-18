@@ -6,7 +6,7 @@ import { legalContact } from "./legalContact";
 // asesoramiento jurídico.
 export const privacyContent: LegalContent = {
   title: "Política de privacidad",
-  lastUpdated: "16 de noviembre de 2026",
+  lastUpdated: "18 de noviembre de 2026",
   sections: [
     {
       heading: "Quién es el responsable",
@@ -49,6 +49,7 @@ export const privacyContent: LegalContent = {
         "Netlify: aloja la web y reenvía las peticiones al servidor.",
         "Render: aloja el servidor de Glosa.",
         "MongoDB Atlas: guarda la base de datos.",
+        "GitHub: guarda las copias de seguridad de la base de datos, cifradas, durante 30 días.",
         "Resend: envía los correos de verificación y recuperación.",
       ],
     },
@@ -69,7 +70,8 @@ export const privacyContent: LegalContent = {
     {
       heading: "Cuánto tiempo los conservamos",
       paragraphs: [
-        "Mientras tengas cuenta. Si la eliminas desde Perfil, se borran de inmediato y de forma definitiva tu usuario, los libros que habías guardado, tus citas, tu lista de deseos y tu foto. Los datos de catálogo de un libro (título, autor, editorial…) no son personales y se mantienen porque los comparten todas las cuentas.",
+        "Mientras tengas cuenta. Si la eliminas desde Perfil, se borran de inmediato y de forma definitiva de la base de datos tu usuario, los libros que habías guardado, tus citas, tu lista de deseos y tu foto. Los datos de catálogo de un libro (título, autor, editorial…) no son personales y se mantienen porque los comparten todas las cuentas.",
+        "Guardamos una copia de seguridad cifrada de la base de datos cada día, durante 30 días, para poder recuperarla si ocurre un error grave. Por eso los datos de una cuenta eliminada desaparecen también de las copias como máximo 30 días después.",
         "Los registros técnicos del servidor se conservan solo el tiempo limitado que establece el proveedor de alojamiento.",
       ],
     },
