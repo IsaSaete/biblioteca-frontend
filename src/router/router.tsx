@@ -4,26 +4,23 @@ import LoginPage from "../domains/auth/pages/LoginPage/LoginPage";
 import ForgotPasswordPage from "../domains/auth/pages/ForgotPasswordPage/ForgotPasswordPage";
 import RegisterPage from "../domains/auth/pages/RegisterPage/RegisterPage";
 import ResetPasswordPage from "../domains/auth/pages/ResetPasswordPage/ResetPasswordPage";
+import LandingPage from "../domains/landing/pages/LandingPage/LandingPage";
 import HomePage from "../domains/home/pages/HomePage/HomePage";
 import LibraryPage from "../domains/books/pages/LibraryPage/LibraryPage";
 import QuotesPage from "../domains/quotes/pages/QuotesPage/QuotesPage";
 import ProfilePage from "../domains/profile/pages/ProfilePage/ProfilePage";
+import AppLoading from "../pages/AppLoading/AppLoading";
 import ErrorPage from "../pages/ErrorPage/ErrorPage";
 import RequireAuth from "./RequireAuth/RequireAuth";
 
-// Login y registro son las páginas de entrada y van en el bundle principal; el
-// resto de rutas públicas se descarga solo cuando se visita.
+// La landing, el login y el registro son las páginas de entrada y van en el
+// bundle principal; el resto de rutas públicas se descarga solo cuando se
+// visita. La landing pesa unos 12 KB comprimidos: descargarla aparte obligaba a
+// un viaje de red más, después del bundle principal y antes del primer pintado.
 export const routes = [
   // La landing se pinta sin esperar al backend: la sesión se comprueba en
   // segundo plano dentro de la propia página (no usa RequireAuth).
-  {
-    path: "/",
-    lazy: async () => ({
-      Component: (
-        await import("../domains/landing/pages/LandingPage/LandingPage")
-      ).default,
-    }),
-  },
+  { path: "/", element: <LandingPage /> },
   // Acceso, registro y recuperar contraseña: un diálogo sobre la landing.
   {
     lazy: async () => ({
@@ -181,6 +178,16 @@ export const routes = [
 // Una ruta raíz sin ruta propia: su `errorElement` recoge los fallos de cualquier
 // pantalla (al pintarla o al descargarla) y enseña la pantalla de error en lugar
 // de una en blanco. `routes` se mantiene tal cual para los tests de cada pantalla.
-export const appRoutes = [{ errorElement: <ErrorPage />, children: routes }];
+//
+// `HydrateFallback` es lo que se ve si la primera pantalla aún se está
+// descargando; sin él, React Router enseña una página en blanco y avisa por la
+// consola.
+export const appRoutes = [
+  {
+    errorElement: <ErrorPage />,
+    HydrateFallback: AppLoading,
+    children: routes,
+  },
+];
 
 export const router = createBrowserRouter(appRoutes);

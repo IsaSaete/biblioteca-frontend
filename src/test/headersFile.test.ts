@@ -58,6 +58,25 @@ describe("Given the cache rules of the deployment", () => {
     );
   });
 
+  describe("When the landing is served", () => {
+    it("Then the fonts of its first screen are preloaded from the header, only for that page", () => {
+      const rules = readHeaders();
+      const link = rules.get("/")?.get("link") ?? "";
+
+      for (const font of [
+        "besley-normal-500-latin",
+        "alegreya-normal-400-700-latin",
+        "alegreya-sans-normal-500-latin",
+      ]) {
+        expect(link).toContain(`</fonts/${font}.woff2>; rel=preload; as=font`);
+      }
+      // Una fuente precargada necesita `crossorigin`, o el navegador la
+      // descarga otra vez al usarla.
+      expect(link.match(/crossorigin/g)).toHaveLength(3);
+      expect(rules.get("/*")?.has("link") ?? false).toBe(false);
+    });
+  });
+
   describe("When any other page is served, such as index.html", () => {
     it("Then no rule caches it, so every deployment reaches everyone", () => {
       const rules = readHeaders();

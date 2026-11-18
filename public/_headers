@@ -21,3 +21,10 @@
 /tesseract/*
   Cache-Control: public, max-age=2592000
 
+# Las tres fuentes que pintan la portada de la landing se piden desde el
+# principio, en paralelo con el JavaScript. Antes se precargaban desde React,
+# cuando la página ya se estaba pintando, y se descargaban dos veces (una por la
+# precarga y otra por el CSS). Solo en `/`: el resto de pantallas no las usan.
+/
+  Link: </fonts/besley-normal-500-latin.woff2>; rel=preload; as=font; type="font/woff2"; crossorigin, </fonts/alegreya-normal-400-700-latin.woff2>; rel=preload; as=font; type="font/woff2"; crossorigin, </fonts/alegreya-sans-normal-500-latin.woff2>; rel=preload; as=font; type="font/woff2"; crossorigin
+

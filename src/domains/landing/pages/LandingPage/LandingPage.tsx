@@ -1,4 +1,3 @@
-import { preload } from "react-dom";
 import Box from "@mui/material/Box";
 import AddBookMethods from "../../components/AddBookMethods/AddBookMethods";
 import Bookshelf from "../../components/Bookshelf/Bookshelf";
@@ -14,23 +13,10 @@ import LandingIntro from "../../components/LandingIntro/LandingIntro";
 import { useRedirectWhenSignedIn } from "../../hooks/useRedirectWhenSignedIn";
 import "../../../../styles/landingFonts.css";
 
-// Las tres fuentes que pintan la portada se piden desde el principio; el resto
-// se descarga solo si hay texto que las necesita.
-const criticalFonts = [
-  "besley-normal-500-latin",
-  "alegreya-normal-400-700-latin",
-  "alegreya-sans-normal-500-latin",
-];
-
+// Las fuentes de la portada se piden con una cabecera `Link: rel=preload` solo
+// para `/` (public/_headers), en paralelo con el JavaScript: precargarlas desde
+// aquí llegaba tarde y las descargaba dos veces.
 const LandingPage = () => {
-  criticalFonts.forEach((font) =>
-    preload(`/fonts/${font}.woff2`, {
-      as: "font",
-      type: "font/woff2",
-      crossOrigin: "anonymous",
-    }),
-  );
-
   useRedirectWhenSignedIn();
 
   return (
