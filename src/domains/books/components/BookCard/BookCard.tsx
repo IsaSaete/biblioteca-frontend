@@ -17,6 +17,8 @@ interface BookCardProps {
   // Si se informa, la tarjeta es un botón que llama a esto en lugar de llevar a
   // la ficha (un deseado no tiene ficha).
   onSelect?: () => void;
+  // Para las primeras tarjetas visibles de una pantalla: su portada no espera.
+  priorityCover?: boolean;
 }
 
 // Título y autores en hasta dos líneas: cortar en una sola dejaba la mayoría de
@@ -32,7 +34,7 @@ const clampLines = (lines: number) => ({
 
 // Tarjeta del grid: portada, título en negrita y autores debajo. Toda la
 // tarjeta lleva a la ficha del libro, o hace lo que diga `onSelect`.
-const BookCard = ({ book, onSelect }: BookCardProps) => {
+const BookCard = ({ book, onSelect, priorityCover }: BookCardProps) => {
   const authors = book.authors.join(", ");
   const target = onSelect
     ? { component: ButtonBase, onClick: onSelect }
@@ -52,7 +54,12 @@ const BookCard = ({ book, onSelect }: BookCardProps) => {
         }}
       >
         <Box sx={{ position: "relative" }}>
-          <BookCover title={book.title} coverUrl={book.coverUrl} decorative />
+          <BookCover
+            title={book.title}
+            coverUrl={book.coverUrl}
+            decorative
+            priority={priorityCover}
+          />
           {book.loan && (
             <LentBadge
               size={24}
