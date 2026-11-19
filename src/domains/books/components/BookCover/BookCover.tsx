@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Box from "@mui/material/Box";
 import { COVER_SHADOW } from "../../../../theme/coverShadow";
+import { coverImageUrl } from "../../utils/coverImageUrl";
 
 interface BookCoverProps {
   title: string;
@@ -10,19 +11,28 @@ interface BookCoverProps {
   // Dentro de un enlace o botón que ya lleva el título al lado, la portada no
   // aporta nombre: sin `alt` el lector no repite «Portada de…» + el título.
   decorative?: boolean;
+  // Las primeras portadas visibles de una pantalla (la más grande suele ser la
+  // que mide el LCP) se descargan ya, sin esperar a que el navegador decida.
+  priority?: boolean;
 }
 
-// Portada 2:3 desde la URL del proveedor (nunca se descarga ni se guarda). Sin
-// `coverUrl`, o si la imagen falla (p. ej. la CSP o un enlace roto), se muestra
-// un marcador en su lugar.
+// Portada 2:3 desde la URL del proveedor (nunca se descarga ni se guarda), en
+// una medida mayor que la miniatura por defecto para que no se vea pixelada.
+// Si esa medida falla se prueba con la URL original; y sin `coverUrl`, o si
+// también falla (p. ej. la CSP o un enlace roto), se muestra un marcador.
 const BookCover = ({
   title,
   coverUrl,
   size = "regular",
   decorative = false,
+  priority = false,
 }: BookCoverProps) => {
-  const [failedUrl, setFailedUrl] = useState<string | null>(null);
-  const hasImage = coverUrl !== undefined && coverUrl !== failedUrl;
+  const [failedUrls, setFailedUrls] = useState<string[]>([]);
+  const enlargedUrl =
+    coverUrl === undefined ? undefined : coverImageUrl(coverUrl);
+  const imageUrl = [enlargedUrl, coverUrl].find(
+    (url) => url !== undefined && !failedUrls.includes(url),
+  );
 
   return (
     <Box
@@ -39,13 +49,14 @@ const BookCover = ({
         ...theme.applyStyles("dark", { boxShadow: COVER_SHADOW.dark }),
       })}
     >
-      {hasImage ? (
+      {imageUrl !== undefined ? (
         <Box
           component="img"
-          src={coverUrl}
+          src={imageUrl}
           alt={decorative ? "" : `Portada de ${title}`}
-          loading="lazy"
-          onError={() => setFailedUrl(coverUrl)}
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
+          onError={() => setFailedUrls((urls) => [...urls, imageUrl])}
           sx={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
       ) : (
