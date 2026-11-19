@@ -1,6 +1,7 @@
 import { ThemeProvider } from "@mui/material/styles";
 import { screen, waitFor, within } from "@testing-library/react";
 import { delay, http, HttpResponse } from "msw";
+import { afterEach } from "vitest";
 import theme from "../../../../theme/theme";
 import { renderRoutes } from "../../../../test/renderRoutes";
 import { server } from "../../../../test/server";
@@ -30,7 +31,56 @@ const renderLanding = () =>
     ["/"],
   );
 
+// Lo que la landing sabe de la sesión es solo si existe la cookie csrfToken.
+const signIn = () => {
+  document.cookie = "csrfToken=csrf-123";
+};
+
+afterEach(() => {
+  document.cookie = "csrfToken=; max-age=0";
+});
+
 describe("Given the public landing page", () => {
+  describe("When a visitor without the session cookie arrives", () => {
+    it("Then the landing is shown and the server is not asked about a session", async () => {
+      const asked = vi.fn();
+      server.use(
+        http.get(meUrl, () => {
+          asked();
+          return HttpResponse.json(session);
+        }),
+      );
+
+      renderLanding();
+
+      expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(asked).not.toHaveBeenCalled();
+      expect(screen.queryByText("Pantalla de Home")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("When a visitor with the session cookie but an expired session arrives", () => {
+    it("Then the landing stays", async () => {
+      signIn();
+      server.use(
+        http.get(meUrl, () =>
+          HttpResponse.json(
+            { error: { code: "AUTH_UNAUTHENTICATED", message: "Sin sesión" } },
+            { status: 401 },
+          ),
+        ),
+      );
+
+      renderLanding();
+
+      await waitFor(() =>
+        expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument(),
+      );
+      expect(screen.queryByText("Pantalla de Home")).not.toBeInTheDocument();
+    });
+  });
+
   describe("When a visitor without a session arrives", () => {
     it("Then the landing is shown with the way to sign up and to sign in", async () => {
       server.use(
@@ -86,6 +136,7 @@ describe("Given the public landing page", () => {
 
   describe("When the session check is slow", () => {
     it("Then the landing is already on screen without waiting for it", async () => {
+      signIn();
       server.use(
         http.get(meUrl, async () => {
           await delay("infinite");
@@ -142,6 +193,7 @@ describe("Given the public landing page", () => {
 
   describe("When the session check fails", () => {
     it("Then the landing stays", async () => {
+      signIn();
       server.use(http.get(meUrl, () => HttpResponse.error()));
 
       renderLanding();
@@ -155,6 +207,7 @@ describe("Given the public landing page", () => {
 
   describe("When the visitor already has a session", () => {
     it("Then they are taken to Home, replacing the landing in the history", async () => {
+      signIn();
       server.use(http.get(meUrl, () => HttpResponse.json(session)));
 
       const { router } = renderLanding();
