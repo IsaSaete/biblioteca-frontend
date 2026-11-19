@@ -46,3 +46,35 @@ export const coverImageUrl = (coverUrl: string): string => {
 
   return url.toString();
 };
+
+// Cuando Google Books no tiene una portada (o no en la medida pedida) no da
+// error: responde 200 con un PNG «image not available». Medidas comprobadas:
+// 575 × 750 (ficha sin imagen, en zoom 2 y 3), 300 × 391 (ficha con miniatura
+// pero sin la medida mediana) y 128 × 170 (ficha sin imagen, en zoom 1). Los
+// dos primeros tienen la misma proporción (23:30), que casi ninguna portada real
+// tiene; el de 128 × 170 solo se reconoce por su medida exacta.
+const NOT_AVAILABLE_RATIO = 575 / 750;
+const RATIO_TOLERANCE = 0.002;
+const SMALL_NOT_AVAILABLE = { width: 128, height: 170 };
+
+// ¿La imagen cargada es el «image not available» de Google? `isEnlarged` indica
+// que es la medida ampliada: ahí basta la proporción, porque si es una portada
+// real con esa proporción se cae a la original, que se ve igual de bien. En la
+// original solo se descarta la medida exacta, para no esconder portadas reales.
+export const isGoogleNotAvailable = (
+  width: number,
+  height: number,
+  isEnlarged: boolean,
+): boolean => {
+  if (width <= 0 || height <= 0) {
+    return false;
+  }
+
+  if (isEnlarged) {
+    return Math.abs(width / height - NOT_AVAILABLE_RATIO) <= RATIO_TOLERANCE;
+  }
+
+  return (
+    width === SMALL_NOT_AVAILABLE.width && height === SMALL_NOT_AVAILABLE.height
+  );
+};

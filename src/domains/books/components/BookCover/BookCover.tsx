@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Box from "@mui/material/Box";
 import { COVER_SHADOW } from "../../../../theme/coverShadow";
-import { coverImageUrl } from "../../utils/coverImageUrl";
+import { coverImageUrl, isGoogleNotAvailable } from "../../utils/coverImageUrl";
 
 interface BookCoverProps {
   title: string;
@@ -18,8 +18,10 @@ interface BookCoverProps {
 
 // Portada 2:3 desde la URL del proveedor (nunca se descarga ni se guarda), en
 // una medida mayor que la miniatura por defecto para que no se vea pixelada.
-// Si esa medida falla se prueba con la URL original; y sin `coverUrl`, o si
-// también falla (p. ej. la CSP o un enlace roto), se muestra un marcador.
+// Si esa medida falla, o es el «image not available» de Google, se prueba con
+// la URL original; y sin `coverUrl`, o si también falla o es otro «image not
+// available» (p. ej. la CSP o un enlace roto), se muestra el marcapáginas de
+// Glosa: no hay portada. Nunca se enseña el «image not available» de Google.
 const BookCover = ({
   title,
   coverUrl,
@@ -33,6 +35,8 @@ const BookCover = ({
   const imageUrl = [enlargedUrl, coverUrl].find(
     (url) => url !== undefined && !failedUrls.includes(url),
   );
+  const markAsFailed = (url: string) =>
+    setFailedUrls((urls) => (urls.includes(url) ? urls : [...urls, url]));
 
   return (
     <Box
@@ -56,24 +60,27 @@ const BookCover = ({
           alt={decorative ? "" : `Portada de ${title}`}
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}
-          onError={() => setFailedUrls((urls) => [...urls, imageUrl])}
+          onError={() => markAsFailed(imageUrl)}
+          onLoad={(event) => {
+            const { naturalWidth, naturalHeight } = event.currentTarget;
+            const isEnlarged =
+              imageUrl === enlargedUrl && enlargedUrl !== coverUrl;
+
+            if (isGoogleNotAvailable(naturalWidth, naturalHeight, isEnlarged)) {
+              markAsFailed(imageUrl);
+            }
+          }}
           sx={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
       ) : (
         <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+          viewBox="152 126 208 260"
+          fill="currentColor"
           aria-hidden="true"
           data-testid="cover-placeholder"
+          style={{ width: "26%", height: "auto" }}
         >
-          <path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z" />
-          <path d="M4 19.5A2 2 0 0 0 6 21.5h13" />
+          <polygon points="152,126 360,126 360,386 256,334 152,386" />
         </svg>
       )}
     </Box>
