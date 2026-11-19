@@ -1,4 +1,4 @@
-import { coverImageUrl } from "./coverImageUrl";
+import { coverImageUrl, isGoogleNotAvailable } from "./coverImageUrl";
 
 describe("Given the cover image url helper", () => {
   describe("When the cover comes from Open Library in a small size", () => {
@@ -53,6 +53,42 @@ describe("Given the cover image url helper", () => {
       "/relative/cover.jpg",
     ])("Then %s is returned untouched", (url) => {
       expect(coverImageUrl(url)).toBe(url);
+    });
+  });
+});
+
+describe('Given the check for the "image not available" picture of Google Books', () => {
+  describe("When the enlarged cover has the proportion of that picture", () => {
+    it.each([
+      [575, 750],
+      [300, 391],
+    ])("Then %i x %i is not available", (width, height) => {
+      expect(isGoogleNotAvailable(width, height, true)).toBe(true);
+    });
+  });
+
+  describe("When the enlarged cover is a normal one", () => {
+    it.each([
+      [300, 464],
+      [575, 889],
+      [300, 424],
+    ])("Then %i x %i is kept", (width, height) => {
+      expect(isGoogleNotAvailable(width, height, true)).toBe(false);
+    });
+  });
+
+  describe("When the original cover is checked", () => {
+    it("Then only the exact size of the empty record is discarded", () => {
+      expect(isGoogleNotAvailable(128, 170, false)).toBe(true);
+      expect(isGoogleNotAvailable(128, 192, false)).toBe(false);
+      // La proporción 23:30 sola no basta en la original: podría ser real.
+      expect(isGoogleNotAvailable(128, 167, false)).toBe(false);
+    });
+  });
+
+  describe("When the image has not loaded yet and has no size", () => {
+    it("Then it is not considered unavailable", () => {
+      expect(isGoogleNotAvailable(0, 0, true)).toBe(false);
     });
   });
 });

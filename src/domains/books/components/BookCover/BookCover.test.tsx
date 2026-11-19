@@ -56,6 +56,64 @@ describe("Given the cover of a book", () => {
     });
   });
 
+  describe('When Google Books has no cover in the bigger size and answers with its "image not available" picture', () => {
+    const googleUrl =
+      "https://books.google.com/books/content?id=abc&printsec=frontcover&img=1&zoom=1&edge=curl";
+
+    const loadWithSize = (
+      image: HTMLElement,
+      width: number,
+      height: number,
+    ) => {
+      Object.defineProperty(image, "naturalWidth", {
+        value: width,
+        configurable: true,
+      });
+      Object.defineProperty(image, "naturalHeight", {
+        value: height,
+        configurable: true,
+      });
+      fireEvent.load(image);
+    };
+
+    it("Then it goes back to the original url, which does have the cover", () => {
+      render(<BookCover title="Cien años de soledad" coverUrl={googleUrl} />);
+
+      loadWithSize(screen.getByRole("img"), 575, 750);
+
+      expect(screen.getByRole("img")).toHaveAttribute("src", googleUrl);
+    });
+
+    it("Then the 300 x 391 picture Google gives for records with only a small cover also goes back to the original", () => {
+      render(<BookCover title="Poema del Cante Jondo" coverUrl={googleUrl} />);
+
+      loadWithSize(screen.getByRole("img"), 300, 391);
+
+      expect(screen.getByRole("img")).toHaveAttribute("src", googleUrl);
+    });
+
+    it("Then, if the original is also the empty picture, it shows the Glosa bookmark and never that picture", () => {
+      render(<BookCover title="Poema del Cante Jondo" coverUrl={googleUrl} />);
+
+      loadWithSize(screen.getByRole("img"), 300, 391);
+      loadWithSize(screen.getByRole("img"), 128, 170);
+
+      expect(screen.queryByRole("img")).not.toBeInTheDocument();
+      expect(screen.getByTestId("cover-placeholder")).toBeInTheDocument();
+    });
+
+    it("Then a normal bigger cover is kept", () => {
+      render(<BookCover title="Cien años de soledad" coverUrl={googleUrl} />);
+
+      loadWithSize(screen.getByRole("img"), 300, 464);
+
+      expect(screen.getByRole("img")).toHaveAttribute(
+        "src",
+        expect.stringContaining("zoom=2"),
+      );
+    });
+  });
+
   describe("When the cover is one of the first visible ones", () => {
     it("Then it is loaded eagerly with high priority instead of lazily", () => {
       render(
