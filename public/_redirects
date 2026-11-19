@@ -1,3 +1,10 @@
+# La dirección antigua de Netlify sirve la misma web que el dominio propio: dos
+# sitios idénticos (contenido duplicado para los buscadores y cookies de sesión
+# distintas en cada uno). Se redirige al definitivo conservando la ruta. Solo
+# afecta a ese host: las vistas previas de las PR usan otro nombre.
+http://glosa-app.netlify.app/*   https://glosaapp.com/:splat  301!
+https://glosa-app.netlify.app/*  https://glosaapp.com/:splat  301!
+
 # La API se sirve bajo el mismo dominio que el frontend (proxy): las cookies de
 # sesión son de primera parte y el navegador no las bloquea como de terceros.
 /api/*  https://biblioteca-backend-v9oq.onrender.com/:splat  200
