@@ -119,6 +119,9 @@ const Spine = ({ book, wished = false }: SpineProps) => {
           sx={{
             position: "absolute",
             bottom: "calc(28px * var(--k))",
+            // Móvil: las bandas del lomo no se escalan con `--k` (están a 16-18 px
+            // del borde) y a escala reducida la pegatina caía encima de ellas.
+            [COMPACT_QUERY]: { bottom: "23px" },
             left: "50%",
             transform: "translateX(-50%)",
             width: "calc(22px * var(--k))",

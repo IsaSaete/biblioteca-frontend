@@ -30,8 +30,8 @@ export const ownedBooks: ShelfBook[] = [
     optional: true,
   },
   { title: "La conejera", height: 230, width: 42, color: 6, optional: true },
-  { title: "1984", height: 206, width: 34, color: 5, label: true, tiny: true },
-  { title: "La Odisea", height: 292, width: 50, color: 4 },
+  { title: "1984", height: 206, width: 34, color: 5, tiny: true },
+  { title: "La Odisea", height: 292, width: 50, color: 4, label: true },
   { title: "Cara de pan", height: 238, width: 44, color: 1, optional: true },
   {
     title: "Crónicas marcianas",
@@ -66,11 +66,13 @@ export const ownedBooks: ShelfBook[] = [
   { title: "Electroshock", height: 196, width: 34, color: 1, leaning: true },
 ];
 
+// En móvil solo se quedan Orlando y Los desposeídos; Solaris y Kindred aparecen
+// en las pantallas más anchas.
 export const wishlistBooks: ShelfBook[] = [
-  { title: "Solaris", height: 250, width: 42 },
-  { title: "Kindred", height: 290, width: 50 },
-  { title: "Orlando", height: 222, width: 38, tiny: true },
-  { title: "Los desposeídos", height: 268, width: 46, optional: true },
+  { title: "Solaris", height: 250, width: 42, optional: true },
+  { title: "Kindred", height: 290, width: 50, optional: true },
+  { title: "Orlando", height: 222, width: 38 },
+  { title: "Los desposeídos", height: 268, width: 46 },
 ];
 
 // Montón tumbado, de arriba abajo: ancho de cada libro (px de escritorio) y el
