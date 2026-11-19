@@ -77,6 +77,24 @@ describe("Given the cache rules of the deployment", () => {
     });
   });
 
+  describe("When a screen that shows quotes is served", () => {
+    it.each(["/home", "/quotes"])(
+      "Then %s preloads the quote font so it is not discovered late",
+      (path) => {
+        const link = readHeaders().get(path)?.get("link") ?? "";
+
+        expect(link).toContain(
+          "</fonts/lora-italic-400-latin.woff2>; rel=preload; as=font",
+        );
+        expect(link).toContain("crossorigin");
+      },
+    );
+
+    it("Then the landing does not preload it, because it does not use it", () => {
+      expect(readHeaders().get("/")?.get("link")).not.toContain("lora");
+    });
+  });
+
   describe("When any other page is served, such as index.html", () => {
     it("Then no rule caches it, so every deployment reaches everyone", () => {
       const rules = readHeaders();
