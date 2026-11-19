@@ -14,6 +14,9 @@ import SectionHeader from "../SectionHeader/SectionHeader";
 const TITLE = "Añadidos recientemente";
 const MAX_BOOKS = 10;
 const SKELETON_COUNT = 4;
+// Las que caben a la vista sin desplazar el carrusel (2 en móvil, hasta 5 en
+// escritorio): sus portadas se piden ya.
+const PRIORITY_COVERS = 4;
 const BOOK_WIDTH = { xs: 160, sm: 180 };
 // Las portadas son 2:3 (alto / ancho), para centrar las flechas en ellas.
 const COVER_RATIO = 1.5;
@@ -74,8 +77,12 @@ const RecentBooksSection = () => {
         itemsPerPage={BOOKS_PER_PAGE}
         mediaRatio={COVER_RATIO}
       >
-        {data.items.slice(0, MAX_BOOKS).map((book) => (
-          <BookCard key={book.ejemplarId} book={book} />
+        {data.items.slice(0, MAX_BOOKS).map((book, index) => (
+          <BookCard
+            key={book.ejemplarId}
+            book={book}
+            priorityCover={index < PRIORITY_COVERS}
+          />
         ))}
       </HorizontalCarousel>
     );
