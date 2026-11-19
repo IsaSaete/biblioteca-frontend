@@ -28,3 +28,11 @@
 /
   Link: </fonts/besley-normal-500-latin.woff2>; rel=preload; as=font; type="font/woff2"; crossorigin, </fonts/alegreya-normal-400-700-latin.woff2>; rel=preload; as=font; type="font/woff2"; crossorigin, </fonts/alegreya-sans-normal-500-latin.woff2>; rel=preload; as=font; type="font/woff2"; crossorigin
 
+# Las citas se pintan en Lora cursiva y el navegador solo descubre esa fuente
+# tras leer el CSS (el último eslabón de la cadena de carga de Inicio). Se pide
+# desde el principio en las pantallas que la usan nada más abrirse.
+/home
+  Link: </fonts/lora-italic-400-latin.woff2>; rel=preload; as=font; type="font/woff2"; crossorigin
+/quotes
+  Link: </fonts/lora-italic-400-latin.woff2>; rel=preload; as=font; type="font/woff2"; crossorigin
+
