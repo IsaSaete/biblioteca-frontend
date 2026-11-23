@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import ScanStep from "./ScanStep";
 
@@ -167,6 +167,28 @@ describe("Given the barcode scan step", () => {
       expect(
         screen.queryByRole("button", { name: "Reintentar" }),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("When nothing has been read after a while", () => {
+    it("Then it suggests what to try", async () => {
+      vi.useFakeTimers();
+
+      try {
+        renderScan();
+        await act(async () => {
+          await vi.advanceTimersByTimeAsync(2000);
+        });
+        expect(screen.queryByText(/¿Cuesta leerlo\?/)).not.toBeInTheDocument();
+
+        await act(async () => {
+          await vi.advanceTimersByTimeAsync(7000);
+        });
+
+        expect(screen.getByText(/¿Cuesta leerlo\?/)).toBeInTheDocument();
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 

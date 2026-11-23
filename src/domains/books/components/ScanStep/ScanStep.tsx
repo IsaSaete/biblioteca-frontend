@@ -19,6 +19,8 @@ const SCAN_INTERVAL_MS = 250;
 // Zoom digital: la vista se amplía y se lee solo la parte central. No da más
 // detalle al código (eso depende de la resolución y de la distancia), pero deja
 // ver si está enfocado y reduce lo que se analiza.
+// Si pasado este tiempo no se ha leído nada, se sugiere qué probar.
+const SLOW_HINT_DELAY_MS = 8000;
 // Cuánto se mantiene el aviso de «es un código, pero no un ISBN» tras verlo.
 const OTHER_CODE_NOTICE_MS = 3000;
 const MIN_ZOOM = 1;
@@ -50,6 +52,7 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
   const [attempt, setAttempt] = useState(0);
   const [zoom, setZoom] = useState(MIN_ZOOM);
   const [sawOtherCode, setSawOtherCode] = useState(false);
+  const [isSlow, setIsSlow] = useState(false);
   // El bucle de lectura lee el zoom actual sin reiniciar la cámara.
   const zoomRef = useRef(MIN_ZOOM);
 
@@ -66,11 +69,13 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
     let stream: MediaStream | null = null;
     let timeout: ReturnType<typeof setTimeout> | undefined;
     let otherCodeTimer: ReturnType<typeof setTimeout> | undefined;
+    let slowTimer: ReturnType<typeof setTimeout> | undefined;
 
     const stop = () => {
       isStopped = true;
       clearTimeout(timeout);
       clearTimeout(otherCodeTimer);
+      clearTimeout(slowTimer);
       stream?.getTracks().forEach((track) => track.stop());
     };
 
@@ -125,6 +130,7 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
 
     const start = async () => {
       setStatus("starting");
+      setIsSlow(false);
 
       try {
         stream = await navigator.mediaDevices.getUserMedia({
@@ -170,6 +176,7 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
       }
 
       setStatus("scanning");
+      slowTimer = setTimeout(() => setIsSlow(true), SLOW_HINT_DELAY_MS);
       await scan(video, detector);
     };
 
@@ -254,7 +261,9 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
         {status === "scanning" &&
           (sawOtherCode
             ? "Veo un código, pero no es el ISBN del libro: busca el que empieza por 978 o 979."
-            : "Apunta al código de barras del libro.")}
+            : isSlow
+              ? "¿Cuesta leerlo? Prueba con más luz, ajusta la distancia o el zoom, o escribe el ISBN."
+              : "Apunta al código de barras del libro.")}
       </Typography>
 
       <Box sx={{ display: "grid", gap: 3 }}>
