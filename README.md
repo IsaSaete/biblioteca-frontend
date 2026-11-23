@@ -6,7 +6,7 @@
 
 🌐 **[glosaapp.com](https://glosaapp.com)**
 
-Este repositorio es la aplicación web (PWA). La API está en [biblioteca-backend](https://github.com/IsaSaete/biblioteca-backend) y la documentación de producto, diseño y arquitectura en [biblioteca-docs](https://github.com/IsaSaete/biblioteca-docs).
+Este repositorio es la aplicación web (PWA). La API está en [biblioteca-backend](https://github.com/IsaSaete/biblioteca-backend).
 
 ## Qué problema resuelve
 
@@ -81,7 +81,7 @@ src/
 └── router/       # Rutas y protección de las pantallas con sesión
 ```
 
-Un componente vive en su dominio si pertenece a una sola entidad; si lo usan varios, va en `components/ui`. El detalle está en [`arquitectura-tecnica.md`](https://github.com/IsaSaete/biblioteca-docs/blob/main/arquitectura-tecnica.md).
+Un componente vive en su dominio si pertenece a una sola entidad; si lo usan varios, va en `components/ui`.
 
 ## Calidad y testing
 
@@ -97,11 +97,7 @@ Se publica en **Netlify** con dominio propio. En producción, Netlify reenvía `
 
 ## Cómo contribuir
 
-El proyecto sigue **Trunk Based Development**: ramas cortas `feature/`, `bugfix/` o `refactor/` creadas desde `main` actualizado, una PR por rama y commits pequeños, atómicos, en inglés e imperativos (máximo 72 caracteres). Las normas completas están en [`normas-desarrollo.md`](https://github.com/IsaSaete/biblioteca-docs/blob/main/normas-desarrollo.md).
-
-## Documentación
-
-Toda la documentación vive en [biblioteca-docs](https://github.com/IsaSaete/biblioteca-docs): producto, modelo de datos, contrato de la API, pantallas y flujos, sistema de diseño y el registro de decisiones.
+El proyecto sigue **Trunk Based Development**: ramas cortas `feature/`, `bugfix/` o `refactor/` creadas desde `main` actualizado, una PR por rama y commits pequeños, atómicos, en inglés e imperativos (máximo 72 caracteres).
 
 ---
 
