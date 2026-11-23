@@ -360,7 +360,10 @@ const BookDetailPage = () => {
           </Box>
         )}
         <Box sx={{ gridArea: "ejemplar", minWidth: 0 }}>
-          <EjemplarDataSection book={book} />
+          <EjemplarDataSection
+            book={book}
+            onEdit={() => setIsEditingBook(true)}
+          />
         </Box>
         <Box sx={{ gridArea: "quotes", minWidth: 0 }}>
           <BookQuotesSection

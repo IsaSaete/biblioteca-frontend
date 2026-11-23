@@ -869,3 +869,22 @@ describe("Given the loan of a book on its detail page", () => {
     });
   });
 });
+
+describe("Given a book whose ejemplar has no data yet", () => {
+  describe("When the user taps Añadir datos", () => {
+    it("Then the editor opens", async () => {
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
+      );
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+
+      await user.click(
+        await screen.findByRole("button", { name: "Añadir datos" }),
+      );
+
+      expect(
+        await screen.findByRole("heading", { name: "Edita tu libro" }),
+      ).toBeInTheDocument();
+    });
+  });
+});
