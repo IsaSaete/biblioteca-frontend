@@ -14,6 +14,7 @@ import { useUpdateEjemplarMutation } from "../../booksApi";
 import type { LibraryBook } from "../../dto/LibraryBook";
 import { buildEditBookRequest } from "../../utils/buildEditBookRequest";
 import { formatLabels, provenanceLabels } from "../../utils/ejemplarOptions";
+import GenresEditor from "../GenresEditor/GenresEditor";
 import TagsEditor from "../TagsEditor/TagsEditor";
 import { editBookSchema } from "../../utils/editBookSchema";
 import type { EditBookFormValues } from "../../utils/editBookSchema";
@@ -62,7 +63,7 @@ const getDefaultValues = (book: LibraryBook): EditBookFormValues => ({
   language: book.language ?? "",
   pageCount: book.pageCount?.toString() ?? "",
   synopsis: book.synopsis ?? "",
-  categories: book.categories?.join(", ") ?? "",
+  categories: book.categories ?? [],
   location: book.location ?? "",
   format: book.format ?? "",
   provenance: book.provenance ?? "",
@@ -187,10 +188,17 @@ const EditBookDialog = ({
             />
           </Box>
           <FloatingLabelInput label="Idioma" {...field("language")} />
-          <FloatingLabelInput
-            label="Géneros"
-            helperText="Separa varios géneros con comas."
-            {...field("categories")}
+          <Controller
+            control={control}
+            name="categories"
+            render={({ field: { value, onChange } }) => (
+              <GenresEditor
+                genres={value}
+                onChange={onChange}
+                error={errors.categories?.message}
+                disabled={isLoading}
+              />
+            )}
           />
           <FloatingLabelInput
             label="Sinopsis"

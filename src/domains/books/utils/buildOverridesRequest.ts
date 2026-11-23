@@ -10,7 +10,9 @@ const sameList = (a: string[], b: string[]): boolean =>
 
 // Solo viajan los campos que el usuario cambió respecto a lo que ve. Vaciar un
 // campo opcional que tenía valor manda `null`: el servidor borra esa corrección
-// y vuelve a verse el dato original del libro. `undefined` = nada que guardar.
+// y vuelve a verse el dato original del libro. Los géneros son la excepción:
+// quitarlos todos manda una lista vacía, para que el libro se quede sin género
+// en vez de recuperar el que traía. `undefined` = nada que guardar.
 export const buildOverridesRequest = (
   book: LibraryBook,
   values: BookDataFormValues,
@@ -19,7 +21,9 @@ export const buildOverridesRequest = (
   const title = values.title.trim();
   const publisher = values.publisher.trim();
   const authors = parseAuthors(values.authors);
-  const categories = parseAuthors(values.categories);
+  const categories = values.categories
+    .map((genre) => genre.trim())
+    .filter((genre) => genre !== "");
   const language = values.language.trim();
   const synopsis = values.synopsis.trim();
 
@@ -53,7 +57,7 @@ export const buildOverridesRequest = (
     overrides.synopsis = synopsis || null;
   }
   if (!sameList(categories, book.categories ?? [])) {
-    overrides.categories = categories.length > 0 ? categories : null;
+    overrides.categories = categories;
   }
 
   return Object.keys(overrides).length > 0 ? overrides : undefined;

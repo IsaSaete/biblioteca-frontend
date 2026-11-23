@@ -1,11 +1,14 @@
 import { z } from "zod";
 import { confirmBookSchema } from "./confirmBookSchema";
+import { MAX_GENRES } from "./genres";
 
-// Los mismos mínimos que al añadir el libro, más sinopsis y géneros (separados
-// por comas, como los autores).
+// Los mismos mínimos que al añadir el libro, más sinopsis y géneros (hasta
+// tres, de una lista cerrada o uno propio).
 export const bookDataSchema = confirmBookSchema.extend({
   synopsis: z.string().trim(),
-  categories: z.string(),
+  categories: z
+    .array(z.string())
+    .max(MAX_GENRES, `Elige como máximo ${MAX_GENRES} géneros`),
 });
 
 // Editor único: los datos del libro (correcciones personales) y los de tu
