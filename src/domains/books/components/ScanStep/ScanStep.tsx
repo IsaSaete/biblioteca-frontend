@@ -19,6 +19,8 @@ const SCAN_INTERVAL_MS = 250;
 // Zoom digital: la vista se amplía y se lee solo la parte central. No da más
 // detalle al código (eso depende de la resolución y de la distancia), pero deja
 // ver si está enfocado y reduce lo que se analiza.
+// Cuánto se mantiene el aviso de «es un código, pero no un ISBN» tras verlo.
+const OTHER_CODE_NOTICE_MS = 3000;
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 3;
 const ZOOM_STEP = 0.1;
@@ -47,6 +49,7 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
   const [status, setStatus] = useState<ScanStatus>("starting");
   const [attempt, setAttempt] = useState(0);
   const [zoom, setZoom] = useState(MIN_ZOOM);
+  const [sawOtherCode, setSawOtherCode] = useState(false);
   // El bucle de lectura lee el zoom actual sin reiniciar la cámara.
   const zoomRef = useRef(MIN_ZOOM);
 
@@ -62,10 +65,12 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
     let isStopped = false;
     let stream: MediaStream | null = null;
     let timeout: ReturnType<typeof setTimeout> | undefined;
+    let otherCodeTimer: ReturnType<typeof setTimeout> | undefined;
 
     const stop = () => {
       isStopped = true;
       clearTimeout(timeout);
+      clearTimeout(otherCodeTimer);
       stream?.getTracks().forEach((track) => track.stop());
     };
 
@@ -86,7 +91,20 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
             zoomRef.current,
           );
           const source = region ? captureRegion(video, region, canvas) : video;
-          const isbn = extractIsbn(await detector.detect(source));
+          const barcodes = await detector.detect(source);
+          const isbn = extractIsbn(barcodes);
+
+          // La cámara lee, pero ese código no es el ISBN: se lo decimos para
+          // que no piense que no funciona.
+          if (isbn === null && barcodes.length > 0 && !isStopped) {
+            setSawOtherCode(true);
+            clearTimeout(otherCodeTimer);
+            otherCodeTimer = setTimeout(
+              () => setSawOtherCode(false),
+              OTHER_CODE_NOTICE_MS,
+            );
+          }
+
           reads = isbn !== null && isbn === lastIsbn ? reads + 1 : isbn ? 1 : 0;
           lastIsbn = isbn;
 
@@ -233,7 +251,10 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
         sx={{ textAlign: "center" }}
       >
         {status === "starting" && "Preparando la cámara…"}
-        {status === "scanning" && "Apunta al código de barras del libro."}
+        {status === "scanning" &&
+          (sawOtherCode
+            ? "Veo un código, pero no es el ISBN del libro: busca el que empieza por 978 o 979."
+            : "Apunta al código de barras del libro.")}
       </Typography>
 
       <Box sx={{ display: "grid", gap: 3 }}>

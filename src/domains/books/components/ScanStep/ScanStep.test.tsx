@@ -170,6 +170,27 @@ describe("Given the barcode scan step", () => {
     });
   });
 
+  describe("When the camera sees a barcode that is not an ISBN", () => {
+    it("Then it says so, and goes back to the usual text after a moment", async () => {
+      detect
+        .mockResolvedValueOnce([{ rawValue: "4006381333931" }])
+        .mockResolvedValue([]);
+      const { onIsbnScanned } = renderScan();
+
+      expect(
+        await screen.findByText(/Veo un código, pero no es el ISBN del libro/),
+      ).toBeInTheDocument();
+      await waitFor(
+        () =>
+          expect(
+            screen.getByText("Apunta al código de barras del libro."),
+          ).toBeInTheDocument(),
+        { timeout: 5000 },
+      );
+      expect(onIsbnScanned).not.toHaveBeenCalled();
+    }, 10000);
+  });
+
   describe("When the camera permission is denied", () => {
     it("Then it explains it and offers to retry or type the ISBN", async () => {
       getUserMedia.mockRejectedValueOnce(
