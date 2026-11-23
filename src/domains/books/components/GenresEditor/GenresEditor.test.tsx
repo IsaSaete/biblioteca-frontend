@@ -69,6 +69,7 @@ describe("Given the genres editor", () => {
       const list = screen.getByRole("list", { name: "Géneros del libro" });
       expect(within(list).getByText("Poesía")).toBeInTheDocument();
       expect(getSearch()).toHaveValue("");
+      expect(getSearch()).toHaveFocus();
       await user.type(getSearch(), "poes");
       expect(
         screen.queryByRole("option", { name: "Poesía" }),
