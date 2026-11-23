@@ -871,8 +871,19 @@ describe("Given the loan of a book on its detail page", () => {
 });
 
 describe("Given a book whose ejemplar has no data yet", () => {
+  const scrollIntoView = vi.fn();
+
+  beforeEach(() => {
+    scrollIntoView.mockClear();
+    Element.prototype.scrollIntoView = scrollIntoView;
+  });
+
+  afterEach(() => {
+    delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView;
+  });
+
   describe("When the user taps Añadir datos", () => {
-    it("Then the editor opens", async () => {
+    it("Then the editor opens already scrolled to the ejemplar data", async () => {
       server.use(
         http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
       );
@@ -885,6 +896,25 @@ describe("Given a book whose ejemplar has no data yet", () => {
       expect(
         await screen.findByRole("heading", { name: "Edita tu libro" }),
       ).toBeInTheDocument();
+      expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("When the user opens the editor with the pencil", () => {
+    it("Then it does not scroll, it starts at the book data", async () => {
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () => HttpResponse.json(entry())),
+      );
+      const { user } = renderRoutes(routes, ["/library/book-1"]);
+
+      await user.click(
+        await screen.findByRole("button", { name: "Editar datos" }),
+      );
+
+      expect(
+        await screen.findByRole("heading", { name: "Edita tu libro" }),
+      ).toBeInTheDocument();
+      expect(scrollIntoView).not.toHaveBeenCalled();
     });
   });
 });

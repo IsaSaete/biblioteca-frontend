@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -21,6 +21,8 @@ import type { EditBookFormValues } from "../../utils/editBookSchema";
 interface EditBookDialogProps {
   book: LibraryBook;
   tagSuggestions: string[];
+  // Abre el editor ya desplazado a «Datos de tu ejemplar».
+  scrollToEjemplar?: boolean;
   onClose: () => void;
 }
 
@@ -78,6 +80,7 @@ const getDefaultValues = (book: LibraryBook): EditBookFormValues => ({
 const EditBookDialog = ({
   book,
   tagSuggestions,
+  scrollToEjemplar = false,
   onClose,
 }: EditBookDialogProps) => {
   const form = useForm<EditBookFormValues>({
@@ -94,6 +97,16 @@ const EditBookDialog = ({
   const validationHandlers = useFieldValidation(form);
   const [formError, setFormError] = useState<string | null>(null);
   const [updateEjemplar, { isLoading }] = useUpdateEjemplarMutation();
+  // Ref con callback y estable: el contenido del modal llega después del primer
+  // renderizado, y así se desplaza una sola vez, no en cada pulsación.
+  const ejemplarRef = useCallback(
+    (section: HTMLElement | null) => {
+      if (section && scrollToEjemplar) {
+        section.scrollIntoView({ block: "start" });
+      }
+    },
+    [scrollToEjemplar],
+  );
 
   const onSubmit = async (values: EditBookFormValues) => {
     setFormError(null);
@@ -199,7 +212,7 @@ const EditBookDialog = ({
             {...field("synopsis")}
           />
         </Box>
-        <Box component="fieldset" sx={fieldsetSx}>
+        <Box component="fieldset" ref={ejemplarRef} sx={fieldsetSx}>
           <Typography component="legend" sx={legendSx}>
             Datos de tu ejemplar
           </Typography>

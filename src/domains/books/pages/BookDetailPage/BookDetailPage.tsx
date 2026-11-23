@@ -136,6 +136,13 @@ const BookDetailPage = () => {
   // tiene un endpoint de etiquetas.
   const { data: library } = useGetBooksQuery();
   const [isEditingBook, setIsEditingBook] = useState(false);
+  // Desde «Añadir datos» el editor se abre ya en los datos del ejemplar.
+  const [editsEjemplar, setEditsEjemplar] = useState(false);
+
+  const openEditor = (atEjemplar: boolean) => {
+    setEditsEjemplar(atEjemplar);
+    setIsEditingBook(true);
+  };
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [deleteBook, { isLoading: isDeleting, isError: hasDeleteFailed }] =
     useDeleteBookMutation();
@@ -321,6 +328,7 @@ const BookDetailPage = () => {
               <EditBookDialog
                 book={book}
                 tagSuggestions={getTagSuggestions(library?.items ?? [])}
+                scrollToEjemplar={editsEjemplar}
                 onClose={() => setIsEditingBook(false)}
               />
             )}
@@ -360,10 +368,7 @@ const BookDetailPage = () => {
           </Box>
         )}
         <Box sx={{ gridArea: "ejemplar", minWidth: 0 }}>
-          <EjemplarDataSection
-            book={book}
-            onEdit={() => setIsEditingBook(true)}
-          />
+          <EjemplarDataSection book={book} onEdit={() => openEditor(true)} />
         </Box>
         <Box sx={{ gridArea: "quotes", minWidth: 0 }}>
           <BookQuotesSection
@@ -413,7 +418,7 @@ const BookDetailPage = () => {
           <Box sx={{ display: "flex" }}>
             <IconButton
               aria-label="Editar datos"
-              onClick={() => setIsEditingBook(true)}
+              onClick={() => openEditor(false)}
               sx={{ width: 44, height: 44, color: "text.secondary" }}
             >
               <PencilIcon />
