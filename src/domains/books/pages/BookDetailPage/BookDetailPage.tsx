@@ -261,6 +261,14 @@ const BookDetailPage = () => {
               >
                 {details.join(" · ")}
               </Typography>
+              {book.categories && book.categories.length > 0 && (
+                <Typography
+                  color="text.secondary"
+                  sx={{ mt: 0.5, fontSize: "0.875rem" }}
+                >
+                  {book.categories.join(" · ")}
+                </Typography>
+              )}
             </Box>
             <StatusSelector
               status={book.status}

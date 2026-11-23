@@ -83,6 +83,20 @@ describe("Given the book detail page", () => {
     });
   });
 
+  describe("When the book has genres", () => {
+    it("Then it shows them under its data", async () => {
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () =>
+          HttpResponse.json(entry({ categories: ["Novela", "Ficción"] })),
+        ),
+      );
+
+      renderRoutes(routes, ["/library/book-1"]);
+
+      expect(await screen.findByText("Novela · Ficción")).toBeInTheDocument();
+    });
+  });
+
   describe("When the ejemplar overrides the title", () => {
     it("Then it shows the override", async () => {
       server.use(
