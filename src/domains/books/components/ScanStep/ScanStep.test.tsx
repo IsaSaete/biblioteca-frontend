@@ -44,14 +44,18 @@ describe("Given the barcode scan step", () => {
   );
 
   describe("When it opens", () => {
-    it("Then it asks for the rear camera without audio and tells the user where to aim", async () => {
+    it("Then it asks for the rear camera at the highest resolution, without audio, and tells the user where to aim", async () => {
       renderScan();
 
       expect(
         await screen.findByText("Apunta al código de barras del libro."),
       ).toBeInTheDocument();
       expect(getUserMedia).toHaveBeenCalledWith({
-        video: { facingMode: { ideal: "environment" } },
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 3840 },
+          height: { ideal: 2160 },
+        },
         audio: false,
       });
       expect(screen.getByLabelText("Vista de la cámara")).toBeInTheDocument();

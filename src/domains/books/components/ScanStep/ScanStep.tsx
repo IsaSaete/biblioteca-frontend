@@ -80,7 +80,14 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
 
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: "environment" } },
+          // La máxima resolución: las barras de un código pequeño solo se
+          // distinguen si ocupan varios píxeles. `ideal` no falla: el
+          // dispositivo da la más alta que admita.
+          video: {
+            facingMode: { ideal: "environment" },
+            width: { ideal: 3840 },
+            height: { ideal: 2160 },
+          },
           audio: false,
         });
       } catch (error) {
