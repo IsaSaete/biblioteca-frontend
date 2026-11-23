@@ -11,6 +11,7 @@ import LandingFooter from "../../components/LandingFooter/LandingFooter";
 import LandingHeader from "../../components/LandingHeader/LandingHeader";
 import LandingIntro from "../../components/LandingIntro/LandingIntro";
 import { useRedirectWhenSignedIn } from "../../hooks/useRedirectWhenSignedIn";
+import { useWakeServer } from "../../hooks/useWakeServer";
 import "../../../../styles/landingFonts.css";
 
 // Las fuentes de la portada se piden con una cabecera `Link: rel=preload` solo
@@ -18,6 +19,7 @@ import "../../../../styles/landingFonts.css";
 // aquí llegaba tarde y las descargaba dos veces.
 const LandingPage = () => {
   useRedirectWhenSignedIn();
+  useWakeServer();
 
   return (
     <Box
