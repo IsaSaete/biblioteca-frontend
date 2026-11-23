@@ -30,7 +30,12 @@ const BookDetailsAccordion = ({
         slotProps={{ htmlInput: { inputMode: "numeric" } }}
         {...field("publishedYear", validationHandlers("publishedYear"))}
       />
-      <FloatingLabelInput label="Idioma" {...field("language")} />
+      <FloatingLabelInput
+        label="Idioma"
+        error={!!errors.language}
+        helperText={errors.language?.message}
+        {...field("language", validationHandlers("language"))}
+      />
       <FloatingLabelInput
         label="Páginas"
         error={!!errors.pageCount}

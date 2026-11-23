@@ -19,7 +19,7 @@ const getDefaultValues = (book: ExternalBook): ConfirmBookFormValues => ({
 });
 
 // El formulario de datos del libro y qué parte está abierta: los datos se ven
-// como texto hasta que se abren a edición, y «Más detalles» empieza plegado.
+// como texto y solo se abren como campos si falta algo o hay un error.
 // Ningún error se queda en un campo que no se ve.
 export const useConfirmBookForm = (
   book: ExternalBook,
@@ -59,7 +59,6 @@ export const useConfirmBookForm = (
     form,
     validationHandlers,
     isEditing,
-    toggleEditing: () => setIsEditing((editing) => !editing),
     areDetailsExpanded,
     setAreDetailsExpanded,
     showFieldError,
