@@ -182,8 +182,8 @@ describe("Given the add book flow", () => {
     });
   });
 
-  describe("When the user corrects the title with the pencil", () => {
-    it("Then the corrected title is the one sent", async () => {
+  describe("When the book comes from the catalog with all its data", () => {
+    it("Then the data can only be confirmed and the catalog data is the one sent", async () => {
       mockLookup();
       let body: unknown;
       server.use(
@@ -197,12 +197,14 @@ describe("Given the add book flow", () => {
       await user.type(screen.getByLabelText("ISBN"), "9788437604947");
       await user.click(screen.getByRole("button", { name: "Buscar libro" }));
 
-      await user.click(
-        await screen.findByRole("button", { name: "Editar datos del libro" }),
-      );
-      const title = screen.getByLabelText("Título");
-      await user.clear(title);
-      await user.type(title, "Cien años");
+      await screen.findByText("Confirma los datos");
+      expect(
+        screen.queryByRole("button", { name: "Editar datos del libro" }),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByLabelText("Título")).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Más detalles" }),
+      ).not.toBeInTheDocument();
       await user.click(
         screen.getByRole("button", { name: "Añadir a mi biblioteca" }),
       );
@@ -210,7 +212,10 @@ describe("Given the add book flow", () => {
       expect(await screen.findByRole("alert")).toHaveTextContent(
         "Este libro ya está en tu biblioteca.",
       );
-      expect(body).toMatchObject({ title: "Cien años" });
+      expect(body).toMatchObject({
+        title: "Cien años de soledad",
+        publisher: "Cátedra",
+      });
     });
   });
 

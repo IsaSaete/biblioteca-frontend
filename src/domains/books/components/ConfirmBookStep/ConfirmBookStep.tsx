@@ -29,9 +29,9 @@ interface ConfirmBookStepProps {
 }
 
 // «Confirma los datos» (HU-18) y estado de lectura (HU-19): los datos se ven
-// como texto y un único lápiz los abre a edición. La editorial es obligatoria
-// al guardar y los proveedores a menudo no la dan, así que sin ella se pide ya
-// en modo edición.
+// como texto: un ISBN es una edición concreta y se corrige después, en el
+// editor del libro. La editorial es obligatoria al guardar y los proveedores a
+// menudo no la dan, así que sin ella los datos se abren ya como campos.
 //
 // Solo compone: qué se enseña en cada modo lo decide `getConfirmBookVariant`,
 // el formulario y qué está abierto, `useConfirmBookForm`, y cómo se guarda,
@@ -46,7 +46,6 @@ const ConfirmBookStep = ({
   const {
     form,
     isEditing,
-    toggleEditing,
     areDetailsExpanded,
     setAreDetailsExpanded,
     showFieldError,
@@ -102,11 +101,7 @@ const ConfirmBookStep = ({
           </Box>
         )}
 
-        <BookDataSection
-          isEditing={isEditing}
-          canToggleEditing={variant.canToggleEditing}
-          onToggleEditing={toggleEditing}
-        />
+        <BookDataSection isEditing={isEditing} />
 
         {variant.extra === "note" ? (
           <WishlistNoteField value={note} onChange={setNote} />
