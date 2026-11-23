@@ -102,7 +102,7 @@ describe("Given the add book flow", () => {
       await user.click(screen.getByRole("button", { name: "Buscar libro" }));
 
       expect(await screen.findByRole("alert")).toHaveTextContent(
-        "No hemos encontrado ningún libro con ese ISBN.",
+        "No hemos encontrado ningún libro con el ISBN 9788437604947.",
       );
     });
   });
@@ -577,6 +577,47 @@ describe("Given the add book flow", () => {
       await user.click(screen.getByRole("button", { name: "Volver" }));
 
       expect(screen.getByLabelText("ISBN")).toHaveValue("9788437604947");
+    });
+  });
+
+  describe("When the camera reads an ISBN that no provider knows", () => {
+    it("Then it says the code was read, so the user knows the scan worked", async () => {
+      Object.defineProperty(navigator, "mediaDevices", {
+        value: {
+          getUserMedia: vi
+            .fn()
+            .mockResolvedValue({ getTracks: () => [{ stop: vi.fn() }] }),
+          enumerateDevices: vi.fn().mockResolvedValue([{ kind: "videoinput" }]),
+        },
+        configurable: true,
+      });
+      HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue(undefined);
+      detectMock.mockResolvedValue([{ rawValue: "9788437604947" }]);
+      server.use(
+        http.get(`${baseUrl}/books/lookup-isbn`, () =>
+          apiError(404, "ISBN_NOT_FOUND"),
+        ),
+      );
+      const { user } = renderRoutes(routes, ["/library"]);
+      await user.click(screen.getByRole("button", { name: "Añadir libro" }));
+
+      await user.click(
+        await screen.findByRole("button", {
+          name: "Escanear código de barras",
+        }),
+      );
+
+      expect(
+        await screen.findByText(
+          "Hemos leído el ISBN 9788437604947, pero ese libro no aparece en los catálogos.",
+          {},
+          { timeout: 4000 },
+        ),
+      ).toBeInTheDocument();
+      Object.defineProperty(navigator, "mediaDevices", {
+        value: undefined,
+        configurable: true,
+      });
     });
   });
 

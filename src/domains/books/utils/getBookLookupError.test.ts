@@ -23,6 +23,29 @@ describe("Given an error from looking up a book", () => {
     });
   });
 
+  describe("When no provider knows an ISBN that was typed", () => {
+    it("Then it says which ISBN was not found", () => {
+      expect(
+        getBookLookupError(apiError(404, "ISBN_NOT_FOUND"), {
+          isbn: "9788437604947",
+        }).message,
+      ).toBe("No hemos encontrado ningún libro con el ISBN 9788437604947.");
+    });
+  });
+
+  describe("When no provider knows an ISBN that the camera read", () => {
+    it("Then it says the code was read and the book is not in the catalogs", () => {
+      expect(
+        getBookLookupError(apiError(404, "ISBN_NOT_FOUND"), {
+          isbn: "9788437604947",
+          scanned: true,
+        }).message,
+      ).toBe(
+        "Hemos leído el ISBN 9788437604947, pero ese libro no aparece en los catálogos.",
+      );
+    });
+  });
+
   describe("When the providers fail", () => {
     it("Then it uses its own text, not the backend's provisional one", () => {
       const { message } = getBookLookupError(

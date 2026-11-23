@@ -10,8 +10,28 @@ export interface BookLookupError {
 const genericMessage =
   "No hemos podido buscar el libro. Inténtalo de nuevo en un momento.";
 
+interface LookupContext {
+  // El ISBN que se buscó, para decir cuál no se encontró.
+  isbn?: string;
+  // Si lo leyó la cámara: el código se leyó bien, es el libro el que no está.
+  scanned?: boolean;
+}
+
+const getNotFoundMessage = ({ isbn, scanned }: LookupContext): string => {
+  if (!isbn) {
+    return "No hemos encontrado ningún libro con ese ISBN.";
+  }
+
+  return scanned
+    ? `Hemos leído el ISBN ${isbn}, pero ese libro no aparece en los catálogos.`
+    : `No hemos encontrado ningún libro con el ISBN ${isbn}.`;
+};
+
 // Textos propios del frontend (D-015): el `message` del backend es provisional.
-export const getBookLookupError = (error: unknown): BookLookupError => {
+export const getBookLookupError = (
+  error: unknown,
+  context: LookupContext = {},
+): BookLookupError => {
   if (
     typeof error === "object" &&
     error !== null &&
@@ -32,7 +52,7 @@ export const getBookLookupError = (error: unknown): BookLookupError => {
       };
     case "ISBN_NOT_FOUND":
       return {
-        message: "No hemos encontrado ningún libro con ese ISBN.",
+        message: getNotFoundMessage(context),
         offersManualEntry: true,
       };
     case "BOOK_PROVIDER_UNAVAILABLE":
