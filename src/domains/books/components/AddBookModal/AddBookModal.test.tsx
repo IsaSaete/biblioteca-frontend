@@ -19,6 +19,7 @@ const routes = [
     element: <AppLayout />,
     children: [{ path: "/library", element: <p>Contenido de biblioteca</p> }],
   },
+  { path: "/library/:bookId", element: <p>Ficha del libro</p> },
 ];
 
 // El modo «Lista de deseos» lo abre la pantalla de la lista, que lleva su modal.
@@ -107,7 +108,7 @@ describe("Given the add book flow", () => {
   });
 
   describe("When a valid ISBN is found and the user saves it as reading", () => {
-    it("Then it posts the confirmed data with that status and closes the dialog", async () => {
+    it("Then it posts the confirmed data with that status and opens the book page", async () => {
       mockLookup({
         ...externalBook,
         coverUrl: "https://books.google.com/c.jpg",
@@ -131,7 +132,7 @@ describe("Given the add book flow", () => {
           );
         }),
       );
-      const { user } = renderRoutes(routes, ["/library"]);
+      const { user, router } = renderRoutes(routes, ["/library"]);
       await openIsbnStep(user);
 
       await user.type(screen.getByLabelText("ISBN"), "9788437604947");
@@ -149,6 +150,8 @@ describe("Given the add book flow", () => {
       await waitFor(() =>
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
       );
+      expect(router.state.location.pathname).toBe("/library/book-1");
+      expect(screen.getByText("Ficha del libro")).toBeInTheDocument();
       expect(body).toMatchObject({
         isbn: "9788437604947",
         title: "Cien años de soledad",
@@ -234,7 +237,7 @@ describe("Given the add book flow", () => {
           );
         }),
       );
-      const { user } = renderRoutes(routes, ["/library"]);
+      const { user, router } = renderRoutes(routes, ["/library"]);
       await user.click(screen.getByRole("button", { name: "Añadir libro" }));
       await user.click(
         screen.getByRole("button", { name: "Añadir manualmente" }),
@@ -258,6 +261,7 @@ describe("Given the add book flow", () => {
       await waitFor(() =>
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
       );
+      expect(router.state.location.pathname).toBe("/library/book-1");
       expect(body).toEqual({
         title: "Libro raro",
         authors: ["Alguien", "Otra"],
@@ -573,7 +577,7 @@ describe("Given the add book flow", () => {
           );
         }),
       );
-      const { user } = renderRoutes(routes, ["/library"]);
+      const { user, router } = renderRoutes(routes, ["/library"]);
       await openIsbnStep(user);
 
       await user.type(screen.getByLabelText("ISBN"), "9788437604947");
@@ -586,6 +590,7 @@ describe("Given the add book flow", () => {
       await waitFor(() =>
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
       );
+      expect(router.state.location.pathname).toBe("/library");
       expect(body).toMatchObject({
         isbn: "9788437604947",
         title: "Cien años de soledad",

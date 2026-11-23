@@ -25,7 +25,8 @@ interface ConfirmBookStepProps {
   // Añadir el libro a la «Lista de deseos»: sin estado de lectura, con nota opcional
   // y de solo lectura si viene del catálogo (un deseado no tiene correcciones).
   mode?: ConfirmBookMode;
-  onSaved: () => void;
+  // Con el id del libro si se guardó en la biblioteca.
+  onSaved: (bookId?: string) => void;
 }
 
 // «Confirma los datos» (HU-18) y estado de lectura (HU-19): los datos se ven
@@ -61,7 +62,7 @@ const ConfirmBookStep = ({
 
   const finish = (result: SaveResult) => {
     if (result.ok) {
-      onSaved();
+      onSaved(result.bookId);
     } else if (result.failure.kind === "field") {
       showFieldError(result.failure.field, result.failure.message);
     } else {

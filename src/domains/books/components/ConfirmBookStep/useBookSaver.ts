@@ -8,7 +8,10 @@ import { buildWishlistRequest } from "./buildWishlistRequest";
 import { describeSaveError } from "./describeSaveError";
 import type { SaveFailure } from "./describeSaveError";
 
-export type SaveResult = { ok: true } | { ok: false; failure: SaveFailure };
+// `bookId` solo lo hay al guardar en la biblioteca: la lista de deseos no tiene
+// ficha a la que ir.
+export type SaveResult =
+  { ok: true; bookId?: string } | { ok: false; failure: SaveFailure };
 
 // Los dos casos de uso de la confirmación (guardar en la biblioteca y añadir a
 // la lista de deseos) detrás de una interfaz mínima. Es el único sitio que
@@ -29,7 +32,9 @@ export const useBookSaver = (book: ExternalBook) => {
       buildCreateBookRequest(book, values, status),
     );
 
-    return toResult(result.error);
+    return result.error
+      ? { ok: false, failure: describeSaveError(result.error) }
+      : { ok: true, bookId: result.data.id };
   };
 
   const saveToWishlist = async (
