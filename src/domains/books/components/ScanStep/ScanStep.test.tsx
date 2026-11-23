@@ -155,6 +155,21 @@ describe("Given the barcode scan step", () => {
     });
   });
 
+  describe("When the camera is scanning", () => {
+    it("Then Escribir ISBN is always available as a way out", async () => {
+      const user = userEvent.setup();
+      const { onWriteIsbn } = renderScan();
+      await screen.findByText("Apunta al código de barras del libro.");
+
+      await user.click(screen.getByRole("button", { name: "Escribir ISBN" }));
+
+      expect(onWriteIsbn).toHaveBeenCalledTimes(1);
+      expect(
+        screen.queryByRole("button", { name: "Reintentar" }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe("When the camera permission is denied", () => {
     it("Then it explains it and offers to retry or type the ISBN", async () => {
       getUserMedia.mockRejectedValueOnce(

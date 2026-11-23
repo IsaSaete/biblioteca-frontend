@@ -236,16 +236,17 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
         {status === "scanning" && "Apunta al código de barras del libro."}
       </Typography>
 
-      {hasProblem && (
-        <Box sx={{ display: "grid", gap: 3 }}>
+      <Box sx={{ display: "grid", gap: 3 }}>
+        {hasProblem && (
           <Button fullWidth onClick={() => setAttempt((count) => count + 1)}>
             Reintentar
           </Button>
-          <Button variant="text" fullWidth onClick={onWriteIsbn}>
-            Escribir ISBN
-          </Button>
-        </Box>
-      )}
+        )}
+        {/* Siempre a mano: si el código no se lee, hay salida sin salir del paso. */}
+        <Button variant="text" fullWidth onClick={onWriteIsbn}>
+          Escribir ISBN
+        </Button>
+      </Box>
     </Box>
   );
 };
