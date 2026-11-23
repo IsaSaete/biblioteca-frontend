@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
+import Slider from "@mui/material/Slider";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
 import { captureRegion } from "../../scanner/captureRegion";
@@ -15,6 +16,12 @@ import { loadBarcodeDetector } from "../../scanner/loadBarcodeDetector";
 import type { BarcodeReader } from "../../scanner/loadBarcodeDetector";
 
 const SCAN_INTERVAL_MS = 250;
+// Zoom digital: la vista se amplía y se lee solo la parte central. No da más
+// detalle al código (eso depende de la resolución y de la distancia), pero deja
+// ver si está enfocado y reduce lo que se analiza.
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 3;
+const ZOOM_STEP = 0.1;
 // Un ISBN solo se da por bueno si se lee igual en lecturas seguidas: evita
 // consultar con una lectura suelta de un fotograma movido.
 const REQUIRED_CONSECUTIVE_READS = 2;
@@ -39,10 +46,17 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
   const onIsbnScannedRef = useRef(onIsbnScanned);
   const [status, setStatus] = useState<ScanStatus>("starting");
   const [attempt, setAttempt] = useState(0);
+  const [zoom, setZoom] = useState(MIN_ZOOM);
+  // El bucle de lectura lee el zoom actual sin reiniciar la cámara.
+  const zoomRef = useRef(MIN_ZOOM);
 
   useEffect(() => {
     onIsbnScannedRef.current = onIsbnScanned;
   }, [onIsbnScanned]);
+
+  useEffect(() => {
+    zoomRef.current = zoom;
+  }, [zoom]);
 
   useEffect(() => {
     let isStopped = false;
@@ -66,7 +80,11 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
         }
 
         try {
-          const region = getScanRegion(video.videoWidth, video.videoHeight, 1);
+          const region = getScanRegion(
+            video.videoWidth,
+            video.videoHeight,
+            zoomRef.current,
+          );
           const source = region ? captureRegion(video, region, canvas) : video;
           const isbn = extractIsbn(await detector.detect(source));
           reads = isbn !== null && isbn === lastIsbn ? reads + 1 : isbn ? 1 : 0;
@@ -172,7 +190,13 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
           muted
           autoPlay
           aria-label="Vista de la cámara"
-          sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+          sx={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            transform: `scale(${zoom})`,
+            transformOrigin: "center",
+          }}
         />
         <Box
           aria-hidden="true"
@@ -185,6 +209,22 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
             pointerEvents: "none",
           }}
         />
+        <Box sx={{ position: "absolute", left: 0, right: 0, bottom: 0, px: 6 }}>
+          <Slider
+            aria-label="Zoom"
+            min={MIN_ZOOM}
+            max={MAX_ZOOM}
+            step={ZOOM_STEP}
+            value={zoom}
+            onChange={(_event, value) =>
+              setZoom(Array.isArray(value) ? (value[0] ?? MIN_ZOOM) : value)
+            }
+            valueLabelDisplay="auto"
+            valueLabelFormat={(value) => `${value.toFixed(1)}×`}
+            getAriaValueText={(value) => `${value.toFixed(1)} aumentos`}
+            sx={{ color: "common.white" }}
+          />
+        </Box>
       </Box>
 
       <Typography

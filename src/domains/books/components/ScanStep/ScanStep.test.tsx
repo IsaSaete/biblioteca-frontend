@@ -28,9 +28,9 @@ const renderScan = () => {
   return { ...view, onIsbnScanned, onWriteIsbn };
 };
 
-vi.mock("../../scanner/captureRegion", () => ({
-  captureRegion: () => "captured-region",
-}));
+const captureRegion = vi.hoisted(() => vi.fn(() => "captured-region"));
+
+vi.mock("../../scanner/captureRegion", () => ({ captureRegion }));
 
 describe("Given the barcode scan step", () => {
   beforeEach(() => {
@@ -81,6 +81,47 @@ describe("Given the barcode scan step", () => {
       await waitFor(() => expect(detect).toHaveBeenCalled());
 
       expect(detect).toHaveBeenCalledWith("captured-region");
+      vi.restoreAllMocks();
+    });
+  });
+
+  describe("When the user moves the zoom slider", () => {
+    it("Then the camera view is enlarged by that factor", async () => {
+      const user = userEvent.setup();
+      renderScan();
+      const slider = await screen.findByRole("slider", { name: "Zoom" });
+      const video = screen.getByLabelText("Vista de la cámara");
+      expect(video).toHaveStyle({ transform: "scale(1)" });
+
+      slider.focus();
+      await user.keyboard("{End}");
+
+      expect(video).toHaveStyle({ transform: "scale(3)" });
+    });
+
+    it("Then the region that is read shrinks with the zoom", async () => {
+      vi.spyOn(HTMLVideoElement.prototype, "videoWidth", "get").mockReturnValue(
+        1920,
+      );
+      vi.spyOn(
+        HTMLVideoElement.prototype,
+        "videoHeight",
+        "get",
+      ).mockReturnValue(1080);
+      const user = userEvent.setup();
+      renderScan();
+      const slider = await screen.findByRole("slider", { name: "Zoom" });
+
+      slider.focus();
+      await user.keyboard("{End}");
+
+      await waitFor(() =>
+        expect(captureRegion).toHaveBeenLastCalledWith(
+          expect.anything(),
+          { x: 768, y: 450, width: 384, height: 180 },
+          expect.anything(),
+        ),
+      );
       vi.restoreAllMocks();
     });
   });
