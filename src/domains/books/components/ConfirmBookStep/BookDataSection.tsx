@@ -1,43 +1,19 @@
 import { useFormContext, useWatch } from "react-hook-form";
 import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import FloatingLabelInput from "../../../../components/ui/FloatingLabelInput/FloatingLabelInput";
 import { useFieldValidation } from "../../../auth/hooks/useFieldValidation";
 import type { ConfirmBookFormValues } from "../../utils/confirmBookSchema";
 
 interface BookDataSectionProps {
+  // Con los datos de un catálogo se ven como texto; solo se abren como campos
+  // si falta algo obligatorio o en el alta manual.
   isEditing: boolean;
-  // Con el lápiz se abren y se cierran los campos; sin él, los datos que hay
-  // (por ejemplo, en el alta manual) se ven siempre abiertos.
-  canToggleEditing: boolean;
-  onToggleEditing: () => void;
 }
 
-const PencilIcon = () => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <path d="M12 20h9" />
-    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
-  </svg>
-);
-
-// Título, autores y editorial: como texto, o como campos si se están editando.
+// Título, autores y editorial: como texto, o como campos si hay que rellenarlos.
 // Solo conoce el formulario por su contexto.
-const BookDataSection = ({
-  isEditing,
-  canToggleEditing,
-  onToggleEditing,
-}: BookDataSectionProps) => {
+const BookDataSection = ({ isEditing }: BookDataSectionProps) => {
   const form = useFormContext<ConfirmBookFormValues>();
   const validationHandlers = useFieldValidation(form);
   const {
@@ -83,16 +59,6 @@ const BookDataSection = ({
           <Typography color="text.secondary">{authors}</Typography>
           <Typography color="text.secondary">{publisher}</Typography>
         </Box>
-      )}
-      {canToggleEditing && (
-        <IconButton
-          aria-label="Editar datos del libro"
-          aria-pressed={isEditing}
-          onClick={onToggleEditing}
-          sx={{ width: 44, height: 44 }}
-        >
-          <PencilIcon />
-        </IconButton>
       )}
     </Box>
   );

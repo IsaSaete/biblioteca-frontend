@@ -19,6 +19,7 @@ const routes = [
     element: <AppLayout />,
     children: [{ path: "/library", element: <p>Contenido de biblioteca</p> }],
   },
+  { path: "/library/:bookId", element: <p>Ficha del libro</p> },
 ];
 
 // El modo «Lista de deseos» lo abre la pantalla de la lista, que lleva su modal.
@@ -107,7 +108,7 @@ describe("Given the add book flow", () => {
   });
 
   describe("When a valid ISBN is found and the user saves it as reading", () => {
-    it("Then it posts the confirmed data with that status and closes the dialog", async () => {
+    it("Then it posts the confirmed data with that status and opens the book page", async () => {
       mockLookup({
         ...externalBook,
         coverUrl: "https://books.google.com/c.jpg",
@@ -131,7 +132,7 @@ describe("Given the add book flow", () => {
           );
         }),
       );
-      const { user } = renderRoutes(routes, ["/library"]);
+      const { user, router } = renderRoutes(routes, ["/library"]);
       await openIsbnStep(user);
 
       await user.type(screen.getByLabelText("ISBN"), "9788437604947");
@@ -149,6 +150,8 @@ describe("Given the add book flow", () => {
       await waitFor(() =>
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
       );
+      expect(router.state.location.pathname).toBe("/library/book-1");
+      expect(screen.getByText("Ficha del libro")).toBeInTheDocument();
       expect(body).toMatchObject({
         isbn: "9788437604947",
         title: "Cien años de soledad",
@@ -182,8 +185,40 @@ describe("Given the add book flow", () => {
     });
   });
 
-  describe("When the user corrects the title with the pencil", () => {
-    it("Then the corrected title is the one sent", async () => {
+  describe("When the server rejects a field that is not on screen", () => {
+    it("Then the error shows next to the save button", async () => {
+      mockLookup();
+      server.use(
+        http.post(`${baseUrl}/books`, () =>
+          HttpResponse.json(
+            {
+              error: {
+                code: "VALIDATION_ERROR",
+                message: "El idioma no es válido",
+                field: "language",
+              },
+            },
+            { status: 400 },
+          ),
+        ),
+      );
+      const { user } = renderRoutes(routes, ["/library"]);
+      await openIsbnStep(user);
+      await user.type(screen.getByLabelText("ISBN"), "9788437604947");
+      await user.click(screen.getByRole("button", { name: "Buscar libro" }));
+
+      await user.click(
+        await screen.findByRole("button", { name: "Añadir a mi biblioteca" }),
+      );
+
+      expect(await screen.findByRole("alert")).toHaveTextContent(
+        "El idioma no es válido",
+      );
+    });
+  });
+
+  describe("When the book comes from the catalog with all its data", () => {
+    it("Then the data can only be confirmed and the catalog data is the one sent", async () => {
       mockLookup();
       let body: unknown;
       server.use(
@@ -197,12 +232,14 @@ describe("Given the add book flow", () => {
       await user.type(screen.getByLabelText("ISBN"), "9788437604947");
       await user.click(screen.getByRole("button", { name: "Buscar libro" }));
 
-      await user.click(
-        await screen.findByRole("button", { name: "Editar datos del libro" }),
-      );
-      const title = screen.getByLabelText("Título");
-      await user.clear(title);
-      await user.type(title, "Cien años");
+      await screen.findByText("Confirma los datos");
+      expect(
+        screen.queryByRole("button", { name: "Editar datos del libro" }),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByLabelText("Título")).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Más detalles" }),
+      ).not.toBeInTheDocument();
       await user.click(
         screen.getByRole("button", { name: "Añadir a mi biblioteca" }),
       );
@@ -210,7 +247,10 @@ describe("Given the add book flow", () => {
       expect(await screen.findByRole("alert")).toHaveTextContent(
         "Este libro ya está en tu biblioteca.",
       );
-      expect(body).toMatchObject({ title: "Cien años" });
+      expect(body).toMatchObject({
+        title: "Cien años de soledad",
+        publisher: "Cátedra",
+      });
     });
   });
 
@@ -234,7 +274,7 @@ describe("Given the add book flow", () => {
           );
         }),
       );
-      const { user } = renderRoutes(routes, ["/library"]);
+      const { user, router } = renderRoutes(routes, ["/library"]);
       await user.click(screen.getByRole("button", { name: "Añadir libro" }));
       await user.click(
         screen.getByRole("button", { name: "Añadir manualmente" }),
@@ -258,6 +298,7 @@ describe("Given the add book flow", () => {
       await waitFor(() =>
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
       );
+      expect(router.state.location.pathname).toBe("/library/book-1");
       expect(body).toEqual({
         title: "Libro raro",
         authors: ["Alguien", "Otra"],
@@ -573,7 +614,7 @@ describe("Given the add book flow", () => {
           );
         }),
       );
-      const { user } = renderRoutes(routes, ["/library"]);
+      const { user, router } = renderRoutes(routes, ["/library"]);
       await openIsbnStep(user);
 
       await user.type(screen.getByLabelText("ISBN"), "9788437604947");
@@ -586,6 +627,7 @@ describe("Given the add book flow", () => {
       await waitFor(() =>
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
       );
+      expect(router.state.location.pathname).toBe("/library");
       expect(body).toMatchObject({
         isbn: "9788437604947",
         title: "Cien años de soledad",

@@ -25,13 +25,14 @@ interface ConfirmBookStepProps {
   // Añadir el libro a la «Lista de deseos»: sin estado de lectura, con nota opcional
   // y de solo lectura si viene del catálogo (un deseado no tiene correcciones).
   mode?: ConfirmBookMode;
-  onSaved: () => void;
+  // Con el id del libro si se guardó en la biblioteca.
+  onSaved: (bookId?: string) => void;
 }
 
 // «Confirma los datos» (HU-18) y estado de lectura (HU-19): los datos se ven
-// como texto y un único lápiz los abre a edición. La editorial es obligatoria
-// al guardar y los proveedores a menudo no la dan, así que sin ella se pide ya
-// en modo edición.
+// como texto: un ISBN es una edición concreta y se corrige después, en el
+// editor del libro. La editorial es obligatoria al guardar y los proveedores a
+// menudo no la dan, así que sin ella los datos se abren ya como campos.
 //
 // Solo compone: qué se enseña en cada modo lo decide `getConfirmBookVariant`,
 // el formulario y qué está abierto, `useConfirmBookForm`, y cómo se guarda,
@@ -46,7 +47,6 @@ const ConfirmBookStep = ({
   const {
     form,
     isEditing,
-    toggleEditing,
     areDetailsExpanded,
     setAreDetailsExpanded,
     showFieldError,
@@ -61,9 +61,12 @@ const ConfirmBookStep = ({
 
   const finish = (result: SaveResult) => {
     if (result.ok) {
-      onSaved();
+      onSaved(result.bookId);
     } else if (result.failure.kind === "field") {
       showFieldError(result.failure.field, result.failure.message);
+      // El campo puede no verse (en un libro de catálogo no hay campos): el
+      // aviso junto al botón garantiza que el error se vea siempre.
+      setFormError(result.failure.message);
     } else {
       setFormError(result.failure.message);
     }
@@ -94,19 +97,13 @@ const ConfirmBookStep = ({
         onSubmit={form.handleSubmit(submit, revealInvalidFields)}
         sx={{ display: "grid", gap: 5 }}
       >
-        {formError && <Alert severity="error">{formError}</Alert>}
-
         {variant.showsCover && (
           <Box sx={{ width: 120, justifySelf: "center" }}>
             <BookCover title={title} coverUrl={book.coverUrl} />
           </Box>
         )}
 
-        <BookDataSection
-          isEditing={isEditing}
-          canToggleEditing={variant.canToggleEditing}
-          onToggleEditing={toggleEditing}
-        />
+        <BookDataSection isEditing={isEditing} />
 
         {variant.extra === "note" ? (
           <WishlistNoteField value={note} onChange={setNote} />
@@ -120,6 +117,8 @@ const ConfirmBookStep = ({
             onChange={setAreDetailsExpanded}
           />
         )}
+
+        {formError && <Alert severity="error">{formError}</Alert>}
 
         <SaveActions
           submitsTo={variant.submitsTo}

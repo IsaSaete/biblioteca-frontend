@@ -25,7 +25,7 @@ const unchanged: BookDataFormValues = {
   pageCount: "170",
   language: "es",
   synopsis: "Una historia real.",
-  categories: "Biografía",
+  categories: ["Biografía"],
 };
 
 describe("Given the edit book form values", () => {
@@ -42,7 +42,7 @@ describe("Given the edit book form values", () => {
         title: "  Otro título ",
         authors: "Autora Uno, Autor Dos",
         publishedYear: "2020",
-        categories: "Memorias, Salud",
+        categories: ["Memorias", "Salud"],
       });
 
       expect(overrides).toEqual({
@@ -62,7 +62,6 @@ describe("Given the edit book form values", () => {
         pageCount: "",
         language: "",
         synopsis: "",
-        categories: "",
       });
 
       expect(overrides).toEqual({
@@ -70,8 +69,18 @@ describe("Given the edit book form values", () => {
         pageCount: null,
         language: null,
         synopsis: null,
-        categories: null,
       });
+    });
+  });
+
+  describe("When every genre is removed", () => {
+    it("Then an empty list is sent, so the book keeps no genre instead of recovering the original", () => {
+      const overrides = buildOverridesRequest(book, {
+        ...unchanged,
+        categories: [],
+      });
+
+      expect(overrides).toEqual({ categories: [] });
     });
   });
 
@@ -88,7 +97,7 @@ describe("Given the edit book form values", () => {
         ...unchanged,
         publishedYear: "",
         language: "",
-        categories: "",
+        categories: [],
       });
 
       expect(overrides).toBeUndefined();

@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import { Outlet, useMatches, useSearchParams } from "react-router";
+import { Outlet, useMatches, useNavigate, useSearchParams } from "react-router";
 import AddBookModal from "../../../domains/books/components/AddBookModal/AddBookModal";
 import BottomNav, { BOTTOM_NAV_HEIGHT } from "../BottomNav/BottomNav";
 import {
@@ -18,6 +18,7 @@ import TopBar from "../TopBar/TopBar";
 const AppLayout = () => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const isAddBookOpen = searchParams.get("modal") === ADD_BOOK_MODAL;
   const initialStep =
@@ -58,7 +59,15 @@ const AppLayout = () => {
       </Box>
       {!isDesktop && <BottomNav items={mainNavItems} />}
       {isAddBookOpen && (
-        <AddBookModal initialStep={initialStep} onClose={closeAddBook} />
+        <AddBookModal
+          initialStep={initialStep}
+          onClose={closeAddBook}
+          // La ficha reemplaza a la pantalla con el modal abierto: al volver se
+          // llega a donde estaba la persona, no al formulario de añadir.
+          onAdded={(bookId) =>
+            void navigate(`/library/${bookId}`, { replace: true })
+          }
+        />
       )}
     </Box>
   );
