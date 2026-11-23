@@ -77,7 +77,7 @@ describe("Given the book detail page", () => {
         screen.queryByRole("button", { name: "Pendiente" }),
       ).not.toBeInTheDocument();
       expect(
-        screen.getByText("Debolsillo · 2012 · 170 páginas · español"),
+        screen.getByText("Debolsillo · 2012 · 170 páginas · Español"),
       ).toBeInTheDocument();
       expect(screen.getByText("Una historia real.")).toBeInTheDocument();
     });
