@@ -16,6 +16,9 @@ interface AddBookModalProps {
   // Añadir el libro a la «Lista de deseos» en lugar de añadirlo a la biblioteca.
   mode?: "wishlist";
   onClose: () => void;
+  // Si se informa, al guardar un libro en la biblioteca se avisa con su id en
+  // vez de cerrar: quien abre el flujo decide a dónde llevar (la ficha).
+  onAdded?: (bookId: string) => void;
 }
 
 type Step =
@@ -125,7 +128,12 @@ const KeyboardIcon = () => (
 // Flujo «Añadir libro». Cada paso que avanza guarda a dónde vuelve «Volver».
 // «Escanear código de barras» solo se ofrece si hay cámara (en escritorio sin
 // ella queda «Escribir ISBN», que llega al mismo autocompletado).
-const AddBookModal = ({ initialStep, mode, onClose }: AddBookModalProps) => {
+const AddBookModal = ({
+  initialStep,
+  mode,
+  onClose,
+  onAdded,
+}: AddBookModalProps) => {
   const [step, setStep] = useState<Step>(
     initialStep === "scan" ? { name: "scan" } : { name: "choose" },
   );
@@ -135,6 +143,14 @@ const AddBookModal = ({ initialStep, mode, onClose }: AddBookModalProps) => {
       ? { ...baseHeading, title: "Añade a tu lista de deseos" }
       : baseHeading;
   const hasCamera = useHasCamera();
+
+  const handleSaved = (bookId?: string): void => {
+    if (bookId && onAdded) {
+      onAdded(bookId);
+    } else {
+      onClose();
+    }
+  };
 
   const handleBack = (): void => {
     if (
@@ -250,11 +266,11 @@ const AddBookModal = ({ initialStep, mode, onClose }: AddBookModalProps) => {
             }}
             isManual
             mode={mode}
-            onSaved={onClose}
+            onSaved={handleSaved}
           />
         )}
         {step.name === "confirm" && (
-          <ConfirmBookStep book={step.book} mode={mode} onSaved={onClose} />
+          <ConfirmBookStep book={step.book} mode={mode} onSaved={handleSaved} />
         )}
       </Box>
     </FullScreenModal>
