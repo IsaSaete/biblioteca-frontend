@@ -174,6 +174,29 @@ const GenresEditor = ({
           getOptionLabel={(option) => option.genre}
           isOptionEqualToValue={(a, b) => a.genre === b.genre}
           noOptionsText="Ningún género coincide."
+          slotProps={{
+            // El fondo del modal y la superficie del listado casi no se
+            // distinguen (#FFFFFF y #F7F5F1): el borde, igual que el de los
+            // campos, y la sombra separan la lista del formulario.
+            paper: {
+              elevation: 8,
+              sx: { border: 1, borderColor: "text.secondary", mt: 1 },
+            },
+            // Con el teclado abierto en móvil queda poco alto: unas cinco filas,
+            // con su separador, y se desplaza el resto.
+            listbox: {
+              sx: {
+                maxHeight: 240,
+                "& .MuiAutocomplete-option": {
+                  minHeight: 48,
+                  "&:not(:last-of-type)": {
+                    borderBottom: 1,
+                    borderColor: "divider",
+                  },
+                },
+              },
+            },
+          }}
           renderOption={({ key, ...props }, option) => (
             <li key={key} {...props}>
               {option.isCustom
