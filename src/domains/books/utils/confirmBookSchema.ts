@@ -21,7 +21,10 @@ export const confirmBookSchema = z.object({
     .string()
     .trim()
     .regex(/^(\d{4})?$/, "Escribe un año de 4 cifras"),
-  language: z.string().trim(),
+  language: z
+    .string()
+    .trim()
+    .max(20, "El idioma no puede tener más de 20 caracteres"),
   pageCount: z
     .string()
     .trim()
