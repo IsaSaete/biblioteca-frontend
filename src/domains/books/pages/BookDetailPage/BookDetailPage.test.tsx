@@ -77,9 +77,23 @@ describe("Given the book detail page", () => {
         screen.queryByRole("button", { name: "Pendiente" }),
       ).not.toBeInTheDocument();
       expect(
-        screen.getByText("Debolsillo · 2012 · 170 páginas · español"),
+        screen.getByText("Debolsillo · 2012 · 170 páginas · Español"),
       ).toBeInTheDocument();
       expect(screen.getByText("Una historia real.")).toBeInTheDocument();
+    });
+  });
+
+  describe("When the book has genres", () => {
+    it("Then it shows them under its data", async () => {
+      server.use(
+        http.get(`${baseUrl}/books/book-1`, () =>
+          HttpResponse.json(entry({ categories: ["Novela", "Ficción"] })),
+        ),
+      );
+
+      renderRoutes(routes, ["/library/book-1"]);
+
+      expect(await screen.findByText("Novela · Ficción")).toBeInTheDocument();
     });
   });
 

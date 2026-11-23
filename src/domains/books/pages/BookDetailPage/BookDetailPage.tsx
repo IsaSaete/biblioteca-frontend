@@ -27,6 +27,7 @@ import StatusSelector from "../../components/StatusSelector/StatusSelector";
 import { capitalizeWords } from "../../utils/capitalizeFirst";
 import { getTagSuggestions } from "../../utils/getTagSuggestions";
 import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
+import { formatLanguage } from "../../utils/formatLanguage";
 
 // En móvil y tablet la ficha es una columna con las zonas apiladas en este
 // orden. En escritorio (≥ 1024 px) la identidad del libro queda fija a la
@@ -68,16 +69,6 @@ const identitySx = {
     top: 16,
   },
 } as const;
-
-const languageNames = new Intl.DisplayNames(["es"], { type: "language" });
-
-const getLanguageName = (code: string): string => {
-  try {
-    return languageNames.of(code) ?? code;
-  } catch {
-    return code;
-  }
-};
 
 const StarIcon = ({ filled }: { filled: boolean }) => (
   <svg
@@ -219,7 +210,7 @@ const BookDetailPage = () => {
       book.publisher,
       book.publishedYear?.toString(),
       book.pageCount ? `${book.pageCount} páginas` : undefined,
-      book.language ? getLanguageName(book.language) : undefined,
+      book.language ? formatLanguage(book.language) : undefined,
     ].filter((detail): detail is string => Boolean(detail));
 
     // «Eliminar libro» se pinta una sola vez: al pie de la identidad fija en
@@ -270,6 +261,14 @@ const BookDetailPage = () => {
               >
                 {details.join(" · ")}
               </Typography>
+              {book.categories && book.categories.length > 0 && (
+                <Typography
+                  color="text.secondary"
+                  sx={{ mt: 0.5, fontSize: "0.875rem" }}
+                >
+                  {book.categories.join(" · ")}
+                </Typography>
+              )}
             </Box>
             <StatusSelector
               status={book.status}
