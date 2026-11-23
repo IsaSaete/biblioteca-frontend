@@ -1,11 +1,10 @@
-// Confirma con el cuerpo, además de con lo que se ve, que el código se leyó.
-// Cada vía depende del dispositivo y ninguna puede romper el escaneo.
+// Confirma con el cuerpo y el oído, además de con lo que se ve, que el código se
+// leyó. Cada vía depende del dispositivo y ninguna puede romper el escaneo.
 //
 // - Android (Chrome, Firefox): `navigator.vibrate`.
-// - iPhone: ningún navegador de iOS tiene `navigator.vibrate`. Se prueba un
-//   truco NO oficial: un interruptor `<input type="checkbox" switch>` oculto,
-//   que iOS 17.4 o superior acompaña con un toque háptico al activarse. Puede no
-//   funcionar si el sistema exige un toque reciente del usuario.
+// - iPhone: ningún navegador de iOS la tiene. Se probó un truco no oficial (un
+//   `<input type="checkbox" switch>` oculto, que iOS 17.4+ acompaña con un toque
+//   háptico) y no funcionó en un iPhone real (D-070), así que se quitó.
 // - Un pitido corto con Web Audio. En iOS solo suena si el contexto de audio
 //   se desbloqueó con una interacción (por eso `primeScanFeedback`) y si el
 //   interruptor de silencio no está activo.
@@ -16,7 +15,6 @@ const BEEP_DURATION_S = 0.15;
 const BEEP_VOLUME = 0.2;
 
 let audioContext: AudioContext | null = null;
-let hapticSwitch: HTMLInputElement | null = null;
 
 const getAudioContext = (): AudioContext | null => {
   if (audioContext) {
@@ -34,38 +32,6 @@ const getAudioContext = (): AudioContext | null => {
   }
 
   return audioContext;
-};
-
-const getHapticSwitch = (): HTMLInputElement => {
-  if (hapticSwitch?.isConnected) {
-    return hapticSwitch;
-  }
-
-  const input = document.createElement("input");
-  input.type = "checkbox";
-  input.setAttribute("switch", "");
-  input.tabIndex = -1;
-
-  // Fuera de pantalla y sin que nada lo toque: solo existe para que el sistema
-  // note que se activa.
-  const label = document.createElement("label");
-  label.setAttribute("aria-hidden", "true");
-  Object.assign(label.style, {
-    position: "fixed",
-    left: "-9999px",
-    top: "0",
-    opacity: "0",
-    pointerEvents: "none",
-  });
-  label.appendChild(input);
-  document.body.appendChild(label);
-  hapticSwitch = input;
-
-  return input;
-};
-
-const tapHaptic = (): void => {
-  getHapticSwitch().parentElement?.click();
 };
 
 const playBeep = (): void => {
@@ -102,11 +68,9 @@ const playBeep = (): void => {
 };
 
 // Se llama al abrir el escáner, justo tras el toque del usuario: es el momento
-// en que el navegador deja desbloquear el audio, y el interruptor háptico ya
-// está en la página cuando haga falta.
+// en que el navegador deja desbloquear el audio.
 export const primeScanFeedback = (): void => {
   try {
-    getHapticSwitch();
     void getAudioContext()
       ?.resume()
       .catch(() => undefined);
@@ -117,13 +81,12 @@ export const primeScanFeedback = (): void => {
 
 export const signalScanSuccess = (): void => {
   try {
+    // Sin `navigator.vibrate` (iPhone) no hay vibración posible.
     if (typeof navigator.vibrate === "function") {
       navigator.vibrate(VIBRATION_MS);
-    } else {
-      tapHaptic();
     }
   } catch {
-    // Sin soporte: se sigue con el sonido.
+    // Bloqueada por el navegador: se sigue con el sonido.
   }
 
   try {

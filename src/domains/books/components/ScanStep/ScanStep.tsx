@@ -25,7 +25,7 @@ const SLOW_HINT_DELAY_MS = 8000;
 // Cuánto se mantiene el aviso de «es un código, pero no un ISBN» tras verlo.
 const OTHER_CODE_NOTICE_MS = 3000;
 // Cuánto se enseña el «código leído» antes de pasar al paso siguiente.
-const FOUND_DELAY_MS = 450;
+const FOUND_DELAY_MS = 800;
 // Zoom digital: la vista se amplía y se lee solo la parte central. No da más
 // detalle al código (eso depende de la resolución y de la distancia), pero deja
 // ver si está enfocado y reduce lo que se analiza.
@@ -71,7 +71,7 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
   }, [zoom]);
 
   // Al abrir, justo tras el toque que llevó hasta aquí: es cuando el navegador
-  // deja desbloquear el audio y dejar a punto la señal háptica.
+  // deja desbloquear el audio.
   useEffect(() => {
     primeScanFeedback();
   }, []);
@@ -94,8 +94,8 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
     };
 
     // Deja de leer, pero la cámara sigue encendida un instante: se ve el
-    // recuadro en verde y se confirma con vibración y sonido antes de pasar al
-    // paso siguiente, para que no quede duda de que se leyó.
+    // recuadro en verde y se confirma con vibración (Android) y sonido antes de
+    // pasar al paso siguiente, para que no quede duda de que se leyó.
     const confirmRead = (isbn: string) => {
       isStopped = true;
       clearTimeout(timeout);
