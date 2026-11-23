@@ -24,7 +24,7 @@ const unchanged: EditBookFormValues = {
   pageCount: "",
   language: "",
   synopsis: "",
-  categories: "",
+  categories: [],
   location: "Salón",
   format: "pocket",
   provenance: "",
