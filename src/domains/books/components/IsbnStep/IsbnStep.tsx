@@ -57,7 +57,13 @@ const IsbnStep = ({
       return;
     }
 
-    const lookupError = getBookLookupError(result.error);
+    const lookupError = getBookLookupError(result.error, {
+      isbn: normalizeIsbn(value),
+      // Solo si se busca el mismo ISBN que leyó la cámara: si lo cambió a mano,
+      // ya no es una lectura.
+      scanned:
+        autoLookup && normalizeIsbn(value) === normalizeIsbn(initialIsbn),
+    });
 
     if (lookupError.field === "isbn") {
       setFieldError(lookupError.message);

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import ScanStep from "./ScanStep";
 
@@ -153,6 +153,64 @@ describe("Given the barcode scan step", () => {
 
       expect(onIsbnScanned).not.toHaveBeenCalled();
     });
+  });
+
+  describe("When the camera is scanning", () => {
+    it("Then Escribir ISBN is always available as a way out", async () => {
+      const user = userEvent.setup();
+      const { onWriteIsbn } = renderScan();
+      await screen.findByText("Apunta al código de barras del libro.");
+
+      await user.click(screen.getByRole("button", { name: "Escribir ISBN" }));
+
+      expect(onWriteIsbn).toHaveBeenCalledTimes(1);
+      expect(
+        screen.queryByRole("button", { name: "Reintentar" }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("When nothing has been read after a while", () => {
+    it("Then it suggests what to try", async () => {
+      vi.useFakeTimers();
+
+      try {
+        renderScan();
+        await act(async () => {
+          await vi.advanceTimersByTimeAsync(2000);
+        });
+        expect(screen.queryByText(/¿Cuesta leerlo\?/)).not.toBeInTheDocument();
+
+        await act(async () => {
+          await vi.advanceTimersByTimeAsync(7000);
+        });
+
+        expect(screen.getByText(/¿Cuesta leerlo\?/)).toBeInTheDocument();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+  });
+
+  describe("When the camera sees a barcode that is not an ISBN", () => {
+    it("Then it says so, and goes back to the usual text after a moment", async () => {
+      detect
+        .mockResolvedValueOnce([{ rawValue: "4006381333931" }])
+        .mockResolvedValue([]);
+      const { onIsbnScanned } = renderScan();
+
+      expect(
+        await screen.findByText(/Veo un código, pero no es el ISBN del libro/),
+      ).toBeInTheDocument();
+      await waitFor(
+        () =>
+          expect(
+            screen.getByText("Apunta al código de barras del libro."),
+          ).toBeInTheDocument(),
+        { timeout: 5000 },
+      );
+      expect(onIsbnScanned).not.toHaveBeenCalled();
+    }, 10000);
   });
 
   describe("When the camera permission is denied", () => {
