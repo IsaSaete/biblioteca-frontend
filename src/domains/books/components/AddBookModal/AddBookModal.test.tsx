@@ -182,6 +182,38 @@ describe("Given the add book flow", () => {
     });
   });
 
+  describe("When the server rejects a field that is not on screen", () => {
+    it("Then the error shows next to the save button", async () => {
+      mockLookup();
+      server.use(
+        http.post(`${baseUrl}/books`, () =>
+          HttpResponse.json(
+            {
+              error: {
+                code: "VALIDATION_ERROR",
+                message: "El idioma no es válido",
+                field: "language",
+              },
+            },
+            { status: 400 },
+          ),
+        ),
+      );
+      const { user } = renderRoutes(routes, ["/library"]);
+      await openIsbnStep(user);
+      await user.type(screen.getByLabelText("ISBN"), "9788437604947");
+      await user.click(screen.getByRole("button", { name: "Buscar libro" }));
+
+      await user.click(
+        await screen.findByRole("button", { name: "Añadir a mi biblioteca" }),
+      );
+
+      expect(await screen.findByRole("alert")).toHaveTextContent(
+        "El idioma no es válido",
+      );
+    });
+  });
+
   describe("When the book comes from the catalog with all its data", () => {
     it("Then the data can only be confirmed and the catalog data is the one sent", async () => {
       mockLookup();

@@ -63,6 +63,9 @@ const ConfirmBookStep = ({
       onSaved();
     } else if (result.failure.kind === "field") {
       showFieldError(result.failure.field, result.failure.message);
+      // El campo puede no verse (en un libro de catálogo no hay campos): el
+      // aviso junto al botón garantiza que el error se vea siempre.
+      setFormError(result.failure.message);
     } else {
       setFormError(result.failure.message);
     }
@@ -93,8 +96,6 @@ const ConfirmBookStep = ({
         onSubmit={form.handleSubmit(submit, revealInvalidFields)}
         sx={{ display: "grid", gap: 5 }}
       >
-        {formError && <Alert severity="error">{formError}</Alert>}
-
         {variant.showsCover && (
           <Box sx={{ width: 120, justifySelf: "center" }}>
             <BookCover title={title} coverUrl={book.coverUrl} />
@@ -115,6 +116,8 @@ const ConfirmBookStep = ({
             onChange={setAreDetailsExpanded}
           />
         )}
+
+        {formError && <Alert severity="error">{formError}</Alert>}
 
         <SaveActions
           submitsTo={variant.submitsTo}
