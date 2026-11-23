@@ -14,15 +14,21 @@ import {
 } from "../../scanner/getScanRegion";
 import { loadBarcodeDetector } from "../../scanner/loadBarcodeDetector";
 import type { BarcodeReader } from "../../scanner/loadBarcodeDetector";
+import {
+  primeScanFeedback,
+  signalScanSuccess,
+} from "../../scanner/signalScanSuccess";
 
 const SCAN_INTERVAL_MS = 250;
-// Zoom digital: la vista se amplía y se lee solo la parte central. No da más
-// detalle al código (eso depende de la resolución y de la distancia), pero deja
-// ver si está enfocado y reduce lo que se analiza.
 // Si pasado este tiempo no se ha leído nada, se sugiere qué probar.
 const SLOW_HINT_DELAY_MS = 8000;
 // Cuánto se mantiene el aviso de «es un código, pero no un ISBN» tras verlo.
 const OTHER_CODE_NOTICE_MS = 3000;
+// Cuánto se enseña el «código leído» antes de pasar al paso siguiente.
+const FOUND_DELAY_MS = 450;
+// Zoom digital: la vista se amplía y se lee solo la parte central. No da más
+// detalle al código (eso depende de la resolución y de la distancia), pero deja
+// ver si está enfocado y reduce lo que se analiza.
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 3;
 const ZOOM_STEP = 0.1;
@@ -30,7 +36,7 @@ const ZOOM_STEP = 0.1;
 // consultar con una lectura suelta de un fotograma movido.
 const REQUIRED_CONSECUTIVE_READS = 2;
 
-type ScanStatus = "starting" | "scanning" | "denied" | "failed";
+type ScanStatus = "starting" | "scanning" | "found" | "denied" | "failed";
 
 interface ScanStepProps {
   onIsbnScanned: (isbn: string) => void;
@@ -64,19 +70,44 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
     zoomRef.current = zoom;
   }, [zoom]);
 
+  // Al abrir, justo tras el toque que llevó hasta aquí: es cuando el navegador
+  // deja desbloquear el audio y dejar a punto la señal háptica.
+  useEffect(() => {
+    primeScanFeedback();
+  }, []);
+
   useEffect(() => {
     let isStopped = false;
     let stream: MediaStream | null = null;
     let timeout: ReturnType<typeof setTimeout> | undefined;
     let otherCodeTimer: ReturnType<typeof setTimeout> | undefined;
     let slowTimer: ReturnType<typeof setTimeout> | undefined;
+    let foundTimer: ReturnType<typeof setTimeout> | undefined;
 
     const stop = () => {
       isStopped = true;
       clearTimeout(timeout);
       clearTimeout(otherCodeTimer);
       clearTimeout(slowTimer);
+      clearTimeout(foundTimer);
       stream?.getTracks().forEach((track) => track.stop());
+    };
+
+    // Deja de leer, pero la cámara sigue encendida un instante: se ve el
+    // recuadro en verde y se confirma con vibración y sonido antes de pasar al
+    // paso siguiente, para que no quede duda de que se leyó.
+    const confirmRead = (isbn: string) => {
+      isStopped = true;
+      clearTimeout(timeout);
+      clearTimeout(otherCodeTimer);
+      clearTimeout(slowTimer);
+      setSawOtherCode(false);
+      setStatus("found");
+      signalScanSuccess();
+      foundTimer = setTimeout(() => {
+        stop();
+        onIsbnScannedRef.current(isbn);
+      }, FOUND_DELAY_MS);
     };
 
     const scan = async (video: HTMLVideoElement, detector: BarcodeReader) => {
@@ -114,8 +145,7 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
           lastIsbn = isbn;
 
           if (isbn !== null && reads >= REQUIRED_CONSECUTIVE_READS) {
-            stop();
-            onIsbnScannedRef.current(isbn);
+            confirmRead(isbn);
             return;
           }
         } catch {
@@ -229,11 +259,48 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
             position: "absolute",
             inset: `${GUIDE_INSET_Y_PERCENT}% ${GUIDE_INSET_X_PERCENT}%`,
             border: 2,
-            borderColor: "common.white",
+            borderColor: status === "found" ? "success.main" : "common.white",
             borderRadius: 1,
             pointerEvents: "none",
           }}
         />
+        {status === "found" && (
+          <Box
+            aria-hidden="true"
+            sx={{
+              position: "absolute",
+              inset: 0,
+              display: "grid",
+              placeItems: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <Box
+              sx={{
+                width: 72,
+                height: 72,
+                borderRadius: "50%",
+                bgcolor: "success.main",
+                color: "success.contrastText",
+                display: "grid",
+                placeItems: "center",
+              }}
+            >
+              <svg
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M5 13l4 4L19 7" />
+              </svg>
+            </Box>
+          </Box>
+        )}
         <Box sx={{ position: "absolute", left: 0, right: 0, bottom: 0, px: 6 }}>
           <Slider
             aria-label="Zoom"
@@ -244,6 +311,7 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
             onChange={(_event, value) =>
               setZoom(Array.isArray(value) ? (value[0] ?? MIN_ZOOM) : value)
             }
+            disabled={status === "found"}
             valueLabelDisplay="auto"
             valueLabelFormat={(value) => `${value.toFixed(1)}×`}
             getAriaValueText={(value) => `${value.toFixed(1)} aumentos`}
@@ -258,6 +326,7 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
         sx={{ textAlign: "center" }}
       >
         {status === "starting" && "Preparando la cámara…"}
+        {status === "found" && "Código leído."}
         {status === "scanning" &&
           (sawOtherCode
             ? "Veo un código, pero no es el ISBN del libro: busca el que empieza por 978 o 979."

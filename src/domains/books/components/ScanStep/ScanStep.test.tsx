@@ -8,6 +8,13 @@ vi.mock("../../scanner/loadBarcodeDetector", () => ({
   loadBarcodeDetector: () => Promise.resolve({ detect }),
 }));
 
+const feedback = vi.hoisted(() => ({
+  primeScanFeedback: vi.fn(),
+  signalScanSuccess: vi.fn(),
+}));
+
+vi.mock("../../scanner/signalScanSuccess", () => feedback);
+
 const stopTrack = vi.fn();
 const getUserMedia = vi.fn();
 
@@ -35,6 +42,8 @@ vi.mock("../../scanner/captureRegion", () => ({ captureRegion }));
 describe("Given the barcode scan step", () => {
   beforeEach(() => {
     detect.mockReset().mockResolvedValue([]);
+    feedback.primeScanFeedback.mockReset();
+    feedback.signalScanSuccess.mockReset();
     getUserMedia.mockReset();
     stopTrack.mockReset();
     stubCamera();
@@ -137,6 +146,32 @@ describe("Given the barcode scan step", () => {
 
       expect(onIsbnScanned).toHaveBeenCalledWith("9788437604947");
       expect(stopTrack).toHaveBeenCalled();
+    });
+  });
+
+  describe("When the ISBN is read", () => {
+    it("Then it confirms the read first and moves on a moment later", async () => {
+      detect.mockResolvedValue([{ rawValue: "9788437604947" }]);
+      const { onIsbnScanned } = renderScan();
+
+      expect(await screen.findByText("Código leído.")).toBeInTheDocument();
+      expect(feedback.signalScanSuccess).toHaveBeenCalledTimes(1);
+      expect(onIsbnScanned).not.toHaveBeenCalled();
+      expect(screen.getByRole("slider", { name: "Zoom" })).toBeDisabled();
+
+      await waitFor(() =>
+        expect(onIsbnScanned).toHaveBeenCalledWith("9788437604947"),
+      );
+    });
+  });
+
+  describe("When the scanner opens", () => {
+    it("Then it prepares the vibration and the sound right away", async () => {
+      renderScan();
+      await screen.findByText("Apunta al código de barras del libro.");
+
+      expect(feedback.primeScanFeedback).toHaveBeenCalledTimes(1);
+      expect(feedback.signalScanSuccess).not.toHaveBeenCalled();
     });
   });
 
