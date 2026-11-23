@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -53,6 +53,7 @@ const GenresEditor = ({
   disabled = false,
 }: GenresEditorProps) => {
   const [text, setText] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
   const isFull = genres.length >= MAX_GENRES;
   const options: GenreOption[] = sortedGenres
     .filter((genre) => !genres.some((selected) => sameGenre(selected, genre)))
@@ -168,6 +169,9 @@ const GenresEditor = ({
           onChange={(_event, option) => {
             if (option) {
               addGenre(option.genre);
+              // En el móvil, tocar una opción puede quitar el foco al campo y
+              // cerrar el teclado: se devuelve para poder seguir escribiendo.
+              searchRef.current?.focus();
             }
           }}
           filterOptions={filterOptions}
@@ -208,6 +212,7 @@ const GenresEditor = ({
             <TextField
               {...params}
               label="Buscar género"
+              inputRef={searchRef}
               slotProps={{
                 ...params.slotProps,
                 input: {
