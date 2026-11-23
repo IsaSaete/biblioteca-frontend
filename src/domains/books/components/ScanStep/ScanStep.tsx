@@ -3,7 +3,14 @@ import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
+import { captureRegion } from "../../scanner/captureRegion";
 import { extractIsbn } from "../../scanner/extractIsbn";
+import {
+  GUIDE_INSET_X_PERCENT,
+  GUIDE_INSET_Y_PERCENT,
+  VIEWFINDER_ASPECT_RATIO,
+  getScanRegion,
+} from "../../scanner/getScanRegion";
 import { loadBarcodeDetector } from "../../scanner/loadBarcodeDetector";
 import type { BarcodeReader } from "../../scanner/loadBarcodeDetector";
 
@@ -24,7 +31,9 @@ const isPermissionError = (error: unknown): boolean =>
   (error.name === "NotAllowedError" || error.name === "SecurityError");
 
 // «Escanear código de barras» (HU-15). Abre la cámara trasera, lee el EAN-13
-// del libro y entrega su ISBN. Al salir (o al leerlo) la cámara se apaga siempre.
+// del libro y entrega su ISBN. Solo se analiza la zona del recuadro guía, a la
+// resolución del vídeo, y no el fotograma entero. Al salir (o al leerlo) la
+// cámara se apaga siempre.
 const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const onIsbnScannedRef = useRef(onIsbnScanned);
@@ -49,6 +58,7 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
     const scan = async (video: HTMLVideoElement, detector: BarcodeReader) => {
       let lastIsbn: string | null = null;
       let reads = 0;
+      const canvas = document.createElement("canvas");
 
       const tick = async () => {
         if (isStopped) {
@@ -56,7 +66,9 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
         }
 
         try {
-          const isbn = extractIsbn(await detector.detect(video));
+          const region = getScanRegion(video.videoWidth, video.videoHeight, 1);
+          const source = region ? captureRegion(video, region, canvas) : video;
+          const isbn = extractIsbn(await detector.detect(source));
           reads = isbn !== null && isbn === lastIsbn ? reads + 1 : isbn ? 1 : 0;
           lastIsbn = isbn;
 
@@ -146,7 +158,7 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
         hidden={hasProblem}
         sx={{
           position: "relative",
-          aspectRatio: "4 / 3",
+          aspectRatio: VIEWFINDER_ASPECT_RATIO,
           borderRadius: 1.5,
           overflow: "hidden",
           bgcolor: "common.black",
@@ -166,7 +178,7 @@ const ScanStep = ({ onIsbnScanned, onWriteIsbn }: ScanStepProps) => {
           aria-hidden="true"
           sx={{
             position: "absolute",
-            inset: "25% 10%",
+            inset: `${GUIDE_INSET_Y_PERCENT}% ${GUIDE_INSET_X_PERCENT}%`,
             border: 2,
             borderColor: "common.white",
             borderRadius: 1,

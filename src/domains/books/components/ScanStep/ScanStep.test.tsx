@@ -28,6 +28,10 @@ const renderScan = () => {
   return { ...view, onIsbnScanned, onWriteIsbn };
 };
 
+vi.mock("../../scanner/captureRegion", () => ({
+  captureRegion: () => "captured-region",
+}));
+
 describe("Given the barcode scan step", () => {
   beforeEach(() => {
     detect.mockReset().mockResolvedValue([]);
@@ -59,6 +63,25 @@ describe("Given the barcode scan step", () => {
         audio: false,
       });
       expect(screen.getByLabelText("Vista de la cámara")).toBeInTheDocument();
+    });
+  });
+
+  describe("When the video already has a size", () => {
+    it("Then it reads only the region of the guide frame, not the whole video", async () => {
+      vi.spyOn(HTMLVideoElement.prototype, "videoWidth", "get").mockReturnValue(
+        1920,
+      );
+      vi.spyOn(
+        HTMLVideoElement.prototype,
+        "videoHeight",
+        "get",
+      ).mockReturnValue(1080);
+      renderScan();
+
+      await waitFor(() => expect(detect).toHaveBeenCalled());
+
+      expect(detect).toHaveBeenCalledWith("captured-region");
+      vi.restoreAllMocks();
     });
   });
 
