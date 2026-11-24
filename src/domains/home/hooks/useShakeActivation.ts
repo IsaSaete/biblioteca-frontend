@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { requestMotionPermission } from "../utils/motionPermission";
+import { requestMotionPermission } from "../../../utils/motionPermission";
 import { writeShakeSetting } from "../utils/shakeSetting";
 import { createTapCounter } from "../utils/tapCounter";
 
