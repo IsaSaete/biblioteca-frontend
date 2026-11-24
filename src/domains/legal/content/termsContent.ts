@@ -38,14 +38,14 @@ export const termsContent: LegalContent = {
       heading: "Tu contenido",
       paragraphs: [
         "Tus libros, notas y citas son tuyos y solo los ves tú: Glosa no tiene perfiles públicos ni comparte lo que guardas. Nos das el permiso técnico necesario para almacenarlos y mostrártelos.",
-        "Las citas que guardes son para tu uso personal. Eres responsable de que guardarlas no infrinja derechos de autor, por ejemplo copiando fragmentos extensos.",
+        "Las citas que guardes son para tu uso personal. Eres responsable de que guardarlas no infrinja derechos de autoría, por ejemplo copiando fragmentos extensos.",
         "Puedes descargar todo lo que guardas o eliminarlo cuando quieras desde Perfil.",
       ],
     },
     {
       heading: "Datos de los libros",
       paragraphs: [
-        "La información de los libros (título, autor, portada, editorial…) viene de Google Books y Open Library y puede tener errores. Puedes corregirla en tu ficha.",
+        "La información de los libros (título, autor/a, portada, editorial…) viene de Google Books y Open Library y puede tener errores. Puedes corregirla en tu ficha.",
       ],
     },
     {
