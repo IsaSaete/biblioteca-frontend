@@ -210,7 +210,8 @@ const QuoteFormDialog = ({
     : step.name === "review" && step.origin === "ocr"
       ? {
           title: "Revisa el texto",
-          subtitle: "Puede tener errores: corrígelo antes de guardar.",
+          subtitle:
+            "Puede tener errores, sobre todo con subrayado o poca luz: corrígelo antes de guardar.",
         }
       : headings[step.name];
 

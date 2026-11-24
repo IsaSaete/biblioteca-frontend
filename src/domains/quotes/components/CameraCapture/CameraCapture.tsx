@@ -1,9 +1,20 @@
+import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
+import Pill from "../../../../components/ui/Pill/Pill";
 import { useCameraStream } from "../../../../hooks/useCameraStream";
+import { useDeviceOrientation } from "../../../../hooks/useDeviceOrientation";
+import { requestMotionPermission } from "../../../../utils/motionPermission";
+import { visuallyHidden } from "../../../../utils/visuallyHidden";
 import { getVisibleRegion } from "../../ocr/imageSize";
+import { getTiltOffset } from "../../utils/getTiltOffset";
+import LevelGuide from "../LevelGuide/LevelGuide";
+
+// Tiempo que se espera la primera lectura de inclinación antes de dar el nivel
+// por imposible.
+const NO_READING_TIMEOUT_MS = 1500;
 
 interface CameraCaptureProps {
   // Foto del encuadre, a la resolución de la cámara (se recorta y se reduce
@@ -14,10 +25,55 @@ interface CameraCaptureProps {
 
 // Visor de cámara para fotografiar un fragmento del libro (HU-24). Con la
 // cámara denegada o sin poder abrirla, nunca deja al usuario atascado: ofrece
-// reintentar o escribir la cita a mano.
+// reintentar o escribir la cita a mano. Un botón «Nivel» opcional dibuja una
+// burbuja para ver si el móvil está recto: el texto torcido o en perspectiva se
+// lee peor.
 const CameraCapture = ({ onCapture, onWrite }: CameraCaptureProps) => {
   const { videoRef, status, retry } = useCameraStream();
   const hasProblem = status === "denied" || status === "failed";
+  const [isLevelOn, setIsLevelOn] = useState(false);
+  const [levelNotice, setLevelNotice] = useState<string | null>(null);
+  const orientation = useDeviceOrientation(isLevelOn);
+  const tilt = orientation ? getTiltOffset(orientation) : null;
+  const hasReading = orientation !== null;
+
+  // Un ordenador no tiene sensor de inclinación (y un móvil sin permiso tampoco
+  // da lecturas): si no llega ninguna, se dice en vez de quedarse mudo.
+  useEffect(() => {
+    if (!isLevelOn || hasReading) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setIsLevelOn(false);
+      setLevelNotice(
+        "No recibo la inclinación de este dispositivo: el nivel no puede funcionar aquí.",
+      );
+    }, NO_READING_TIMEOUT_MS);
+
+    return () => clearTimeout(timer);
+  }, [isLevelOn, hasReading]);
+
+  // El permiso de inclinación en iPhone solo se puede pedir desde el toque.
+  const toggleLevel = () => {
+    if (isLevelOn) {
+      setIsLevelOn(false);
+      return;
+    }
+
+    void requestMotionPermission("orientation").then((permission) => {
+      if (permission === "granted") {
+        setLevelNotice(null);
+        setIsLevelOn(true);
+      } else {
+        setLevelNotice(
+          permission === "denied"
+            ? "Sin permiso para notar la inclinación, el nivel no puede funcionar."
+            : "Este dispositivo no tiene sensor de inclinación.",
+        );
+      }
+    });
+  };
 
   const capture = () => {
     const video = videoRef.current;
@@ -71,6 +127,7 @@ const CameraCapture = ({ onCapture, onWrite }: CameraCaptureProps) => {
           width: "100%",
           maxWidth: "calc(55dvh * 3 / 4)",
           mx: "auto",
+          position: "relative",
           borderRadius: 1.5,
           overflow: "hidden",
           bgcolor: "common.black",
@@ -86,6 +143,24 @@ const CameraCapture = ({ onCapture, onWrite }: CameraCaptureProps) => {
           aria-label="Vista de la cámara"
           sx={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
+        {tilt && <LevelGuide tilt={tilt} />}
+        {status === "ready" && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 8,
+              right: 8,
+              bgcolor: "background.paper",
+              borderRadius: "999px",
+            }}
+          >
+            <Pill label="Nivel" selected={isLevelOn} onClick={toggleLevel} />
+          </Box>
+        )}
+      </Box>
+      {/* Solo se anuncia al lector de pantalla cuando se consigue el nivel. */}
+      <Box role="status" sx={visuallyHidden}>
+        {tilt?.isLevel ? "Nivelado." : ""}
       </Box>
 
       <Typography
@@ -96,6 +171,23 @@ const CameraCapture = ({ onCapture, onWrite }: CameraCaptureProps) => {
         {status === "starting" && "Preparando la cámara…"}
         {status === "ready" && "Encuadra el texto de la cita y pulsa Capturar."}
       </Typography>
+      {levelNotice && (
+        <Typography
+          color="text.secondary"
+          sx={{ textAlign: "center", fontSize: "0.875rem" }}
+        >
+          {levelNotice}
+        </Typography>
+      )}
+      {!hasProblem && (
+        <Typography
+          color="text.secondary"
+          sx={{ textAlign: "center", fontSize: "0.875rem" }}
+        >
+          Se lee mejor con buena luz, sin sombras y con el libro recto. El
+          subrayado a lápiz confunde al lector: revisa el texto después.
+        </Typography>
+      )}
 
       {hasProblem ? (
         <Box sx={{ display: "grid", gap: 3 }}>
