@@ -6,16 +6,18 @@ import type { NavItem } from "../navItems";
 interface NavItemLinkProps {
   item: NavItem;
   placement: "bottom" | "side";
+  onClick?: () => void;
 }
 
 // Icono sobre etiqueta. El estado activo se marca con el icono y un indicador
 // en terracota (contraste suficiente para elementos gráficos, 3:1), pero la
 // etiqueta usa el color de texto: el terracota claro no llega a 4,5:1 sobre
 // la superficie para texto pequeño.
-const NavItemLink = ({ item, placement }: NavItemLinkProps) => (
+const NavItemLink = ({ item, placement, onClick }: NavItemLinkProps) => (
   <ButtonBase
     component={NavLink}
     to={item.to}
+    onClick={onClick}
     sx={{
       position: "relative",
       flex: placement === "bottom" ? 1 : undefined,

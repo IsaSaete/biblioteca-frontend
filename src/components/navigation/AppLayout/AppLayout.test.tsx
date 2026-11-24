@@ -3,6 +3,12 @@ import { renderRoutes } from "../../../test/renderRoutes";
 import AppLayout from "./AppLayout";
 import { setDesktopViewport } from "../../../test/setDesktopViewport";
 
+const requestMotionPermission = vi.hoisted(() => vi.fn());
+
+vi.mock("../../../domains/home/utils/motionPermission", () => ({
+  requestMotionPermission,
+}));
+
 const routes = [
   {
     element: <AppLayout />,
@@ -81,6 +87,24 @@ describe("Given the layout of the screens with a session", () => {
         "aria-current",
         "page",
       );
+    });
+  });
+
+  describe("When Biblioteca is pressed five times in a row", () => {
+    it("Then the secret of shaking the phone is activated and the user is told", async () => {
+      setDesktopViewport(false);
+      localStorage.clear();
+      requestMotionPermission.mockReset().mockResolvedValue("granted");
+      const { user } = renderRoutes(routes, ["/library"]);
+
+      for (let taps = 0; taps < 5; taps += 1) {
+        await user.click(screen.getByRole("link", { name: "Biblioteca" }));
+      }
+
+      expect(
+        await screen.findByText(/Has encontrado un secreto/),
+      ).toBeInTheDocument();
+      expect(localStorage.getItem("glosa.shake")).toBe("on");
     });
   });
 

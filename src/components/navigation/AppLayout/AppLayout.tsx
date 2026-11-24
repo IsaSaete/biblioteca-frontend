@@ -1,8 +1,10 @@
 import Box from "@mui/material/Box";
+import Snackbar from "@mui/material/Snackbar";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import { Outlet, useMatches, useNavigate, useSearchParams } from "react-router";
 import AddBookModal from "../../../domains/books/components/AddBookModal/AddBookModal";
+import { useShakeActivation } from "../../../domains/home/hooks/useShakeActivation";
 import BottomNav, { BOTTOM_NAV_HEIGHT } from "../BottomNav/BottomNav";
 import {
   ADD_BOOK_MODAL,
@@ -19,6 +21,7 @@ const AppLayout = () => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const navigate = useNavigate();
+  const { handleNavTap, notice, clearNotice } = useShakeActivation();
   const [searchParams, setSearchParams] = useSearchParams();
   const isAddBookOpen = searchParams.get("modal") === ADD_BOOK_MODAL;
   const initialStep =
@@ -57,7 +60,16 @@ const AppLayout = () => {
         {hasTopBar && <TopBar />}
         <Outlet />
       </Box>
-      {!isDesktop && <BottomNav items={mainNavItems} />}
+      {!isDesktop && (
+        <BottomNav items={mainNavItems} onItemTap={handleNavTap} />
+      )}
+      <Snackbar
+        open={notice !== null}
+        autoHideDuration={5000}
+        onClose={clearNotice}
+        message={notice}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      />
       {isAddBookOpen && (
         <AddBookModal
           initialStep={initialStep}

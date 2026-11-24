@@ -6,11 +6,13 @@ import type { NavItem } from "../navItems";
 
 interface BottomNavProps {
   items: NavItem[];
+  // Avisa de cada sección pulsada, sin cambiar a dónde lleva.
+  onItemTap?: (itemId: string) => void;
 }
 
 export const BOTTOM_NAV_HEIGHT = 56;
 
-const BottomNav = ({ items }: BottomNavProps) => (
+const BottomNav = ({ items, onItemTap }: BottomNavProps) => (
   <Box
     component="nav"
     aria-label="Navegación principal"
@@ -32,7 +34,11 @@ const BottomNav = ({ items }: BottomNavProps) => (
         {index === Math.ceil(items.length / 2) && (
           <BookmarkButton placement="bottom" />
         )}
-        <NavItemLink item={item} placement="bottom" />
+        <NavItemLink
+          item={item}
+          placement="bottom"
+          onClick={() => onItemTap?.(item.id)}
+        />
       </Fragment>
     ))}
   </Box>
