@@ -6,7 +6,9 @@ import OptionList from "../../../../components/ui/OptionList/OptionList";
 import type { ExternalBook } from "../../dto/ExternalBook";
 import ConfirmBookStep from "../ConfirmBookStep/ConfirmBookStep";
 import { useHasCamera } from "../../hooks/useHasCamera";
+import CompleteBookStep from "../CompleteBookStep/CompleteBookStep";
 import IsbnStep from "../IsbnStep/IsbnStep";
+import { isPoorBook } from "../../utils/completeBook";
 import ScanStep from "../ScanStep/ScanStep";
 import SearchStep from "../SearchStep/SearchStep";
 
@@ -27,6 +29,7 @@ type Step =
   | { name: "isbn"; isbn?: string; autoLookup?: boolean }
   | { name: "search"; query?: string }
   | { name: "manual"; isbn?: string; back: Step }
+  | { name: "complete"; book: ExternalBook; back: Step }
   | { name: "confirm"; book: ExternalBook; back: Step };
 
 const headings: Record<Step["name"], { title: string; subtitle: string }> = {
@@ -49,6 +52,10 @@ const headings: Record<Step["name"], { title: string; subtitle: string }> = {
   manual: {
     title: "Añade los datos",
     subtitle: "Título, autor/a y editorial son obligatorios.",
+  },
+  complete: {
+    title: "Completa los datos",
+    subtitle: "Hemos encontrado el ISBN, pero con pocos datos.",
   },
   confirm: {
     title: "Confirma los datos",
@@ -222,14 +229,15 @@ const AddBookModal = ({
           <IsbnStep
             initialIsbn={step.isbn}
             autoLookup={step.autoLookup}
-            onBookFound={(book) =>
-              setStep({
-                name: "confirm",
-                book,
-                // Volver no debe repetir la consulta automática.
-                back: { name: "isbn", isbn: step.isbn },
-              })
-            }
+            onBookFound={(book) => {
+              // Volver no debe repetir la consulta automática.
+              const back: Step = { name: "isbn", isbn: step.isbn };
+              setStep(
+                isPoorBook(book)
+                  ? { name: "complete", book, back }
+                  : { name: "confirm", book, back },
+              );
+            }}
             onManualEntry={(isbn) =>
               setStep({
                 name: "manual",
@@ -267,6 +275,17 @@ const AddBookModal = ({
             isManual
             mode={mode}
             onSaved={handleSaved}
+          />
+        )}
+        {step.name === "complete" && (
+          <CompleteBookStep
+            book={step.book}
+            onChosen={(book) =>
+              setStep({ name: "confirm", book, back: step.back })
+            }
+            onSkip={() =>
+              setStep({ name: "confirm", book: step.book, back: step.back })
+            }
           />
         )}
         {step.name === "confirm" && (
