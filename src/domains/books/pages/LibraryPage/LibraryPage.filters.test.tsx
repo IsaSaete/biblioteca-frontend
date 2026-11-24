@@ -524,8 +524,11 @@ describe("Given the lent filter of the library", () => {
         expect(requests.some((p) => p.get("lent") === "true")).toBe(true),
       );
 
+      // El botón con el número de libros se pinta cuando llega la respuesta: se
+      // espera a que aparezca en vez de buscarlo de golpe (con la CI cargada
+      // llegaba tarde y el test fallaba de forma intermitente).
       await user.click(
-        within(sheet).getByRole("button", { name: "Ver 1 libro" }),
+        await within(sheet).findByRole("button", { name: "Ver 1 libro" }),
       );
       await user.click(
         await screen.findByRole("button", {
