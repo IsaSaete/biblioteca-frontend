@@ -60,7 +60,7 @@ describe("Given a successful barcode read", () => {
   });
 
   describe("When the browser can vibrate (Android)", () => {
-    it("Then it vibrates and does not use the iPhone haptic trick", async () => {
+    it("Then it vibrates", async () => {
       const vibrate = vi.fn();
       stubVibrate(vibrate);
       const { signalScanSuccess } = await loadModule();
@@ -68,28 +68,16 @@ describe("Given a successful barcode read", () => {
       signalScanSuccess();
 
       expect(vibrate).toHaveBeenCalledWith(80);
-      expect(document.querySelector("input[switch]")).toBeNull();
     });
   });
 
   describe("When the browser cannot vibrate (iPhone)", () => {
-    it("Then it activates the hidden switch that makes iOS give a haptic tick", async () => {
+    it("Then it does not add anything to the page", async () => {
       const { signalScanSuccess } = await loadModule();
 
       signalScanSuccess();
 
-      const input = document.querySelector<HTMLInputElement>("input[switch]");
-      expect(input).not.toBeNull();
-      expect(input?.checked).toBe(true);
-    });
-
-    it("Then it reuses the same switch on the next read", async () => {
-      const { signalScanSuccess } = await loadModule();
-
-      signalScanSuccess();
-      signalScanSuccess();
-
-      expect(document.querySelectorAll("input[switch]")).toHaveLength(1);
+      expect(document.body.children).toHaveLength(0);
     });
   });
 
@@ -118,13 +106,12 @@ describe("Given a successful barcode read", () => {
   });
 
   describe("When the scanner opens", () => {
-    it("Then it prepares the switch and unlocks the audio", async () => {
+    it("Then it unlocks the audio", async () => {
       const { resume } = stubAudioContext("suspended");
       const { primeScanFeedback } = await loadModule();
 
       primeScanFeedback();
 
-      expect(document.querySelector("input[switch]")).not.toBeNull();
       expect(resume).toHaveBeenCalled();
     });
   });

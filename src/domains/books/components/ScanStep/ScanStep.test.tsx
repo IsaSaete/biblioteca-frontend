@@ -166,7 +166,7 @@ describe("Given the barcode scan step", () => {
   });
 
   describe("When the scanner opens", () => {
-    it("Then it prepares the vibration and the sound right away", async () => {
+    it("Then it unlocks the sound right away", async () => {
       renderScan();
       await screen.findByText("Apunta al código de barras del libro.");
 
