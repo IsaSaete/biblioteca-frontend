@@ -37,10 +37,10 @@ const BookDataSection = ({ isEditing }: BookDataSectionProps) => {
             {...field("title", validationHandlers("title"))}
           />
           <FloatingLabelInput
-            label="Autores"
+            label="Autores/as"
             error={!!errors.authors}
             helperText={
-              errors.authors?.message ?? "Separa varios autores con comas."
+              errors.authors?.message ?? "Separa varios autores/as con comas."
             }
             {...field("authors", validationHandlers("authors"))}
           />
