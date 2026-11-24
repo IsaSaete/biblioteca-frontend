@@ -44,11 +44,11 @@ const headings: Record<Step["name"], { title: string; subtitle: string }> = {
   },
   search: {
     title: "Busca un libro",
-    subtitle: "Escribe su título o el nombre del autor.",
+    subtitle: "Escribe su título o el nombre del autor/a.",
   },
   manual: {
     title: "Añade los datos",
-    subtitle: "Título, autor y editorial son obligatorios.",
+    subtitle: "Título, autor/a y editorial son obligatorios.",
   },
   confirm: {
     title: "Confirma los datos",
@@ -199,7 +199,7 @@ const AddBookModal = ({
               },
               {
                 icon: <SearchIcon />,
-                label: "Buscar por título o autor",
+                label: "Buscar por título o autor/a",
                 onClick: () => setStep({ name: "search" }),
               },
               {
