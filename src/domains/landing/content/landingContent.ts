@@ -50,7 +50,7 @@ export const addBookContent = {
     {
       icon: "search",
       color: 6,
-      name: "Buscando por título o autor",
+      name: "Buscando por título o autor/a",
       hint: "Si no tienes código de barras ni ISBN",
     },
     {
@@ -61,7 +61,7 @@ export const addBookContent = {
     },
   ],
   sources:
-    "Glosa busca el título, el autor, la portada y la editorial por ti. Si falta algún dato, lo completas tú.",
+    "Glosa busca el título, el autor/a, la portada y la editorial por ti. Si falta algún dato, lo completas tú.",
 } as const;
 
 export const tagsContent = {
