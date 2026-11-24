@@ -30,3 +30,9 @@ export const completeBook = (
   ...(!book.categories?.length &&
     found.categories?.length && { categories: found.categories }),
 });
+
+// Ficha pobre: el ISBN existe en el catálogo pero casi vacío (a veces solo el
+// título y el año). Entonces se ofrece completarla con las fichas que salen al
+// buscar por título.
+export const isPoorBook = (book: ExternalBook): boolean =>
+  book.authors.length === 0 || (!book.publisher && !book.coverUrl);
