@@ -58,6 +58,7 @@ export const quotesApi = createApi({
 
 export const {
   useGetQuotesQuery,
+  useLazyGetQuotesQuery,
   useGetQuoteQuery,
   useGetQuoteBooksQuery,
   useCreateQuoteMutation,

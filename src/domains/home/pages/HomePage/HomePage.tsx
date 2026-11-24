@@ -3,6 +3,7 @@ import { useDocumentTitle } from "../../../../hooks/useDocumentTitle";
 import { visuallyHidden } from "../../../../utils/visuallyHidden";
 import LatestQuotesSection from "../../components/LatestQuotesSection/LatestQuotesSection";
 import RecentBooksSection from "../../components/RecentBooksSection/RecentBooksSection";
+import ShakeSuggestion from "../../components/ShakeSuggestion/ShakeSuggestion";
 import StatsSection from "../../components/StatsSection/StatsSection";
 
 // Inicio (HU-32, 34 y 35): libros recientes, últimas citas y tres cifras, en
@@ -29,6 +30,7 @@ const HomePage = () => {
       <RecentBooksSection />
       <LatestQuotesSection />
       <StatsSection />
+      <ShakeSuggestion />
     </Box>
   );
 };

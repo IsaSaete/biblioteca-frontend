@@ -1,5 +1,6 @@
 import { render } from "@testing-library/react";
-import { SHAKE_OPTIONS, useShake } from "./useShake";
+import { shakeThePhone } from "../../../test/shakeThePhone";
+import { useShake } from "./useShake";
 
 interface ProbeProps {
   onShake: () => void;
@@ -10,23 +11,6 @@ const Probe = ({ onShake, isEnabled }: ProbeProps) => {
   useShake(onShake, isEnabled);
 
   return null;
-};
-
-// jsdom no tiene `DeviceMotionEvent`: se simula con un evento normal que lleva
-// la aceleración.
-const move = (x: number) => {
-  const event = new Event("devicemotion");
-  Object.assign(event, { accelerationIncludingGravity: { x, y: 0, z: 9.8 } });
-  window.dispatchEvent(event);
-};
-
-const shakeThePhone = async () => {
-  for (const x of [0, 40, -40, 40, -40]) {
-    move(x);
-    await new Promise((resolve) =>
-      setTimeout(resolve, SHAKE_OPTIONS.minGapMs + 10),
-    );
-  }
 };
 
 describe("Given a component that listens for shakes", () => {
