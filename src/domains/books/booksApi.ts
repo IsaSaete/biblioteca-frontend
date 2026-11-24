@@ -6,6 +6,7 @@ import type { ExternalBook } from "./dto/ExternalBook";
 import type { GetBookTagsResponse } from "./dto/GetBookTagsResponse";
 import type { GetBooksParams } from "./dto/GetBooksParams";
 import type { GetBooksResponse } from "./dto/GetBooksResponse";
+import type { GetRandomBookParams } from "./dto/GetRandomBookParams";
 import type { LibraryBook } from "./dto/LibraryBook";
 import type { LookupIsbnResponse } from "./dto/LookupIsbnResponse";
 import type { UpdateEjemplarRequest } from "./dto/UpdateEjemplarRequest";
@@ -44,6 +45,17 @@ export const booksApi = createApi({
       transformResponse: (response: BookEntry) =>
         mapBookEntryToLibraryBook(response),
       providesTags: (_result, _error, bookId) => [{ type: "Book", id: bookId }],
+    }),
+    // Un libro al azar de la biblioteca, nunca uno prestado (huevo de Pascua de
+    // agitar el móvil). No se guarda en caché: cada llamada debe poder dar otro.
+    getRandomBook: builder.query<LibraryBook, GetRandomBookParams | void>({
+      query: (params) => ({
+        url: "/books/random",
+        params: params ?? undefined,
+      }),
+      transformResponse: (response: BookEntry) =>
+        mapBookEntryToLibraryBook(response),
+      keepUnusedDataFor: 0,
     }),
     // Cada consulta gasta cuota del proveedor (30/min por usuario): se usan los
     // hooks `lazy` para lanzarlas solo con un ISBN completo, y la caché evita
@@ -111,6 +123,7 @@ export const {
   useGetBooksQuery,
   useGetBookTagsQuery,
   useGetBookQuery,
+  useLazyGetRandomBookQuery,
   useLazyLookupIsbnQuery,
   useSearchExternalQuery,
   useCreateBookMutation,
