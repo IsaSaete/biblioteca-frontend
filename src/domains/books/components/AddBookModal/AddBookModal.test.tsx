@@ -175,6 +175,17 @@ describe("Given the add book flow", () => {
       await openIsbnStep(user);
       await user.type(screen.getByLabelText("ISBN"), "9788437604947");
       await user.click(screen.getByRole("button", { name: "Buscar libro" }));
+      // Sin editorial ni portada es una ficha pobre: se ofrece completarla.
+      server.use(
+        http.get(`${baseUrl}/books/search-external`, () =>
+          HttpResponse.json({ results: [] }),
+        ),
+      );
+      await user.click(
+        await screen.findByRole("button", {
+          name: "Ninguno, seguir con estos datos",
+        }),
+      );
 
       await user.click(
         await screen.findByRole("button", { name: "Añadir a mi biblioteca" }),
@@ -182,6 +193,126 @@ describe("Given the add book flow", () => {
 
       expect(screen.getByLabelText("Editorial")).toBeInvalid();
       expect(screen.getByText("Escribe la editorial")).toBeInTheDocument();
+    });
+  });
+
+  describe("When the ISBN is known but its record has almost no data", () => {
+    const poorBook = {
+      isbn: "9791387748791",
+      title: "El pensamiento musical",
+      authors: [],
+      publishedYear: 2024,
+    };
+    const fullBook = {
+      isbn: "9788418733000",
+      title: "El pensamiento musical",
+      authors: ["Susan Rogers", "Ogi Ogas"],
+      publisher: "Blackie Books",
+      coverUrl: "https://books.google.com/full.jpg",
+      coverSource: "google_books",
+    };
+
+    const searchPoorIsbn = async (
+      user: ReturnType<typeof renderRoutes>["user"],
+    ) => {
+      await openIsbnStep(user);
+      await user.type(screen.getByLabelText("ISBN"), "9791387748791");
+      await user.click(screen.getByRole("button", { name: "Buscar libro" }));
+    };
+
+    it("Then it offers the records found by title and saves the chosen one with the original ISBN and its cover", async () => {
+      mockLookup(poorBook);
+      let body: unknown;
+      server.use(
+        http.get(`${baseUrl}/books/search-external`, () =>
+          HttpResponse.json({
+            results: [
+              { book: fullBook },
+              { book: { title: "Otro", authors: ["Alguien"] } },
+            ],
+          }),
+        ),
+        http.post(`${baseUrl}/books`, async ({ request }) => {
+          body = await request.json();
+          return HttpResponse.json(
+            {
+              book: { ...fullBook, id: "book-9" },
+              ejemplar: {
+                id: "e-9",
+                bookId: "book-9",
+                status: "pending",
+                createdAt: "2026-11-24T10:00:00.000Z",
+              },
+            },
+            { status: 201 },
+          );
+        }),
+      );
+      const { user } = renderRoutes(routes, ["/library"]);
+      await openIsbnStep(user);
+      await user.type(screen.getByLabelText("ISBN"), "9791387748791");
+      await user.click(screen.getByRole("button", { name: "Buscar libro" }));
+
+      expect(await screen.findByText("Completa los datos")).toBeInTheDocument();
+      await user.click(
+        await screen.findByRole("button", { name: /Blackie Books/ }),
+      );
+
+      expect(await screen.findByText("Confirma los datos")).toBeInTheDocument();
+      // Ficha completa: solo se confirma, sin campos.
+      expect(screen.getByText("Susan Rogers, Ogi Ogas")).toBeInTheDocument();
+      expect(screen.queryByLabelText("Editorial")).not.toBeInTheDocument();
+      await user.click(
+        screen.getByRole("button", { name: "Añadir a mi biblioteca" }),
+      );
+      await waitFor(() => expect(body).toBeDefined());
+      expect(body).toMatchObject({
+        isbn: "9791387748791",
+        authors: ["Susan Rogers", "Ogi Ogas"],
+        publisher: "Blackie Books",
+        publishedYear: 2024,
+        coverUrl: "https://books.google.com/full.jpg",
+        coverSource: "google_books",
+      });
+    });
+
+    it("Then it lets the user keep the data it had and fill in the rest", async () => {
+      mockLookup(poorBook);
+      server.use(
+        http.get(`${baseUrl}/books/search-external`, () =>
+          HttpResponse.json({ results: [{ book: fullBook }] }),
+        ),
+      );
+      const { user } = renderRoutes(routes, ["/library"]);
+
+      await searchPoorIsbn(user);
+      await user.click(
+        await screen.findByRole("button", {
+          name: "Ninguno, seguir con estos datos",
+        }),
+      );
+
+      expect(await screen.findByText("Confirma los datos")).toBeInTheDocument();
+      expect(screen.getByLabelText("Autor/a")).toBeInTheDocument();
+      expect(screen.getByLabelText("Editorial")).toBeInTheDocument();
+    });
+
+    it("Then it says when no other record has that title", async () => {
+      mockLookup(poorBook);
+      server.use(
+        http.get(`${baseUrl}/books/search-external`, () =>
+          HttpResponse.json({ results: [] }),
+        ),
+      );
+      const { user } = renderRoutes(routes, ["/library"]);
+
+      await searchPoorIsbn(user);
+
+      expect(
+        await screen.findByText(
+          "No hemos encontrado otras fichas con ese título.",
+        ),
+      ).toBeInTheDocument();
     });
   });
 
@@ -291,7 +422,7 @@ describe("Given the add book flow", () => {
       expect(body).toBeUndefined();
 
       await user.type(screen.getByLabelText("Título"), "Libro raro");
-      await user.type(screen.getByLabelText("Autores/as"), "Alguien, Otra");
+      await user.type(screen.getByLabelText("Autor/a"), "Alguien, Otra");
       await user.type(screen.getByLabelText("Editorial"), "Editorial X");
       await user.click(
         screen.getByRole("button", { name: "Añadir a mi biblioteca" }),
@@ -333,7 +464,7 @@ describe("Given the add book flow", () => {
         await screen.findByRole("button", { name: "Añadir manualmente" }),
       );
       await user.type(screen.getByLabelText("Título"), "Libro");
-      await user.type(screen.getByLabelText("Autores/as"), "Autor");
+      await user.type(screen.getByLabelText("Autor/a"), "Autor");
       await user.type(screen.getByLabelText("Editorial"), "Editorial");
       await user.click(
         screen.getByRole("button", { name: "Añadir a mi biblioteca" }),

@@ -51,7 +51,12 @@ const ConfirmBookStep = ({
     setAreDetailsExpanded,
     showFieldError,
     revealInvalidFields,
-  } = useConfirmBookForm(book, { startsEditing: isManual || !book.publisher });
+  } = useConfirmBookForm(book, {
+    // Campos abiertos solo si falta algo obligatorio: con la ficha completa,
+    // solo se confirma.
+    startsEditing:
+      isManual || !book.publisher || book.authors.length === 0 || !book.title,
+  });
   const { saveToLibrary, saveToWishlist, isCreating, isAdding } =
     useBookSaver(book);
   const [status, setStatus] = useState<BookStatus>("pending");

@@ -1,5 +1,5 @@
 import type { ExternalBook } from "../dto/ExternalBook";
-import { completeBook, needsCompletion } from "./completeBook";
+import { completeBook, isPoorBook, needsCompletion } from "./completeBook";
 
 const searchResult: ExternalBook = {
   isbn: "9788437604947",
@@ -87,6 +87,47 @@ describe("Given a search result and the book found by its ISBN", () => {
   describe("When the found book has nothing new", () => {
     it("Then the result stays as it was", () => {
       expect(completeBook(searchResult, searchResult)).toEqual(searchResult);
+    });
+  });
+});
+
+describe("Given a book found by ISBN", () => {
+  const complete: ExternalBook = {
+    title: "Rayuela",
+    authors: ["Julio Cortázar"],
+    publisher: "Cátedra",
+    coverUrl: "https://books.google.com/c.jpg",
+    coverSource: "google_books",
+  };
+
+  describe("When it has authors, publisher and cover", () => {
+    it("Then it is not a poor record", () => {
+      expect(isPoorBook(complete)).toBe(false);
+    });
+  });
+
+  describe("When it has no authors", () => {
+    it("Then it is a poor record", () => {
+      expect(isPoorBook({ ...complete, authors: [] })).toBe(true);
+    });
+  });
+
+  describe("When it has neither publisher nor cover", () => {
+    it("Then it is a poor record", () => {
+      const book: ExternalBook = {
+        title: complete.title,
+        authors: complete.authors,
+      };
+
+      expect(isPoorBook(book)).toBe(true);
+    });
+  });
+
+  describe("When it only lacks the cover", () => {
+    it("Then it is not a poor record", () => {
+      const book: ExternalBook = { ...complete, coverUrl: undefined };
+
+      expect(isPoorBook(book)).toBe(false);
     });
   });
 });
