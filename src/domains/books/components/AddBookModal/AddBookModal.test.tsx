@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { screen, waitFor } from "@testing-library/react";
-import { http, HttpResponse } from "msw";
+import { delay, http, HttpResponse } from "msw";
 import AppLayout from "../../../../components/navigation/AppLayout/AppLayout";
 import { renderRoutes } from "../../../../test/renderRoutes";
 import { server } from "../../../../test/server";
@@ -295,6 +295,29 @@ describe("Given the add book flow", () => {
       expect(await screen.findByText("Confirma los datos")).toBeInTheDocument();
       expect(screen.getByLabelText("Autor/a")).toBeInTheDocument();
       expect(screen.getByLabelText("Editorial")).toBeInTheDocument();
+    });
+
+    it("Then it only shows the loading while searching and then the message and the records together", async () => {
+      mockLookup(poorBook);
+      server.use(
+        http.get(`${baseUrl}/books/search-external`, async () => {
+          await delay(50);
+          return HttpResponse.json({ results: [{ book: fullBook }] });
+        }),
+      );
+      const { user } = renderRoutes(routes, ["/library"]);
+
+      await searchPoorIsbn(user);
+
+      expect(await screen.findByText("Buscando fichas…")).toBeInTheDocument();
+      expect(screen.queryByText(/Esta edición tiene pocos datos/)).toBeNull();
+      expect(
+        await screen.findByText(/Esta edición tiene pocos datos/),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Blackie Books/ }),
+      ).toBeInTheDocument();
+      expect(screen.queryByText("Buscando fichas…")).toBeNull();
     });
 
     it("Then it says when no other record has that title", async () => {

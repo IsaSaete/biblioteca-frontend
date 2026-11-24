@@ -1,4 +1,5 @@
 import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import Typography from "@mui/material/Typography";
@@ -45,6 +46,20 @@ const CompleteBookStep = ({
     });
   };
 
+  // Mientras busca solo se ve la carga: el mensaje y las fichas salen a la vez,
+  // para que el texto no parpadee y parezca que se pierde.
+  if (isFetching) {
+    return (
+      <Box
+        role="status"
+        sx={{ display: "grid", justifyItems: "center", gap: 3, py: 6 }}
+      >
+        <CircularProgress aria-hidden="true" />
+        <Typography color="text.secondary">Buscando fichas…</Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ display: "grid", gap: 5 }}>
       <Typography>
@@ -52,15 +67,15 @@ const CompleteBookStep = ({
         rellenaremos el libro con él.
       </Typography>
 
-      <Box role="status" aria-live="polite">
-        {(isFetching || isCompleting) && (
+      {isCompleting && (
+        <Box role="status">
           <Typography color="text.secondary">
-            {isCompleting ? "Buscando los datos del libro…" : "Buscando…"}
+            Buscando los datos del libro…
           </Typography>
-        )}
-      </Box>
+        </Box>
+      )}
 
-      {!isFetching && candidates.length === 0 && (
+      {candidates.length === 0 && (
         <Typography color="text.secondary">
           No hemos encontrado otras fichas con ese título.
         </Typography>
