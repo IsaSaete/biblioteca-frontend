@@ -34,9 +34,13 @@ describe("Given the camera to photograph a quote", () => {
   });
 
   describe("When the camera is ready", () => {
-    it("Then it offers the level, turned off", () => {
+    it("Then it advises about light, shadows and pencil underlining, and offers the level off", () => {
       renderCamera();
 
+      expect(screen.getByText(/buena luz, sin sombras/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/subrayado a lápiz confunde/),
+      ).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "Nivel" })).toHaveAttribute(
         "aria-pressed",
         "false",
@@ -45,7 +49,7 @@ describe("Given the camera to photograph a quote", () => {
   });
 
   describe("When the camera could not be opened", () => {
-    it("Then there is no level", () => {
+    it("Then there is neither the level nor the advice", () => {
       stubCamera("denied");
 
       renderCamera();
@@ -53,6 +57,7 @@ describe("Given the camera to photograph a quote", () => {
       expect(
         screen.queryByRole("button", { name: "Nivel" }),
       ).not.toBeInTheDocument();
+      expect(screen.queryByText(/buena luz/)).not.toBeInTheDocument();
     });
   });
 

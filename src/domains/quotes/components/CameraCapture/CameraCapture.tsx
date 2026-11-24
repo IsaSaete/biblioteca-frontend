@@ -179,6 +179,15 @@ const CameraCapture = ({ onCapture, onWrite }: CameraCaptureProps) => {
           {levelNotice}
         </Typography>
       )}
+      {!hasProblem && (
+        <Typography
+          color="text.secondary"
+          sx={{ textAlign: "center", fontSize: "0.875rem" }}
+        >
+          Se lee mejor con buena luz, sin sombras y con el libro recto. El
+          subrayado a lápiz confunde al lector: revisa el texto después.
+        </Typography>
+      )}
 
       {hasProblem ? (
         <Box sx={{ display: "grid", gap: 3 }}>
