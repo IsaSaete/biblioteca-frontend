@@ -5,7 +5,7 @@ import { useShakeActivation } from "./useShakeActivation";
 
 const requestMotionPermission = vi.hoisted(() => vi.fn());
 
-vi.mock("../utils/motionPermission", () => ({ requestMotionPermission }));
+vi.mock("../../../utils/motionPermission", () => ({ requestMotionPermission }));
 
 const Probe = () => {
   const { handleNavTap, notice } = useShakeActivation();

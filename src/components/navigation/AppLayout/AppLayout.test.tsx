@@ -5,7 +5,7 @@ import { setDesktopViewport } from "../../../test/setDesktopViewport";
 
 const requestMotionPermission = vi.hoisted(() => vi.fn());
 
-vi.mock("../../../domains/home/utils/motionPermission", () => ({
+vi.mock("../../../utils/motionPermission", () => ({
   requestMotionPermission,
 }));
 

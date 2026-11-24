@@ -49,3 +49,39 @@ describe("Given the permission to read the motion of the device", () => {
     });
   });
 });
+
+describe("Given the permission to read the tilt of the device", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  describe("When the browser has no orientation events", () => {
+    it("Then it is unsupported, even if it has motion events", async () => {
+      vi.stubGlobal("DeviceOrientationEvent", undefined);
+      vi.stubGlobal("DeviceMotionEvent", class {});
+
+      expect(await requestMotionPermission("orientation")).toBe("unsupported");
+    });
+  });
+
+  describe("When the browser asks for permission for the orientation (iPhone)", () => {
+    it("Then it asks that one and not the motion one", async () => {
+      const orientation = vi.fn().mockResolvedValue("granted");
+      const motion = vi.fn().mockResolvedValue("denied");
+      vi.stubGlobal("DeviceOrientationEvent", {
+        requestPermission: orientation,
+      });
+      vi.stubGlobal("DeviceMotionEvent", { requestPermission: motion });
+
+      expect(await requestMotionPermission("orientation")).toBe("granted");
+      expect(orientation).toHaveBeenCalledTimes(1);
+      expect(motion).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("When the browser does not ask for permission (Android)", () => {
+    it("Then it is granted", async () => {
+      vi.stubGlobal("DeviceOrientationEvent", class {});
+
+      expect(await requestMotionPermission("orientation")).toBe("granted");
+    });
+  });
+});
