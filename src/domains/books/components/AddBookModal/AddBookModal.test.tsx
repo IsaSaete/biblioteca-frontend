@@ -284,12 +284,14 @@ describe("Given the add book flow", () => {
         screen.getByRole("button", { name: "Añadir a mi biblioteca" }),
       );
       expect(screen.getByText("Escribe el título")).toBeInTheDocument();
-      expect(screen.getByText("Escribe al menos un autor")).toBeInTheDocument();
+      expect(
+        screen.getByText("Escribe al menos un autor/a"),
+      ).toBeInTheDocument();
       expect(screen.getByText("Escribe la editorial")).toBeInTheDocument();
       expect(body).toBeUndefined();
 
       await user.type(screen.getByLabelText("Título"), "Libro raro");
-      await user.type(screen.getByLabelText("Autores"), "Alguien, Otra");
+      await user.type(screen.getByLabelText("Autores/as"), "Alguien, Otra");
       await user.type(screen.getByLabelText("Editorial"), "Editorial X");
       await user.click(
         screen.getByRole("button", { name: "Añadir a mi biblioteca" }),
@@ -331,7 +333,7 @@ describe("Given the add book flow", () => {
         await screen.findByRole("button", { name: "Añadir manualmente" }),
       );
       await user.type(screen.getByLabelText("Título"), "Libro");
-      await user.type(screen.getByLabelText("Autores"), "Autor");
+      await user.type(screen.getByLabelText("Autores/as"), "Autor");
       await user.type(screen.getByLabelText("Editorial"), "Editorial");
       await user.click(
         screen.getByRole("button", { name: "Añadir a mi biblioteca" }),
@@ -368,7 +370,7 @@ describe("Given the add book flow", () => {
     ) => {
       await user.click(screen.getByRole("button", { name: "Añadir libro" }));
       await user.click(
-        screen.getByRole("button", { name: "Buscar por título o autor" }),
+        screen.getByRole("button", { name: "Buscar por título o autor/a" }),
       );
     };
 
@@ -383,11 +385,11 @@ describe("Given the add book flow", () => {
       const { user } = renderRoutes(routes, ["/library"]);
       await openSearchStep(user);
 
-      await user.type(screen.getByLabelText("Título o autor"), "ci");
+      await user.type(screen.getByLabelText("Título o autor/a"), "ci");
       await new Promise((resolve) => setTimeout(resolve, 600));
       expect(queries).toEqual([]);
 
-      await user.type(screen.getByLabelText("Título o autor"), "en");
+      await user.type(screen.getByLabelText("Título o autor/a"), "en");
       await screen.findByRole("button", { name: /Cien años de soledad/ });
       expect(queries).toEqual(["cien"]);
     });
@@ -411,7 +413,7 @@ describe("Given the add book flow", () => {
       );
       const { user } = renderRoutes(routes, ["/library"]);
       await openSearchStep(user);
-      await user.type(screen.getByLabelText("Título o autor"), "rayuela");
+      await user.type(screen.getByLabelText("Título o autor/a"), "rayuela");
 
       await user.click(await screen.findByRole("button", { name: /Rayuela/ }));
 
@@ -420,7 +422,7 @@ describe("Given the add book flow", () => {
 
       await user.click(screen.getByRole("button", { name: "Volver" }));
 
-      expect(screen.getByLabelText("Título o autor")).toHaveValue("rayuela");
+      expect(screen.getByLabelText("Título o autor/a")).toHaveValue("rayuela");
     });
 
     it("Then picking a result with ISBN but no publisher completes it from the ISBN lookup", async () => {
@@ -453,7 +455,7 @@ describe("Given the add book flow", () => {
       );
       const { user } = renderRoutes(routes, ["/library"]);
       await openSearchStep(user);
-      await user.type(screen.getByLabelText("Título o autor"), "rayuela");
+      await user.type(screen.getByLabelText("Título o autor/a"), "rayuela");
 
       await user.click(await screen.findByRole("button", { name: /Rayuela/ }));
 
@@ -485,7 +487,7 @@ describe("Given the add book flow", () => {
       );
       const { user } = renderRoutes(routes, ["/library"]);
       await openSearchStep(user);
-      await user.type(screen.getByLabelText("Título o autor"), "rayuela");
+      await user.type(screen.getByLabelText("Título o autor/a"), "rayuela");
 
       await user.click(await screen.findByRole("button", { name: /Rayuela/ }));
 
@@ -502,7 +504,7 @@ describe("Given the add book flow", () => {
       const { user } = renderRoutes(routes, ["/library"]);
       await openSearchStep(user);
 
-      await user.type(screen.getByLabelText("Título o autor"), "zzzzz");
+      await user.type(screen.getByLabelText("Título o autor/a"), "zzzzz");
 
       expect(
         await screen.findByText(
@@ -524,7 +526,7 @@ describe("Given the add book flow", () => {
       const { user } = renderRoutes(routes, ["/library"]);
       await openSearchStep(user);
 
-      await user.type(screen.getByLabelText("Título o autor"), "rayuela");
+      await user.type(screen.getByLabelText("Título o autor/a"), "rayuela");
 
       expect(await screen.findByRole("alert")).toHaveTextContent(
         "catálogos de libros",

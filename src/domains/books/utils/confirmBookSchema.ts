@@ -14,7 +14,7 @@ export const confirmBookSchema = z.object({
     .string()
     .refine(
       (value) => parseAuthors(value).length > 0,
-      "Escribe al menos un autor",
+      "Escribe al menos un autor/a",
     ),
   publisher: z.string().trim().min(1, "Escribe la editorial"),
   publishedYear: z

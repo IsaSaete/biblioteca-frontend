@@ -9,9 +9,9 @@ export const privacyContent: LegalContent = {
   lastUpdated: "18 de noviembre de 2026",
   sections: [
     {
-      heading: "Quién es el responsable",
+      heading: "Quién es la persona responsable",
       paragraphs: [
-        `El responsable de tus datos es ${legalContact.owner}, que desarrolla y mantiene Glosa como proyecto personal y gratuito.`,
+        `La persona responsable de tus datos es ${legalContact.owner}, que desarrolla y mantiene Glosa como proyecto personal y gratuito.`,
         `Puedes escribirle para cualquier duda o para ejercer tus derechos en ${legalContact.email}.`,
       ],
     },
@@ -56,7 +56,7 @@ export const privacyContent: LegalContent = {
     {
       heading: "Libros y portadas",
       paragraphs: [
-        "Cuando buscas un libro por ISBN, título o autor, nuestro servidor consulta Google Books y Open Library con esa búsqueda, sin tus datos de cuenta.",
+        "Cuando buscas un libro por ISBN, título o autor/a, nuestro servidor consulta Google Books y Open Library con esa búsqueda, sin tus datos de cuenta.",
         "Las portadas las descarga directamente tu navegador desde Google Books, Open Library o Internet Archive, que pueden ver tu dirección IP, como ocurre al cargar cualquier imagen de otra web.",
         "Las tipografías, el lector de códigos de barras y el lector de texto se sirven desde nuestro propio servidor: no se envía nada a terceros para usarlos.",
       ],
@@ -70,7 +70,7 @@ export const privacyContent: LegalContent = {
     {
       heading: "Cuánto tiempo los conservamos",
       paragraphs: [
-        "Mientras tengas cuenta. Si la eliminas desde Perfil, se borran de inmediato y de forma definitiva de la base de datos tu usuario, los libros que habías guardado, tus citas, tu lista de deseos y tu foto. Los datos de catálogo de un libro (título, autor, editorial…) no son personales y se mantienen porque los comparten todas las cuentas.",
+        "Mientras tengas cuenta. Si la eliminas desde Perfil, se borran de inmediato y de forma definitiva de la base de datos tu usuario, los libros que habías guardado, tus citas, tu lista de deseos y tu foto. Los datos de catálogo de un libro (título, autor/a, editorial…) no son personales y se mantienen porque los comparten todas las cuentas.",
         "Guardamos una copia de seguridad cifrada de la base de datos cada día, durante 30 días, para poder recuperarla si ocurre un error grave. Por eso los datos de una cuenta eliminada desaparecen también de las copias como máximo 30 días después.",
         "Los registros técnicos del servidor se conservan solo el tiempo limitado que establece el proveedor de alojamiento.",
       ],

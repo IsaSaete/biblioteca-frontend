@@ -57,7 +57,7 @@ const SearchStep = ({
   return (
     <Box sx={{ display: "grid", gap: 5 }}>
       <FloatingLabelInput
-        label="Título o autor"
+        label="Título o autor/a"
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         autoComplete="off"
