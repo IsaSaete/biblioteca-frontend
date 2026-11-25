@@ -320,6 +320,101 @@ describe("Given the add book flow", () => {
       expect(screen.queryByText("Buscando fichas…")).toBeNull();
     });
 
+    describe("and only the cover is missing", () => {
+      const noCoverBook = {
+        isbn: "9788448025434",
+        title: "Las chicas son rockeras",
+        authors: ["Miguel Ángel Bargueño"],
+        publisher: "Libros Cúpula",
+      };
+
+      it("Then it offers records with a cover and keeps the data of the edition", async () => {
+        mockLookup(noCoverBook);
+        server.use(
+          http.get(`${baseUrl}/books/search-external`, () =>
+            HttpResponse.json({
+              results: [
+                { book: noCoverBook },
+                {
+                  book: {
+                    isbn: "9788448025489",
+                    title: "Las chicas son rockeras",
+                    authors: ["M. A. Bargueño"],
+                    publisher: "Otra editorial",
+                    coverUrl: "https://books.google.com/other.jpg",
+                    coverSource: "google_books",
+                  },
+                },
+              ],
+            }),
+          ),
+        );
+        let body: unknown;
+        server.use(
+          http.post(`${baseUrl}/books`, async ({ request }) => {
+            body = await request.json();
+            return HttpResponse.json(
+              {
+                book: { ...noCoverBook, id: "book-7" },
+                ejemplar: {
+                  id: "e-7",
+                  bookId: "book-7",
+                  status: "pending",
+                  createdAt: "2026-11-25T10:00:00.000Z",
+                },
+              },
+              { status: 201 },
+            );
+          }),
+        );
+        const { user } = renderRoutes(routes, ["/library"]);
+        await openIsbnStep(user);
+        await user.type(screen.getByLabelText("ISBN"), "9788448025434");
+        await user.click(screen.getByRole("button", { name: "Buscar libro" }));
+
+        expect(
+          await screen.findByText(/No hemos encontrado la portada/),
+        ).toBeInTheDocument();
+        // La ficha con el mismo ISBN no se ofrece.
+        expect(
+          screen.getAllByRole("button", { name: /Las chicas/ }),
+        ).toHaveLength(1);
+        await user.click(
+          screen.getByRole("button", { name: /Otra editorial/ }),
+        );
+        await user.click(
+          await screen.findByRole("button", { name: "Añadir a mi biblioteca" }),
+        );
+
+        await waitFor(() => expect(body).toBeDefined());
+        expect(body).toMatchObject({
+          isbn: "9788448025434",
+          authors: ["Miguel Ángel Bargueño"],
+          publisher: "Libros Cúpula",
+          coverUrl: "https://books.google.com/other.jpg",
+          coverSource: "google_books",
+        });
+      });
+
+      it("Then it goes straight to confirm when no record has a cover", async () => {
+        mockLookup(noCoverBook);
+        server.use(
+          http.get(`${baseUrl}/books/search-external`, () =>
+            HttpResponse.json({ results: [{ book: noCoverBook }] }),
+          ),
+        );
+        const { user } = renderRoutes(routes, ["/library"]);
+        await openIsbnStep(user);
+        await user.type(screen.getByLabelText("ISBN"), "9788448025434");
+        await user.click(screen.getByRole("button", { name: "Buscar libro" }));
+
+        expect(
+          await screen.findByText("Confirma los datos"),
+        ).toBeInTheDocument();
+        expect(screen.getByText("Libros Cúpula")).toBeInTheDocument();
+      });
+    });
+
     it("Then it says when no other record has that title", async () => {
       mockLookup(poorBook);
       server.use(
