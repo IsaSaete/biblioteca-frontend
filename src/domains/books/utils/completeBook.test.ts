@@ -1,5 +1,10 @@
 import type { ExternalBook } from "../dto/ExternalBook";
-import { completeBook, isPoorBook, needsCompletion } from "./completeBook";
+import {
+  completeBook,
+  isIncompleteBook,
+  isMissingOnlyCover,
+  needsCompletion,
+} from "./completeBook";
 
 const searchResult: ExternalBook = {
   isbn: "9788437604947",
@@ -101,33 +106,46 @@ describe("Given a book found by ISBN", () => {
   };
 
   describe("When it has authors, publisher and cover", () => {
-    it("Then it is not a poor record", () => {
-      expect(isPoorBook(complete)).toBe(false);
+    it("Then it is not an incomplete record", () => {
+      expect(isIncompleteBook(complete)).toBe(false);
     });
   });
 
   describe("When it has no authors", () => {
-    it("Then it is a poor record", () => {
-      expect(isPoorBook({ ...complete, authors: [] })).toBe(true);
+    it("Then it is an incomplete record", () => {
+      expect(isIncompleteBook({ ...complete, authors: [] })).toBe(true);
     });
   });
 
   describe("When it has neither publisher nor cover", () => {
-    it("Then it is a poor record", () => {
+    it("Then it is an incomplete record", () => {
       const book: ExternalBook = {
         title: complete.title,
         authors: complete.authors,
       };
 
-      expect(isPoorBook(book)).toBe(true);
+      expect(isIncompleteBook(book)).toBe(true);
     });
   });
 
   describe("When it only lacks the cover", () => {
-    it("Then it is not a poor record", () => {
+    it("Then it is an incomplete record and only the cover is missing", () => {
       const book: ExternalBook = { ...complete, coverUrl: undefined };
 
-      expect(isPoorBook(book)).toBe(false);
+      expect(isIncompleteBook(book)).toBe(true);
+      expect(isMissingOnlyCover(book)).toBe(true);
+    });
+  });
+
+  describe("When it lacks the cover and the publisher", () => {
+    it("Then not only the cover is missing", () => {
+      const book: ExternalBook = {
+        ...complete,
+        coverUrl: undefined,
+        publisher: undefined,
+      };
+
+      expect(isMissingOnlyCover(book)).toBe(false);
     });
   });
 });

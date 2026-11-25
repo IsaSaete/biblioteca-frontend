@@ -31,8 +31,12 @@ export const completeBook = (
     found.categories?.length && { categories: found.categories }),
 });
 
-// Ficha pobre: el ISBN existe en el catálogo pero casi vacío (a veces solo el
-// título y el año). Entonces se ofrece completarla con las fichas que salen al
-// buscar por título.
-export const isPoorBook = (book: ExternalBook): boolean =>
-  book.authors.length === 0 || (!book.publisher && !book.coverUrl);
+// Ficha incompleta: al ISBN le falta el autor/a, la editorial o la portada (a
+// veces solo trae el título y el año). Entonces se ofrece completarla con las
+// fichas que salen al buscar por título.
+export const isIncompleteBook = (book: ExternalBook): boolean =>
+  book.authors.length === 0 || !book.publisher || !book.coverUrl;
+
+// Solo falta la portada: autor/a y editorial ya están, y se quieren conservar.
+export const isMissingOnlyCover = (book: ExternalBook): boolean =>
+  book.authors.length > 0 && Boolean(book.publisher) && !book.coverUrl;
