@@ -4,9 +4,14 @@ import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import Typography from "@mui/material/Typography";
 import Button from "../../../../components/ui/Button/Button";
+import { useEffect } from "react";
 import { useLazyLookupIsbnQuery, useSearchExternalQuery } from "../../booksApi";
 import type { ExternalBook } from "../../dto/ExternalBook";
-import { completeBook, needsCompletion } from "../../utils/completeBook";
+import {
+  completeBook,
+  isMissingOnlyCover,
+  needsCompletion,
+} from "../../utils/completeBook";
 import BookCover from "../BookCover/BookCover";
 
 const MAX_CANDIDATES = 3;
@@ -29,7 +34,23 @@ const CompleteBookStep = ({
 }: CompleteBookStepProps) => {
   const { data, isFetching } = useSearchExternalQuery(book.title);
   const [lookupIsbn, { isFetching: isCompleting }] = useLazyLookupIsbnQuery();
-  const candidates = (data ?? []).slice(0, MAX_CANDIDATES);
+  const onlyCoverMissing = isMissingOnlyCover(book);
+  // Una ficha con el mismo ISBN no aporta nada, y si solo falta la portada
+  // vale la pena ver solo las que la traen.
+  const candidates = (data ?? [])
+    .filter(
+      (candidate) =>
+        candidate.isbn !== book.isbn &&
+        (!onlyCoverMissing || candidate.coverUrl),
+    )
+    .slice(0, MAX_CANDIDATES);
+
+  // Si solo falta la portada y nadie la tiene, no hay nada que elegir.
+  useEffect(() => {
+    if (onlyCoverMissing && !isFetching && candidates.length === 0) {
+      onSkip();
+    }
+  }, [onlyCoverMissing, isFetching, candidates.length, onSkip]);
 
   const handleChoose = async (candidate: ExternalBook) => {
     let chosen = candidate;
@@ -37,6 +58,12 @@ const CompleteBookStep = ({
     if (needsCompletion(candidate) && candidate.isbn) {
       const result = await lookupIsbn(candidate.isbn, true);
       chosen = result.data ? completeBook(candidate, result.data) : candidate;
+    }
+
+    // Si ya tenía autor/a y editorial, se conservan: solo se toma lo que falta.
+    if (onlyCoverMissing) {
+      onChosen(completeBook(book, chosen));
+      return;
     }
 
     // Lo que solo sabía la ficha del ISBN (año, idioma…) no se pierde.
@@ -63,8 +90,9 @@ const CompleteBookStep = ({
   return (
     <Box sx={{ display: "grid", gap: 5 }}>
       <Typography>
-        Esta edición tiene pocos datos. ¿Es alguno de estos? Elígelo y
-        rellenaremos el libro con él.
+        {onlyCoverMissing
+          ? "No hemos encontrado la portada de esta edición. ¿Es alguno de estos? Elígelo y le pondremos su portada."
+          : "Esta edición tiene pocos datos. ¿Es alguno de estos? Elígelo y rellenaremos el libro con él."}
       </Typography>
 
       {isCompleting && (

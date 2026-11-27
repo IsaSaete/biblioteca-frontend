@@ -8,7 +8,7 @@ import ConfirmBookStep from "../ConfirmBookStep/ConfirmBookStep";
 import { useHasCamera } from "../../hooks/useHasCamera";
 import CompleteBookStep from "../CompleteBookStep/CompleteBookStep";
 import IsbnStep from "../IsbnStep/IsbnStep";
-import { isPoorBook } from "../../utils/completeBook";
+import { isIncompleteBook } from "../../utils/completeBook";
 import ScanStep from "../ScanStep/ScanStep";
 import SearchStep from "../SearchStep/SearchStep";
 
@@ -55,7 +55,7 @@ const headings: Record<Step["name"], { title: string; subtitle: string }> = {
   },
   complete: {
     title: "Completa los datos",
-    subtitle: "Hemos encontrado el ISBN, pero con pocos datos.",
+    subtitle: "Hemos encontrado el ISBN, pero faltan datos.",
   },
   confirm: {
     title: "Confirma los datos",
@@ -233,7 +233,7 @@ const AddBookModal = ({
               // Volver no debe repetir la consulta automática.
               const back: Step = { name: "isbn", isbn: step.isbn };
               setStep(
-                isPoorBook(book)
+                isIncompleteBook(book)
                   ? { name: "complete", book, back }
                   : { name: "confirm", book, back },
               );
