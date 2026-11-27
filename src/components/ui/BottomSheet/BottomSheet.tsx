@@ -87,6 +87,10 @@ const BottomSheet = ({
     anchor="bottom"
     open={open}
     onClose={onClose}
+    // Por encima de los modales a pantalla completa (Dialog, 1300): el Drawer
+    // por defecto queda a 1200 y una confirmación abierta desde una hoja de
+    // móvil se abriría detrás, sin poder pulsarla.
+    sx={(theme) => ({ zIndex: theme.zIndex.modal + 1 })}
     slotProps={{
       paper: {
         role: "dialog",
