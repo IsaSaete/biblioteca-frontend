@@ -27,11 +27,24 @@ describe("Given a search result", () => {
     });
   });
 
-  describe("When it has publisher and authors", () => {
-    it("Then it does not need to be completed", () => {
+  describe("When it has an ISBN, publisher and authors but no cover", () => {
+    it("Then it needs to be completed", () => {
       expect(needsCompletion({ ...searchResult, publisher: "Cátedra" })).toBe(
-        false,
+        true,
       );
+    });
+  });
+
+  describe("When it has publisher, authors and cover", () => {
+    it("Then it does not need to be completed", () => {
+      expect(
+        needsCompletion({
+          ...searchResult,
+          publisher: "Cátedra",
+          coverUrl: "https://books.google.com/cover.jpg",
+          coverSource: "google_books",
+        }),
+      ).toBe(false);
     });
   });
 
