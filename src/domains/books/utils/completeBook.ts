@@ -1,10 +1,12 @@
 import type { ExternalBook } from "../dto/ExternalBook";
 
 // La búsqueda por título casi nunca trae la editorial (Google) o nunca la trae
-// (Open Library), y a veces tampoco el autor. Si el resultado tiene ISBN, se
-// puede completar con `lookup-isbn`, que consulta al otro proveedor (D-047).
+// (Open Library), y a veces tampoco el autor ni la portada. Si el resultado
+// tiene ISBN, se puede completar con `lookup-isbn`, que consulta al otro
+// proveedor (D-047).
 export const needsCompletion = (book: ExternalBook): boolean =>
-  Boolean(book.isbn) && (!book.publisher || book.authors.length === 0);
+  Boolean(book.isbn) &&
+  (!book.publisher || book.authors.length === 0 || !book.coverUrl);
 
 // Rellena solo lo que falta en `book` con lo que trae `found`: nunca pisa un
 // dato que ya estaba. La portada y su origen van siempre juntos.
