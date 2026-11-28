@@ -136,6 +136,13 @@ const SearchStep = ({
                 <Typography color="text.secondary">
                   {book.authors.join(", ")}
                 </Typography>
+                {(book.publisher || book.publishedYear) && (
+                  <Typography color="text.secondary" variant="caption">
+                    {[book.publisher, book.publishedYear]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </Typography>
+                )}
               </Box>
             </ListItemButton>
           ))}

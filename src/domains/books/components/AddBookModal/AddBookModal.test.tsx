@@ -643,6 +643,44 @@ describe("Given the add book flow", () => {
       expect(queries).toEqual(["cien"]);
     });
 
+    it("Then each result shows its publisher and year to tell the editions apart", async () => {
+      server.use(
+        http.get(`${baseUrl}/books/search-external`, () =>
+          HttpResponse.json({
+            results: [
+              {
+                book: {
+                  isbn: "9788494218514",
+                  title: "María República",
+                  authors: ["Agustin Gomez-Arcos"],
+                  publisher: "Cabaret Voltaire",
+                  publishedYear: 2014,
+                },
+              },
+              {
+                book: {
+                  isbn: "9782020065610",
+                  title: "Maria Republica",
+                  authors: ["Agustin Gomez-Arcos"],
+                  publisher: "Seuil",
+                  publishedYear: 1983,
+                },
+              },
+            ],
+          }),
+        ),
+      );
+      const { user } = renderRoutes(routes, ["/library"]);
+      await openSearchStep(user);
+
+      await user.type(screen.getByLabelText("Título o autor/a"), "maria");
+
+      expect(
+        await screen.findByText("Cabaret Voltaire · 2014"),
+      ).toBeInTheDocument();
+      expect(screen.getByText("Seuil · 1983")).toBeInTheDocument();
+    });
+
     it("Then picking a result without publisher asks for it, and going back keeps the search", async () => {
       server.use(
         http.get(`${baseUrl}/books/search-external`, () =>
